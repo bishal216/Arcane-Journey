@@ -152,7 +152,6 @@
     <ClCompile Include="ModeSelect.cpp" />
     <ClCompile Include="OpenAnim.cpp" />
     <ClCompile Include="Playerselect.cpp" />
-    <ClCompile Include="SoundEff.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="character.h" />
@@ -164,6 +163,7 @@
     <ClInclude Include="Playerselect.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SoundEff.h" />
+    <ClInclude Include="stats.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Arcane Journey.rc" />

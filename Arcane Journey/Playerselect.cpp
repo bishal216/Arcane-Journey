@@ -1,22 +1,13 @@
-
-//C++ headers
 #include<iostream>
-
-//SFML headers
 #include <SFML/Graphics.hpp>
-//C++ Classes
 #include "Playerselect.h"
-
-//Destructor
-Playerselect::~Playerselect() {}
 
 //ModeOptions
 void Playerselect::selected()
 {
-    ////Load Font
+    //Load Font
     sf::Font font1;
     font1.loadFromFile("Font/Font1.otf");
-    float ypos = 400.0f;
 
     //SFML BG-Texture
     sf::Texture mode_bg;
@@ -30,12 +21,12 @@ void Playerselect::selected()
     sf::Texture melee;
     std::string meleeidle = "Texture/03CharSel/idle_melee.png";
     std::string meleehover = "Texture/03CharSel/hover_melee.png"; 
-    if (hovereffect(300, ypos, 300, 300) == true)
+    if (hovereffect(300, 400, 300, 300) == true)
         melee.loadFromFile(meleehover);
     else
         melee.loadFromFile(meleeidle);
     sf::RectangleShape meleerect(sf::Vector2f(300, 300));
-    meleerect.setPosition(sf::Vector2f(300, ypos));
+    meleerect.setPosition(sf::Vector2f(300, 400));
     meleerect.setTexture(&melee);
 
 
@@ -44,24 +35,24 @@ void Playerselect::selected()
     sf::Texture range;
     std::string rangeidle = "Texture/03CharSel/arch_idle.png";
     std::string rangehover = "Texture/03CharSel/arch_hover.png";
-    if (hovereffect(800, ypos, 300, 300) == true)
+    if (hovereffect(800, 400, 300, 300) == true)
         range.loadFromFile(rangehover);
     else
         range.loadFromFile(rangeidle);
     sf::RectangleShape rangerect(sf::Vector2f(300, 300));
-    rangerect.setPosition(sf::Vector2f(800, ypos));
+    rangerect.setPosition(sf::Vector2f(800, 400));
     rangerect.setTexture(&range);
 
     //Mage Rect
     sf::Texture mage;
     std::string mageidle = "Texture/03CharSel/mage_idle.png";
     std::string magehover = "Texture/03CharSel/mage_hover.png";
-    if(hovereffect(1300, ypos, 300, 300)==true)
+    if(hovereffect(1300, 400, 300, 300)==true)
         mage.loadFromFile(magehover);
     else
         mage.loadFromFile(mageidle);
     sf::RectangleShape magerect(sf::Vector2f(300, 300));
-    magerect.setPosition(sf::Vector2f(1300, ypos));
+    magerect.setPosition(sf::Vector2f(1300, 400));
     magerect.setTexture(&mage);
     
     //For animations
@@ -86,21 +77,21 @@ void Playerselect::selected()
 
     // Create melee text
     sf::Text text("Melee", font1, 50);
-    text.setPosition(400, ypos+300);
+    text.setPosition(400, 400+300);
     text.setFillColor(sf::Color(0, 0, 0, opac));
 
     //Ranged text
     sf::Text text2("Range", font1, 50);
-    text2.setPosition(900, ypos+300);
+    text2.setPosition(900, 400+300);
     text2.setFillColor(sf::Color(0, 0, 0, opac));
 
     //Mage text
     sf::Text text3("Mage", font1, 50);
-    text3.setPosition(1400, ypos+300);
+    text3.setPosition(1400, 400+300);
     text3.setFillColor(sf::Color(0, 0, 0, opac));
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-        x = choice(hovereffect(300, ypos, 300, 300), hovereffect(800, ypos, 300, 300), hovereffect(1300, ypos, 300, 300));
+        x = choice(hovereffect(300, 400, 300, 300), hovereffect(800, 400, 300, 300), hovereffect(1300, 400, 300, 300));
 
     //Draw
     m_window.draw(ModeTxt);
@@ -112,6 +103,12 @@ void Playerselect::selected()
     m_window.draw(text);
     m_window.draw(text2);
     m_window.draw(text3);
+
+    if (x != 0)
+    {
+        statePS = 5;
+        delete this;
+    }
 
 }
 
@@ -133,21 +130,13 @@ int Playerselect::choice(bool x,bool y,bool z)
     {
         
         if (x == true)
-        {
-            display = false;
             return 1;
-        }
-            
         else if (y == true)
-        {
-            display = false;
             return 2;
-        }
         else if (z == true)
-        {
-            display = false;
             return 3;
-        }
+        else
+            return 0;
     }
     
 }

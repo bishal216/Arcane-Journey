@@ -15,7 +15,7 @@ public:
 public:
 	character(sf::RenderWindow& window) : m_window(window){};
 	~character();
-	void load(int choice,int count,sf::Vector2f *start);
+	void load(int choice,int count,sf::Vector2f *start, sf::Vector2f* arrPos,bool *forward);
 
 	
 

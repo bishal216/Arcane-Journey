@@ -1,30 +1,16 @@
-
-
-
-//C++ headers
 #include<iostream>
-
-//SFML headers
 #include <SFML/Graphics.hpp>
-//C++ Classes
 #include "ModeSelect.h"
-
-// Declare and load a font
-
-
-//Destructor
-ModeSelect::~ModeSelect(){}
 
 //ModeOptions
 void ModeSelect::ModeOptions()
 {
-    ////Load Font
+    ////Load Fonts
     sf::Font font1;
     font1.loadFromFile("Font/Font1.otf");
     sf::Font font;
     font.loadFromFile("Font/Font2.ttf");
     
-
     //SFML BG-Texture
     sf::Texture mode_bg;
     mode_bg.loadFromFile("Texture/02ModeSel/sm_bg.png");
@@ -40,8 +26,6 @@ void ModeSelect::ModeOptions()
     singlerect.setFillColor(hovereffect(300,200,640,128));
     singlerect.setTexture(&single);
 
-    
-    
     //Multi Player Rect
     sf::Texture multi;
     sf::RectangleShape multirect(sf::Vector2f(640, 128));
@@ -91,10 +75,7 @@ void ModeSelect::ModeOptions()
         {
             warning = true;
         }
-        if (singlerect.getFillColor() == sf::Color(sf::Color(0, 179, 0, opac)) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
-        {
-            display = false;
-        }
+        
          
        
                
@@ -107,6 +88,12 @@ void ModeSelect::ModeOptions()
         m_window.draw(text2);
         if (warning == true)
             m_window.draw(incomplete);
+
+        if (singlerect.getFillColor() == sf::Color(sf::Color(0, 179, 0, opac)) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            stateMS = 4;
+            delete this;
+        }
        
 }
 

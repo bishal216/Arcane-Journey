@@ -4,12 +4,11 @@ class LoginPage
 {
 private:
 	sf::RenderWindow& m_window;
-	int delay = 0;
+	int delay = 0,&stateLP;
 public:
-	LoginPage(sf::RenderWindow& window) :m_window(window) {};
+	LoginPage(sf::RenderWindow& window, int* state) :m_window(window),stateLP(*state) {};
 	void EnterDetails();
 	float alpha = 0;
-	bool display = true;
 
 };
 

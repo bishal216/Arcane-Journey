@@ -12,7 +12,7 @@ public:
 public:
 	map(sf::RenderWindow& window) : m_window(window) {};
 	~map();
-	void load();
+	void load(int mappos);
 private:
 
 };

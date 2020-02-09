@@ -3,13 +3,26 @@
 class SoundEff
 {
 private:
-	sf::SoundBuffer sbf;
-	sf::Sound arr_sound;
 
 public:
 	SoundEff();
 	~SoundEff();
-	void Openintro(bool,bool);
+	static void GameSound()
+	{
+		sf::SoundBuffer sbf;
+		sf::Sound arr_sound;
+		sbf.loadFromFile("Sound/open_intro.wav");
+		arr_sound.setBuffer(sbf);
+		arr_sound.play();
+	}
+	static void ErrorSound()
+	{
+		sf::SoundBuffer sbf;
+		sf::Sound arr_sound;
+		sbf.loadFromFile("Sound/error.wav");
+		arr_sound.setBuffer(sbf);
+		arr_sound.play();
+	}
 
 };
 

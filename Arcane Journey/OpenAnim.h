@@ -1,19 +1,15 @@
-#pragma once
 #include<SFML/Graphics.hpp>
 class OpenAnim
 {
 private:
-	//Render Window Pointer
 	sf::RenderWindow& m_window;
-	float deltaTime;
+	int &stateOA;
+	float xoff = -1920.0f, yoff = -1080.0f, alpha = 0;
+
 public:
 	//Constructor
-	OpenAnim(sf::RenderWindow& window) :m_window(window){};
-	//Deconstructor
-	~OpenAnim();
-
+	OpenAnim(sf::RenderWindow& window,int* state) :m_window(window),stateOA(*state){};
 	void loadintro( float x);
-	bool opendisp = true;
-	float xoff = -1920.0f, yoff = -1080.0f, alpha = 0;
+	
 };
 

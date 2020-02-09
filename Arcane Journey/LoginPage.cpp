@@ -7,7 +7,7 @@
 
 void LoginPage::EnterDetails()
 {
-
+    
     //SFML BG-Texture
     sf::Texture bg;
     bg.loadFromFile("Texture/01LoginPage/BG.png");
@@ -18,7 +18,7 @@ void LoginPage::EnterDetails()
 
     //Load Font
     sf::Font font;
-    font.loadFromFile("Font/Font2.ttf");
+    font.loadFromFile("Font/Font1.otf");
     sf::Text text("Add A  Login Page Here(Bishant)", font, 100);
     //text.setStyle(sf::Text::Bold);
     text.setPosition(250, 450);
@@ -30,13 +30,14 @@ void LoginPage::EnterDetails()
     else if (alpha >= 255.0f)
         alpha = 255;
     if (alpha == 255)
-    {
         delay++;
-    }
-    if (delay == 20)
-    {
-        display = false;
-    }
+    
+        
     m_window.draw(Txt);
     m_window.draw(text);
+    if (delay == 20)
+    {
+        stateLP = 3;
+        delete this;
+    }
 }

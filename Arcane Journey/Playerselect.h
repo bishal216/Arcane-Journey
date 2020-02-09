@@ -4,23 +4,17 @@
 class Playerselect
 {
 private:
-	//Render Window Pointer
 	sf::RenderWindow& m_window;
 	float opac = 0;
-	
+	int& statePS;
+	int& x;
 
-public:
-	int x = 0;
 
 public:
 	//Constructor
-	Playerselect(sf::RenderWindow& window) :m_window(window) {};
-	//Deconstructor
-	~Playerselect();
-
+	Playerselect(sf::RenderWindow& window,int *state,int * option) :m_window(window),statePS(*state),x(*option) {};
 	void selected();
 	bool hovereffect(float xpos, float ypos, float width, float height);
 	int choice(bool x, bool y, bool z);
-	bool display = true;
 };
 
