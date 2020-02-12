@@ -1,59 +1,58 @@
 #include<iostream>
-#include <SFML/Graphics.hpp>
 #include "Playerselect.h"
+
+//load once
+void Playerselect::loadonce()
+{
+    font1.loadFromFile("Font/Font1.otf");
+    mode_bg.loadFromFile("Texture/03CharSel/CharSel.png");
+
+    melee_hover.loadFromFile("Texture/03CharSel/hover_melee.png");
+    melee_idle.loadFromFile("Texture/03CharSel/idle_melee.png");
+
+    r_hover.loadFromFile("Texture/03CharSel/arch_hover.png");
+    r_idle.loadFromFile("Texture/03CharSel/arch_idle.png");
+
+    mage_i.loadFromFile("Texture/03CharSel/mage_idle.png");
+    mage_h.loadFromFile("Texture/03CharSel/mage_hover.png");
+
+}
+
 
 //ModeOptions
 void Playerselect::selected()
 {
-    //Load Font
-    sf::Font font1;
-    font1.loadFromFile("Font/Font1.otf");
-
     //SFML BG-Texture
-    sf::Texture mode_bg;
-    mode_bg.loadFromFile("Texture/03CharSel/CharSel.png");
-    sf::Vector2u bgsize = mode_bg.getSize();
-    sf::RectangleShape ModeTxt(sf::Vector2f(bgsize.x, bgsize.y));
+    sf::RectangleShape ModeTxt(sf::Vector2f(1920, 1080));
     ModeTxt.setTexture(&mode_bg);
     ModeTxt.setFillColor(sf::Color(255, 255, 255, opac));
 
     //Melee Rect
-    sf::Texture melee;
-    std::string meleeidle = "Texture/03CharSel/idle_melee.png";
-    std::string meleehover = "Texture/03CharSel/hover_melee.png"; 
-    if (hovereffect(300, 400, 300, 300) == true)
-        melee.loadFromFile(meleehover);
-    else
-        melee.loadFromFile(meleeidle);
     sf::RectangleShape meleerect(sf::Vector2f(300, 300));
-    meleerect.setPosition(sf::Vector2f(300, 400));
-    meleerect.setTexture(&melee);
-
-
+    meleerect.setPosition(sf::Vector2f(300, 400));   
+    if (hovereffect(300, 400, 300, 300) == true)
+        meleerect.setTexture(&melee_hover);
+    else
+        meleerect.setTexture(&melee_idle);
 
     //Range Rect
-    sf::Texture range;
-    std::string rangeidle = "Texture/03CharSel/arch_idle.png";
-    std::string rangehover = "Texture/03CharSel/arch_hover.png";
-    if (hovereffect(800, 400, 300, 300) == true)
-        range.loadFromFile(rangehover);
-    else
-        range.loadFromFile(rangeidle);
     sf::RectangleShape rangerect(sf::Vector2f(300, 300));
     rangerect.setPosition(sf::Vector2f(800, 400));
-    rangerect.setTexture(&range);
+    if (hovereffect(800, 400, 300, 300) == true)
+        rangerect.setTexture(&r_hover);
+    else
+        rangerect.setTexture(&r_idle);
+    
+    
 
     //Mage Rect
-    sf::Texture mage;
-    std::string mageidle = "Texture/03CharSel/mage_idle.png";
-    std::string magehover = "Texture/03CharSel/mage_hover.png";
-    if(hovereffect(1300, 400, 300, 300)==true)
-        mage.loadFromFile(magehover);
-    else
-        mage.loadFromFile(mageidle);
     sf::RectangleShape magerect(sf::Vector2f(300, 300));
     magerect.setPosition(sf::Vector2f(1300, 400));
-    magerect.setTexture(&mage);
+    if(hovereffect(1300, 400, 300, 300)==true)
+        magerect.setTexture(&mage_h);
+    else
+        magerect.setTexture(&mage_i);
+    
     
     //For animations
 

@@ -18,7 +18,9 @@ int main()
 {
     //Variables 
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "!ARCANE!", sf::Style::Fullscreen | sf::Style::Default);
-    int state = 4;
+    window.setFramerateLimit(100);
+
+    int state = 1;
     int playerOption = 0;
     int count = 0;
     sf::Vector2f spawnlocation = sf::Vector2f(500.0f, 540.0f);
@@ -28,16 +30,23 @@ int main()
     
     //Objects
     OpenAnim *OpenAnimObj = new OpenAnim(window,&state);
+    OpenAnimObj->loadonce();
+
     LoginPage *LoginObj = new LoginPage(window,&state);
+    LoginObj->loadonce();
+
     ModeSelect *ModSelObj = new ModeSelect(window, &state);
+    ModSelObj->loadonce();
+
     Playerselect *playerObj = new Playerselect(window, &state,&playerOption);
+    playerObj->loadonce();
+
     game gameobj(window,&spawnlocation,&arrowlocation);
+    gameobj.loadonce();
    
       //Window
         while (window.isOpen())
         {
-            
-
             //framerate
             deltaTime = Clock.restart().asSeconds();
 
@@ -59,26 +68,21 @@ int main()
         
         //Draw
         window.clear();
-        /*if (state == 1)
+        if (state == 1)
             OpenAnimObj->loadintro(deltaTime);
 
         else if(state == 2)
-        {
-            LoginObj->EnterDetails();
-        }
+            LoginObj->EnterDetails(deltaTime);
             
         else if (state == 3)
-            ModSelObj->ModeOptions();
+            ModSelObj->ModeOptions(deltaTime);
 
 
-        else */if (state == 4)
+        else if (state == 4)
             playerObj->selected();
 
         else
-            gameobj.display(playerOption,count);
-        std::cout << 1/deltaTime << std::endl;
-        //std::cout << state << std::endl;
-        //std::cout << playerOption << std::endl;
+            gameobj.display(playerOption,count,deltaTime);
         window.display();
     }
     return 0;

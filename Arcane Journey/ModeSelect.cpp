@@ -1,20 +1,21 @@
 #include<iostream>
-#include <SFML/Graphics.hpp>
 #include "ModeSelect.h"
 
-//ModeOptions
-void ModeSelect::ModeOptions()
+//Load Once
+void ModeSelect::loadonce()
 {
-    ////Load Fonts
-    sf::Font font1;
+    //Fonts
     font1.loadFromFile("Font/Font1.otf");
-    sf::Font font;
-    font.loadFromFile("Font/Font2.ttf");
-    
-    //SFML BG-Texture
-    sf::Texture mode_bg;
+    font2.loadFromFile("Font/Font2.ttf");
+    //Txt
     mode_bg.loadFromFile("Texture/02ModeSel/sm_bg.png");
-    sf::Vector2u bgsize = mode_bg.getSize();
+    bgsize = mode_bg.getSize();
+}
+
+//ModeOptions
+void ModeSelect::ModeOptions(float et)
+{
+    //SFML BG
     sf::RectangleShape ModeTxt(sf::Vector2f(bgsize.x, bgsize.y));
     ModeTxt.setTexture(&mode_bg);
     ModeTxt.setFillColor(sf::Color(255, 255, 255, opac));
@@ -33,15 +34,9 @@ void ModeSelect::ModeOptions()
     multirect.setTexture(&multi);
     multirect.setFillColor(hovereffect(300, 400, 640, 128));
 
-    //For animations
-   sf::Clock clk;
-   float ElapsedTime = 1.0 + clk.getElapsedTime().asSeconds();
-    clk.restart();
-
-
     //Entry effect
     if (opac < 255.0f)
-       opac += 17.0f * ElapsedTime;
+       opac += 17.0f * et;
     else if (opac >= 255.0f)
         opac = 255;
   
@@ -54,20 +49,20 @@ void ModeSelect::ModeOptions()
 
 
     // Create single player text
-        sf::Text text("SinglePlayer", font,72);
+        sf::Text text("SinglePlayer", font2,72);
         /*text.setStyle(sf::Text::Bold);*/
         text.setPosition(450, 210);
         text.setFillColor(sf::Color(255,255,255,opac));
 
     //MultiPlayer text
-        sf::Text text2("MultiPlayer", font,72);
+        sf::Text text2("MultiPlayer", font2,72);
         //text2.setStyle(sf::Text::Bold);
         text2.setPosition(450, 410);
         text2.setFillColor(sf::Color(255, 255, 255, opac));
 
 
         //Warning Text
-        sf::Text incomplete("Add Multiplayer Option(Bishwash)", font, 70);
+        sf::Text incomplete("Add Multiplayer Option(Bishwash)", font2, 70);
         incomplete .setPosition(300, 0);
         incomplete.setFillColor(sf::Color(255, 255, 255, 255));
         //If Clicked 

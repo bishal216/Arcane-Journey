@@ -1,12 +1,32 @@
 #include "character.h"
 #include"SoundEff.h"
-#include<iostream>
-#include<SFML/Graphics.hpp>
-character::~character()
+
+void character::loadonce()
 {
+    int i;
+    for (i = 0; i < 10; i++)
+    {
+        meleeidle[i].loadFromFile("Texture/05Characters/Melee/Idle/" + std::to_string(i) + ".png");
+        rangeidle[i].loadFromFile("Texture/05Characters/Archer/Idle/" + std::to_string(i) + ".png");
+        mageidle[i].loadFromFile("Texture/05Characters/Mage/Idle/" + std::to_string(i) + ".png");
+
+        meleeatt[i].loadFromFile("Texture/05Characters/Melee/Attack/" + std::to_string(i) + ".png");
+        rangeatt[i].loadFromFile("Texture/05Characters/Archer/Attack/" + std::to_string(i) + ".png");
+        mageatt[i].loadFromFile("Texture/05Characters/Mage/Attack/" + std::to_string(i) + ".png");
+
+        meleewalk[i].loadFromFile("Texture/05Characters/Melee/Movement/" + std::to_string(i) + ".png");
+        rangewalk[i].loadFromFile("Texture/05Characters/Archer/Movement/" + std::to_string(i) + ".png");
+        magewalk[i].loadFromFile("Texture/05Characters/Mage/Movement/" + std::to_string(i) + ".png");
+    }
+        
+        arrow.loadFromFile("Texture/05Characters/Archer/Attack/arrow.png");
+        aoe.loadFromFile("Texture/05Characters/Mage/Idle/aoe.png");
 }
-void character::load(int choice,int count,sf::Vector2f *start, sf::Vector2f* arrPos,bool *forward)
+
+void character::load(int choice,int count,sf::Vector2f *start, sf::Vector2f* arrPos,bool *forward,float et,float *speed)
 {    
+    faceRight = true;
+    walking = false;
     static bool arrdisp;
     *forward = false;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
@@ -16,18 +36,18 @@ void character::load(int choice,int count,sf::Vector2f *start, sf::Vector2f* arr
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
         walking = true;
 
-    
+    playerrect.setScale(1, 1);
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
         if (!(choice == 2 && faceRight == false))
-            attack(choice, count, start);
+            attack(choice, count, start,et,speed);
         if ((choice == 2 && faceRight == false))
-            movement(choice, count, start);
+            movement(choice, count, start,et,speed);
     }  
     else if (walking == false)
-            idleanim(choice, count, start);
+            idleanim(choice, count, start,et, speed);
     else if (walking == true)
-            movement(choice, count, start);     
+            movement(choice, count, start,et,speed);     
     if (start->y <= 470)
     {
         start->y = 470;
@@ -45,69 +65,67 @@ void character::load(int choice,int count,sf::Vector2f *start, sf::Vector2f* arr
         //Errorsound
         start->x = 50;
     }
+    if (choice == 3 && start->y <= 600)
+    {
+        start->y = 600;
+    }
 
     if (start->x >= 1520)
     {
         //Errorsound
         start->x = 1520;
-        *forward = true;
+        if(walking==true&&faceRight==true)
+            *forward = true;
     }
         
 
 
     if (choice == 2 && faceRight == true)
     {
-        sf::Texture arr;
-        if ((count) % 10 == 0 && sf::Mouse::isButtonPressed(sf::Mouse::Left) )
+        if ((count/5) % 10 == 0 && sf::Mouse::isButtonPressed(sf::Mouse::Left) )
             arrdisp = true;       
-        arr.loadFromFile("Texture/05Characters/Archer/Attack/arrow.png");
+        
         sf::RectangleShape arrSh(sf::Vector2f(300.0f,300.0f));
-        arrSh.setTexture(&arr);
+        arrSh.setTexture(&arrow);
         arrSh.setOrigin(150, 280);
         arrSh.setPosition(*arrPos);
         if (arrdisp == false)
             *arrPos = *start;
         if (arrdisp == true )
         {
-            arrPos->x += 70;
+            arrPos->x += 700*et;
             if (arrSh.getPosition().x >= start->x + 400)
                 arrdisp = false;           
-            arrPos->y -= 2;
-            m_window.draw(arrSh);
-                   
+            arrPos->y -= 30*et;
+            m_window.draw(arrSh);          
         }    
     }
-    
 }
 
-void character::idleanim(int choice,int count,sf::Vector2f *start)
+void character::idleanim(int choice,int count,sf::Vector2f *start,float et, float* speed)
 {
-    sf::Texture player;
-    std::string meleeidle = "Texture/05Characters/Melee/Idle/"+ std::to_string((count/5) % 10)+ ".png";
-    std::string archeridle = "Texture/05Characters/Archer/Idle/" + std::to_string((count/4) % 10) + ".png";
-    std::string mageidle = "Texture/05Characters/Mage/Idle/" + std::to_string((count / 10) % 10) + ".png";
+    //Animation speed<increase value for slower transition>
+    int imgrate = 10;
+
+
     if (choice == 1)
     {
         playerrect.setOrigin(150, 230);
-        player.loadFromFile(meleeidle);
-
+        playerrect.setTexture(&meleeidle[(count/imgrate)%10]);
     }
 
     if (choice == 2)
     {
-
         playerrect.setOrigin(150, 280);
-        player.loadFromFile(archeridle);
+        playerrect.setTexture(&rangeidle[(count/ imgrate) % 10]);
         
     }
 
     if (choice == 3)
     {
         playerrect.setOrigin(110, 300);
-        player.loadFromFile(mageidle);
-
-        sf::Texture aoe;
-        aoe.loadFromFile("Texture/05Characters/Mage/Idle/aoe.png");
+        playerrect.setTexture(&mageidle[(count/ imgrate) % 10]);
+       
         sf::RectangleShape ModeTxt(sf::Vector2f(500.0f, 350.0f));
         ModeTxt.setTexture(&aoe);
         ModeTxt.setPosition(*start);
@@ -118,49 +136,37 @@ void character::idleanim(int choice,int count,sf::Vector2f *start)
      
     playerrect.setPosition(*start);
     playerrect.setSize(sf::Vector2f(300.0f, 300.0f));
-    
-    playerrect.setTexture(&player);
 
-    if(faceRight == false)
-        playerrect.setScale(-1, 1);
-    
     m_window.draw(playerrect);
     
 }
 
-void character::movement(int choice, int count,sf::Vector2f *start)
+void character::movement(int choice, int count,sf::Vector2f *start,float et, float* speed)
 {
-    float speed;
-    //player
-    sf::Texture player;
-    std::string meleemvmt = "Texture/05Characters/Melee/Movement/" + std::to_string((count ) % 15) + ".png";
-    std::string archermvmt = "Texture/05Characters/Archer/Movement/" + std::to_string((count) % 10) + ".png";
-    std::string magemvmt = "Texture/05Characters/Mage/Movement/" + std::to_string((count / 2) % 20) + ".png";
-
+    //Animation speed<increase value for slower transition>
+    int imgrate = 10;
     //archerrange
 
     if (choice == 1)
     {
-        player.loadFromFile(meleemvmt);
+        playerrect.setTexture(&meleewalk[(count/imgrate)%10]);
         playerrect.setOrigin(150, 230);
-        speed = 4;
+        *speed = 400*et;
     }
 
     if (choice == 2)
     {
-        player.loadFromFile(archermvmt);
+        playerrect.setTexture(&rangewalk[(count / imgrate) % 10]);
         playerrect.setOrigin(150, 280);
-        speed = 6;    
+        *speed = 600*et;    
     }
 
     if (choice == 3)
     {
-        player.loadFromFile(magemvmt);
+        playerrect.setTexture(&magewalk[(count / imgrate) % 10]);
         playerrect.setOrigin(110, 300);
-        speed = 3.0f;
+        *speed = 300*et;
 
-        sf::Texture aoe;
-        aoe.loadFromFile("Texture/05Characters/Mage/Idle/aoe.png");
         sf::RectangleShape ModeTxt(sf::Vector2f(500.0f, 350.0f));
         ModeTxt.setTexture(&aoe);
         ModeTxt.setPosition(*start);
@@ -171,62 +177,51 @@ void character::movement(int choice, int count,sf::Vector2f *start)
 
     playerrect.setSize(sf::Vector2f(300.0f, 300.0f));
     
-    playerrect.setTexture(&player);
+    
     playerrect.setPosition(*start);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
         playerrect.setScale(-1, 1);
-        *start += sf::Vector2f(-4.0f * speed, 0.0f);
+        *start += sf::Vector2f(-*speed, 0.0f);
     }
         
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-    {
-        
-        *start += sf::Vector2f(4.0f* speed, 0.0f);
-    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) 
+        *start += sf::Vector2f( *speed, 0.0f);
         
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        *start += sf::Vector2f(0.0f, 2.0f * speed);
+        *start += sf::Vector2f(0.0f, *speed);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        *start += sf::Vector2f(0.0f, -2.0f * speed);
-        
-
+        *start += sf::Vector2f(0.0f, -*speed);
     m_window.draw(playerrect);
 }
 
-void character::attack(int choice, int count, sf::Vector2f* start)
+void character::attack(int choice, int count, sf::Vector2f* start,float et, float* speed)
 {
-    float speed;
-    sf::Texture player;
-    std::string meleemvmt = "Texture/05Characters/Melee/Attack/" + std::to_string((count) % 15) + ".png";
-    std::string archermvmt = "Texture/05Characters/Archer/Attack/" + std::to_string((count) % 10) + ".png";
-    std::string magemvmt = "Texture/05Characters/Mage/Attack/" + std::to_string((count) % 20) + ".png";
-
-
+    //Animation speed<increase value for slower transition>
+    int imgrate = 10;
+ 
     if (choice == 1)
     {
-        speed = 4;
-
+        *speed = 300*et;
+        playerrect.setTexture(&meleeatt[(count / imgrate)%10]);
         playerrect.setOrigin(150, 230);
-        player.loadFromFile(meleemvmt);
     }
 
     if (choice == 2)
     {
-        speed = 2;
+        *speed = 50*et;
+        playerrect.setTexture(&rangeatt[(count / imgrate)  % 10]);
         playerrect.setOrigin(150, 280);
-        player.loadFromFile(archermvmt);
         
     }
 
     if (choice == 3)
     {
-        speed = 0.25f;
+        *speed = 25*et;
+        playerrect.setTexture(&mageatt[((count / imgrate)) % 10]);
         playerrect.setOrigin(110, 300);
-        player.loadFromFile(magemvmt);
 
-        sf::Texture aoe;
-        aoe.loadFromFile("Texture/05Characters/Mage/Idle/aoe.png");
+
         sf::RectangleShape ModeTxt(sf::Vector2f(500.0f, 350.0f));
         ModeTxt.setTexture(&aoe);
         ModeTxt.setPosition(*start);
@@ -238,22 +233,22 @@ void character::attack(int choice, int count, sf::Vector2f* start)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
         playerrect.setScale(-1.0f, 1);
-        *start += sf::Vector2f(-4.0f* speed, 0.0f);
+        *start += sf::Vector2f(-*speed, 0.0f);
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
 
-        *start += sf::Vector2f(4.0f*speed, 0.0f);
+        *start += sf::Vector2f(*speed, 0.0f);
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        *start += sf::Vector2f(0.0f, 2.0f*speed);
+        *start += sf::Vector2f(0.0f, *speed);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        *start += sf::Vector2f(0.0f, -2.0f*speed);
+        *start += sf::Vector2f(0.0f, -*speed);
     playerrect.setPosition(*start);
     playerrect.setSize(sf::Vector2f(300.0f, 300.0f));
-    playerrect.setTexture(&player);
+    
         m_window.draw(playerrect);
 
        
