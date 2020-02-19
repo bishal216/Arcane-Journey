@@ -3,6 +3,9 @@
 
 void character::loadonce()
 {
+    tombstone[0].loadFromFile("Texture/05Characters/Melee/dying.png");
+    tombstone[1].loadFromFile("Texture/05Characters/Archer/dying.png");
+    tombstone[2].loadFromFile("Texture/05Characters/Mage/dying.png");
     int i;
     for (i = 0; i < 10; i++)
     {
@@ -18,36 +21,66 @@ void character::loadonce()
         rangewalk[i].loadFromFile("Texture/05Characters/Archer/Movement/" + std::to_string(i) + ".png");
         magewalk[i].loadFromFile("Texture/05Characters/Mage/Movement/" + std::to_string(i) + ".png");
     }
-        
+         
+
         arrow.loadFromFile("Texture/05Characters/Archer/Attack/arrow.png");
         aoe.loadFromFile("Texture/05Characters/Mage/Idle/aoe.png");
 }
 
 void character::load(int choice,int count,sf::Vector2f *start, sf::Vector2f* arrPos,bool *forward,float et,float *speed)
 {    
+    
     faceRight = true;
     walking = false;
     static bool arrdisp;
     *forward = false;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) == true && death == false)
         faceRight = false;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        faceRight = true;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::D) == true && death == false)
         walking = true;
 
     playerrect.setScale(1, 1);
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) == true && death==false)
     {
         if (!(choice == 2 && faceRight == false))
             attack(choice, count, start,et,speed);
         if ((choice == 2 && faceRight == false))
             movement(choice, count, start,et,speed);
     }  
-    else if (walking == false)
+    else if (walking == false && death == false)
             idleanim(choice, count, start,et, speed);
-    else if (walking == true)
+    else if (walking == true && death == false)
             movement(choice, count, start,et,speed);     
+    else if (death == true)
+    {
+        playerrect.setOrigin(0, 300);
+        playerrect.setPosition(*start);
+        playerrect.setScale(1, 1);
+        if (choice == 1)
+        {
+            tombstone[0].setSmooth(true);
+            tombstone[0].setRepeated(false);
+            playerrect.setTexture(&tombstone[0]);
+        }
+
+        if (choice == 2)
+        {
+            sf::Vector2u size = tombstone[0].getSize();
+            playerrect.setSize(sf::Vector2f(size.x, size.y));
+            playerrect.setTexture(&tombstone[1]);
+        }
+
+        if (choice == 3)
+        {
+            sf::Vector2u size = tombstone[0].getSize();
+            playerrect.setSize(sf::Vector2f(size.x, size.y));
+            playerrect.setTexture(&tombstone[2]);
+        }
+        playerrect.setSize(sf::Vector2f(300.0f, 300.0f));
+
+        m_window.draw(playerrect);
+    }
     if (start->y <= 470)
     {
         start->y = 470;
@@ -74,15 +107,15 @@ void character::load(int choice,int count,sf::Vector2f *start, sf::Vector2f* arr
     {
         //Errorsound
         start->x = 1520;
-        if(walking==true&&faceRight==true)
+        if(walking==true&&faceRight==true&&death==false)
             *forward = true;
     }
         
 
 
-    if (choice == 2 && faceRight == true)
+    if (choice == 2 && faceRight == true&&death == false)
     {
-        if ((count/5) % 10 == 0 && sf::Mouse::isButtonPressed(sf::Mouse::Left) )
+        if ((count/10) % 10 == 0 && sf::Mouse::isButtonPressed(sf::Mouse::Left) )
             arrdisp = true;       
         
         sf::RectangleShape arrSh(sf::Vector2f(300.0f,300.0f));
@@ -100,6 +133,9 @@ void character::load(int choice,int count,sf::Vector2f *start, sf::Vector2f* arr
             m_window.draw(arrSh);          
         }    
     }
+    if (count % 1000 == 0)
+        death = true;
+    
 }
 
 void character::idleanim(int choice,int count,sf::Vector2f *start,float et, float* speed)
@@ -253,4 +289,5 @@ void character::attack(int choice, int count, sf::Vector2f* start,float et, floa
 
        
 }
+
 

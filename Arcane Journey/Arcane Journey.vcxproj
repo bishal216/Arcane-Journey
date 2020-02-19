@@ -158,6 +158,7 @@
     <ClCompile Include="ModeSelect.cpp" />
     <ClCompile Include="OpenAnim.cpp" />
     <ClCompile Include="Playerselect.cpp" />
+    <ClCompile Include="stats.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="character.h" />

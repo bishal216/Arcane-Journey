@@ -17,5 +17,6 @@ void map::load(int mappos,int random)
     sf::RectangleShape skytxt(sf::Vector2f(1920, 1080));
     skytxt.setTexture(&junglemap[random]);
     skytxt.setPosition(sf::Vector2f(mappos, 0));
+
     m_window.draw(skytxt);
 }

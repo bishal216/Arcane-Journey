@@ -20,11 +20,10 @@ int main()
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "!ARCANE!", sf::Style::Fullscreen | sf::Style::Default);
     window.setFramerateLimit(100);
 
-    int state = 1;
+    int state = 4;
     int playerOption = 0;
     int count = 0;
-    sf::Vector2f spawnlocation = sf::Vector2f(500.0f, 540.0f);
-    sf::Vector2f arrowlocation = spawnlocation;
+    
     sf::Clock Clock;
     float deltaTime = 0;
     
@@ -41,7 +40,7 @@ int main()
     Playerselect *playerObj = new Playerselect(window, &state,&playerOption);
     playerObj->loadonce();
 
-    game gameobj(window,&spawnlocation,&arrowlocation);
+    game gameobj(window);
     gameobj.loadonce();
    
       //Window
@@ -54,7 +53,7 @@ int main()
                 count++;
 
         sf::Event event;
-        sf::Vector2f arrowlocation = spawnlocation;
+        
         window.setKeyRepeatEnabled(false);
         while (window.pollEvent(event))
         {
@@ -83,6 +82,8 @@ int main()
 
         else
             gameobj.display(playerOption,count,deltaTime);
+
+        std::cout << 1 / deltaTime<<std::endl;
         window.display();
     }
     return 0;

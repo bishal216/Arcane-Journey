@@ -10,6 +10,7 @@ void game::loadonce()
     prev->loadonce();
     next->loadonce();
     current->loadonce();
+    Stat->loadonce();
 
     prevpos = -1920;
     currpos = 0;
@@ -70,9 +71,7 @@ void game::display(int choice,int count,float et)
     prev->load(prevpos,prand);
     current->load(currpos,crand);
     next->load(nextpos,nrand);
-    std::cout << "Prevpos:" <<prevpos<<std::endl;
-    std::cout << "Currpos:" <<currpos<<std::endl;
-    std::cout << "Nextpos:" <<nextpos<<std::endl;
-    std::cout << "speed:" <<speed<<std::endl;
+
+    Stat->showstats(choice);
     CharObj->load(choice, count, &start,&arrPos,&forward,et,&speed);
 }

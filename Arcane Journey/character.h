@@ -13,7 +13,9 @@ private:
 	sf::Texture meleeidle[10], meleeatt[10], meleewalk[10];
 	sf::Texture rangeidle[10], rangeatt[10], rangewalk[10];
 	sf::Texture mageidle[10], mageatt[10], magewalk[10];
+	sf::Texture tombstone[3],tomb;
 	sf::Texture arrow,aoe;
+	bool death = false;
 
 
 public:

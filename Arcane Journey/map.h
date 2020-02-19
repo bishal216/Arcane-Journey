@@ -6,6 +6,9 @@ class map
 private:
 	sf::RenderWindow& m_window;
 	sf::Texture junglemap[6];
+
+	int r,g,b;
+
 public:
 
 	//Functions
