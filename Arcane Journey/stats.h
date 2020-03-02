@@ -3,20 +3,21 @@
 #include<iostream>
 class stats
 {
-	private:
+	protected:
 		sf::RenderWindow& m_window;
 		sf::Texture player[3];
 		sf::Font font;
 		int score;
-		/*MAnage this*/float totalhealth = 390/*Something below 400*&&Use different value for different heroes*/;
-		/*MAnage this*/int currenthealth = 120/*Insert logic*/;
-		int deletethis = 390;
-		/*Take this from login page*/std::string name="GetNameFromLogin";
-		/*Manage Highscore*/std::string highscore;
+		int playerChoice;
+		float totalhealth[3] = {5000,4000,4500};
+		int currenthealth[3] = {5000,4000,4500};
+		std::string highscore;
+		std::string name[3] = { "Paladin","Knight","Fighter" };
 
 	public:
+		stats();
 		stats(sf::RenderWindow& window) :m_window(window) {};
 		void loadonce();
-		void showstats(int ch);
+		void showstats(int ch,float* pHth,float* eHth);
 };
 

@@ -16,6 +16,7 @@ private:
 	sf::Texture tombstone[3],tomb;
 	sf::Texture arrow,aoe;
 	bool death = false;
+	bool attackeff=false;
 
 
 public:
@@ -26,7 +27,7 @@ public:
 	~character();
 
 	void loadonce();
-	void load(int choice,int count,sf::Vector2f *start, sf::Vector2f* arrPos,bool *forward,float et,float *speed);
+	bool load(int choice,int count,sf::Vector2f *start, sf::Vector2f* arrPos,bool *forward,float et,float *speed);
 
 	
 	void idleanim(int choice,int count,sf::Vector2f *start,float et, float* speed);

@@ -7,8 +7,9 @@
 
 //Classes
 #include"SoundEff.h"
-
+//Opening Animation
 #include"OpenAnim.h"
+//Select Players
 #include"LoginPage.h"
 #include"ModeSelect.h"
 #include"Playerselect.h"
@@ -18,31 +19,31 @@ int main()
 {
     //Variables 
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "!ARCANE!", sf::Style::Fullscreen | sf::Style::Default);
-    window.setFramerateLimit(100);
-
-    int state = 4;
-    int playerOption = 0;
-    int count = 0;
+    window.setFramerateLimit(200);
     
     sf::Clock Clock;
     float deltaTime = 0;
-    
+    int state = 1;
+    int playerOption = 0;
     //Objects
-    OpenAnim *OpenAnimObj = new OpenAnim(window,&state);
-    OpenAnimObj->loadonce();
+    Animation *OpenAnimObj = new Animation(window,&state);
+    OpenAnimObj->loadTextures();
+
+    Playerselect* playerObj = new Playerselect(window, &state, &playerOption);
+    playerObj->loadonce();
 
     LoginPage *LoginObj = new LoginPage(window,&state);
     LoginObj->loadonce();
+restart:
+    game* gameobj;
+    gameobj = new game(window);
+    gameobj->loadonce();
 
-    ModeSelect *ModSelObj = new ModeSelect(window, &state);
-    ModSelObj->loadonce();
+    
+    
+    int count = 0;
 
-    Playerselect *playerObj = new Playerselect(window, &state,&playerOption);
-    playerObj->loadonce();
-
-    game gameobj(window);
-    gameobj.loadonce();
-   
+    int retry = 0;
       //Window
         while (window.isOpen())
         {
@@ -64,26 +65,22 @@ int main()
                 break;
             }
         }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+            window.close();
         
         //Draw
         window.clear();
         if (state == 1)
-            OpenAnimObj->loadintro(deltaTime);
+            OpenAnimObj->showAnimation(deltaTime);
 
-        else if(state == 2)
-            LoginObj->EnterDetails(deltaTime);
-            
-        else if (state == 3)
-            ModSelObj->ModeOptions(deltaTime);
+        //else if(state == 2)
+            //LoginObj->EnterDetails(deltaTime);
 
-
-        else if (state == 4)
+        else if (state == 2)
             playerObj->selected();
 
         else
-            gameobj.display(playerOption,count,deltaTime);
-
-        std::cout << 1 / deltaTime<<std::endl;
+            gameobj->display(&playerOption,count,deltaTime);      
         window.display();
     }
     return 0;

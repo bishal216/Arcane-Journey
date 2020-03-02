@@ -150,23 +150,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Board.cpp" />
     <ClCompile Include="character.cpp" />
+    <ClCompile Include="Enemies.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="LoginPage.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="ModeSelect.cpp" />
     <ClCompile Include="OpenAnim.cpp" />
+    <ClCompile Include="PlayerEnemyInteraction.cpp" />
     <ClCompile Include="Playerselect.cpp" />
     <ClCompile Include="stats.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Board.h" />
     <ClInclude Include="character.h" />
+    <ClInclude Include="Enemies.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="LoginPage.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="ModeSelect.h" />
     <ClInclude Include="OpenAnim.h" />
+    <ClInclude Include="PlayerEnemyInteraction.h" />
     <ClInclude Include="Playerselect.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SoundEff.h" />

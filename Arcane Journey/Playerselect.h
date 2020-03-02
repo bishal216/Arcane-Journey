@@ -10,7 +10,7 @@ private:
 	int& x;
 
 	sf::Font font1;
-	sf::Texture mode_bg, melee_idle,melee_hover,r_idle,r_hover,mage_i,mage_h;
+	sf::Texture mode_bg,one_idle,one_hover,two_idle,two_hover,three_idle,three_hover;
 
 
 

@@ -1,0 +1,10 @@
+0.Drak Knight
+1.Reaper(Staff)
+2.Reaper(Grim)
+3.Goblin
+4.Orc
+5.Ogre
+6.Golem (Ice)
+7.Golem(Lava)
+8.Golem(Clay)
+9.Reaper(Sickle)

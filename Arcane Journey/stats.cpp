@@ -7,10 +7,12 @@ void stats::loadonce()
 	font.loadFromFile("Font/Font4.ttf");
 	score = 0;
 }
-void stats::showstats(int ch)
+void stats::showstats(int ch, float* pHth, float* eHth)
 {
 	//Playername
-	sf::Text pname(name,font,25);
+	playerChoice = ch;
+	*pHth = currenthealth[ch - 1];
+	sf::Text pname(name[ch-1],font,25);
 	pname.setPosition(100, 20);
 	pname.setFillColor(sf::Color(0, 0, 0, 255));
 	
@@ -46,39 +48,21 @@ void stats::showstats(int ch)
 	total_hth.setFillColor(sf::Color(255, 255, 255, 255));
 	total_hth.setPosition(30,120);
 
-	sf::Text health (std::to_string(currenthealth)+"/"+std::to_string((int)totalhealth), font, 25);
+	sf::Text health (std::to_string(currenthealth[ch-1])+"/"+std::to_string((int)totalhealth[ch-1]), font, 25);
 	health.setPosition(170, 120);
 	health.setFillColor(sf::Color(0, 0, 0, 255));
 
 
 	//CurrentHealth
-	if (deletethis == 390)
-	{
-		currenthealth--;
-		if (currenthealth == 0)
-			deletethis = 0;
-	}
-		
-	if (deletethis == 0)
-	{
-		currenthealth++;
-		if (currenthealth == 390)
-			deletethis = 390;
-	}
-		
-	sf::RectangleShape current_hth(sf::Vector2f(currenthealth/totalhealth*350, 25));
+	sf::RectangleShape current_hth(sf::Vector2f(currenthealth[ch-1]/totalhealth[ch-1]*350, 25));
 
-	if(currenthealth / totalhealth > .66)
+	if(currenthealth[ch-1] / totalhealth[ch - 1] > .66)
 		current_hth.setFillColor(sf::Color(0, 255, 0, 255));
-	else if (currenthealth / totalhealth <.33)
+	else if (currenthealth[ch - 1] / totalhealth[ch - 1] <.33)
 		current_hth.setFillColor(sf::Color(255, 0, 0, 255));
 	else
 		current_hth.setFillColor(sf::Color(255, 255, 0, 255));
 	current_hth.setPosition(30, 120);
-
-
-	
-
 
 	m_window.draw(vertices, 4, sf::Quads);
 	m_window.draw(icon);

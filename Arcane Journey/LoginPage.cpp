@@ -7,7 +7,7 @@
 
 void LoginPage::loadonce()
 {
-    bg.loadFromFile("Texture/01LoginPage/BG.png");
+    bg.loadFromFile("Textures/BG.png");
     font.loadFromFile("Font/Font1.otf");
 }
 
@@ -20,7 +20,11 @@ void LoginPage::EnterDetails(float et)
     Txt.setFillColor(sf::Color(255, 255, 255, alpha));
 
     //Text    
-    sf::Text text("Add A  Login Page Here(Bishant)", font, 100);
+    std::string str = "Move forward killing everything on your path.\n";
+    str = str + "The game ends when your health reaches zero.\n";
+    str = str + "Multiplayer Option Available.(3 players)\n";
+        str  +="Multiplayer game ends when all three players have zero health.";
+    sf::Text text(str, font, 100);
     //text.setStyle(sf::Text::Bold);
     text.setPosition(250, 450);
     text.setFillColor(sf::Color(0, 0, 0, alpha));

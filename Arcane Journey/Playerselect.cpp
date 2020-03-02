@@ -5,16 +5,16 @@
 void Playerselect::loadonce()
 {
     font1.loadFromFile("Font/Font1.otf");
-    mode_bg.loadFromFile("Texture/03CharSel/CharSel.png");
+    mode_bg.loadFromFile("Textures/BG.png");
 
-    melee_hover.loadFromFile("Texture/03CharSel/hover_melee.png");
-    melee_idle.loadFromFile("Texture/03CharSel/idle_melee.png");
+    one_hover.loadFromFile("Textures/CharSel/One_Hover.png");
+    one_idle.loadFromFile("Textures/CharSel/One_Idle.png");
 
-    r_hover.loadFromFile("Texture/03CharSel/arch_hover.png");
-    r_idle.loadFromFile("Texture/03CharSel/arch_idle.png");
+    two_hover.loadFromFile("Textures/CharSel/Two_Hover.png");
+    two_idle.loadFromFile("Textures/CharSel/Two_Idle.png");
 
-    mage_i.loadFromFile("Texture/03CharSel/mage_idle.png");
-    mage_h.loadFromFile("Texture/03CharSel/mage_hover.png");
+    three_idle.loadFromFile("Textures/CharSel/Three_Idle.png");
+    three_hover.loadFromFile("Textures/CharSel/Three_Hover.png");
 
 }
 
@@ -22,6 +22,7 @@ void Playerselect::loadonce()
 //ModeOptions
 void Playerselect::selected()
 {
+    m_window.setMouseCursorVisible(true);
     //SFML BG-Texture
     sf::RectangleShape ModeTxt(sf::Vector2f(1920, 1080));
     ModeTxt.setTexture(&mode_bg);
@@ -31,17 +32,17 @@ void Playerselect::selected()
     sf::RectangleShape meleerect(sf::Vector2f(300, 300));
     meleerect.setPosition(sf::Vector2f(300, 400));   
     if (hovereffect(300, 400, 300, 300) == true)
-        meleerect.setTexture(&melee_hover);
+        meleerect.setTexture(&one_hover);
     else
-        meleerect.setTexture(&melee_idle);
+        meleerect.setTexture(&one_idle);
 
     //Range Rect
     sf::RectangleShape rangerect(sf::Vector2f(300, 300));
     rangerect.setPosition(sf::Vector2f(800, 400));
     if (hovereffect(800, 400, 300, 300) == true)
-        rangerect.setTexture(&r_hover);
+        rangerect.setTexture(&two_hover);
     else
-        rangerect.setTexture(&r_idle);
+        rangerect.setTexture(&two_idle);
     
     
 
@@ -49,9 +50,9 @@ void Playerselect::selected()
     sf::RectangleShape magerect(sf::Vector2f(300, 300));
     magerect.setPosition(sf::Vector2f(1300, 400));
     if(hovereffect(1300, 400, 300, 300)==true)
-        magerect.setTexture(&mage_h);
+        magerect.setTexture(&three_hover);
     else
-        magerect.setTexture(&mage_i);
+        magerect.setTexture(&three_idle);
     
     
     //For animations
@@ -65,28 +66,28 @@ void Playerselect::selected()
 
 
     //Welcome Player
-    sf::Text name("Welcome <PlayerName>", font1, 70);
-    name.setPosition(300, 50);
+    sf::Text name("Welcome!!!", font1, 70);
+    name.setPosition(850, 150);
     name.setFillColor(sf::Color(0, 0, 0, opac));
 
     //Choose text
-    sf::Text choose("Choose Your Champion", font1, 70);
+    sf::Text choose("Choose Your Champion(s)", font1, 70);
     choose.setPosition(700, 250);
     choose.setFillColor(sf::Color(0, 0, 0, opac));
 
     // Create melee text
-    sf::Text text("Melee", font1, 50);
-    text.setPosition(400, 400+300);
+    sf::Text text("OnePlayer", font1, 50);
+    text.setPosition(390, 400+300);
     text.setFillColor(sf::Color(0, 0, 0, opac));
 
     //Ranged text
-    sf::Text text2("Range", font1, 50);
-    text2.setPosition(900, 400+300);
+    sf::Text text2("TwoPlayers", font1, 50);
+    text2.setPosition(880, 400+300);
     text2.setFillColor(sf::Color(0, 0, 0, opac));
 
     //Mage text
-    sf::Text text3("Mage", font1, 50);
-    text3.setPosition(1400, 400+300);
+    sf::Text text3("ThreePlayers", font1, 50);
+    text3.setPosition(1350, 400+300);
     text3.setFillColor(sf::Color(0, 0, 0, opac));
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
@@ -105,8 +106,7 @@ void Playerselect::selected()
 
     if (x != 0)
     {
-        statePS = 5;
-        delete this;
+        statePS++;
     }
 
 }
