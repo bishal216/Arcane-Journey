@@ -24,25 +24,13 @@
     <ClCompile Include="ModeSelect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LoginPage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Playerselect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="character.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="map.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="stats.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Enemies.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PlayerEnemyInteraction.cpp">
@@ -56,13 +44,7 @@
     <ClInclude Include="OpenAnim.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SoundEff.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ModeSelect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LoginPage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Playerselect.h">
@@ -71,19 +53,10 @@
     <ClInclude Include="game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="character.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="map.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stats.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Enemies.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PlayerEnemyInteraction.h">

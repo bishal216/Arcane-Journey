@@ -6,12 +6,9 @@
 #include<SFML/Audio.hpp>
 
 //Classes
-#include"SoundEff.h"
 //Opening Animation
 #include"OpenAnim.h"
 //Select Players
-#include"LoginPage.h"
-#include"ModeSelect.h"
 #include"Playerselect.h"
 #include"game.h"
 
@@ -31,9 +28,6 @@ int main()
 
     Playerselect* playerObj = new Playerselect(window, &state, &playerOption);
     playerObj->loadonce();
-
-    LoginPage *LoginObj = new LoginPage(window,&state);
-    LoginObj->loadonce();
 restart:
     game* gameobj;
     gameobj = new game(window);

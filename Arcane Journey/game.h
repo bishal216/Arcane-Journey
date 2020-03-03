@@ -3,10 +3,8 @@
 #include"map.h"
 #include"PlayerEnemyInteraction.h"
 
-#include"character.h"
-#include"Enemies.h"
 #include"Board.h"
-#include"stats.h"
+
 class game
 {
 private:
