@@ -1,13 +1,26 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.0)
+project(AutoBattler)
 
-# Set project name
-project(SFMLDemo)
+set(CMAKE_CXX_STANDARD 17)
 
-# Find SFML
-find_package(SFML 2.5 REQUIRED graphics window system)
+# Add all source files
+set(SOURCES
+    src/main.cpp
+    src/Game.cpp
+    src/Card.cpp
+    src/Player.cpp
+    src/CardFactory.cpp
+    src/DeckManager.cpp
+)
 
-# Add executable
-add_executable(sfml-demo main.cpp)
+# Add all header files
+set(HEADERS
+    src/Game.h
+    src/Card.h
+    src/Player.h
+    src/CardFactory.h
+    src/DeckManager.h
+)
 
-# Link SFML libraries
-target_link_libraries(sfml-demo sfml-graphics sfml-window sfml-system)
+# Create executable
+add_executable(AutoBattler ${SOURCES} ${HEADERS})

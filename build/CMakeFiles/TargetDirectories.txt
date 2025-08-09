@@ -1,0 +1,3 @@
+/home/bellatrix/Arcane-Journey/build/CMakeFiles/AutoBattler.dir
+/home/bellatrix/Arcane-Journey/build/CMakeFiles/edit_cache.dir
+/home/bellatrix/Arcane-Journey/build/CMakeFiles/rebuild_cache.dir

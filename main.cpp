@@ -1,27 +1,7 @@
-#include <SFML/Graphics.hpp>
+#include "src/Game.h"
 
 int main() {
-    // Create a window
-    sf::RenderWindow window(sf::VideoMode(800, 600), "SFML Demo");
-
-    // Main loop to keep window open
-    while (window.isOpen()) {
-        // Handle events
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-        }
-
-        // Clear the screen
-        window.clear();
-
-        // Draw things here
-
-        // Display the contents of the window
-        window.display();
-    }
-
+    Game game;
+    game.run();
     return 0;
 }
