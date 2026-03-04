@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    tags:     [ 'v*' ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
 
@@ -19,10 +19,10 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - { name: Windows MSVC,  os: windows-latest, flags: "" }
-          - { name: Linux GCC,     os: ubuntu-latest,  flags: "" }
-          - { name: Linux Clang,   os: ubuntu-latest,  flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
-          - { name: macOS,         os: macos-latest,   flags: "" }
+          - { name: Windows MSVC, os: windows-latest, flags: "" }
+          - { name: Linux GCC,    os: ubuntu-latest,  flags: "" }
+          - { name: Linux Clang,  os: ubuntu-latest,  flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
+          - { name: macOS,        os: macos-latest,   flags: "" }
 
     steps:
       - name: Checkout
@@ -59,33 +59,29 @@ jobs:
           fi
 
       # -----------------------------------------------------------------------
-      # Package a playable Windows zip — only on Windows, only on tag pushes
+      # Package — Windows only, tag pushes only
       # -----------------------------------------------------------------------
       - name: Package Windows release
         if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/')
         run: |
           mkdir -p release/ArcaneJourney
 
-          # Copy executable (MSVC puts it in Release/, MinGW puts it in root)
           if [ -f build/Release/ArcaneJourney.exe ]; then
             cp build/Release/ArcaneJourney.exe release/ArcaneJourney/
           else
             cp build/ArcaneJourney.exe release/ArcaneJourney/
           fi
 
-          # Copy assets
           cp -r assets release/ArcaneJourney/
 
-          # Copy any SFML .dll files that landed next to the exe
           find build -maxdepth 3 -name "*.dll" | while read dll; do
             cp "$dll" release/ArcaneJourney/ 2>/dev/null || true
           done
 
-          # Zip it up
           cd release
           7z a "../ArcaneJourney-${{ github.ref_name }}-windows.zip" ArcaneJourney/
 
-      - name: Upload Windows release artifact
+      - name: Upload Windows artifact
         if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
@@ -93,7 +89,7 @@ jobs:
           path: ArcaneJourney-${{ github.ref_name }}-windows.zip
 
   # ---------------------------------------------------------------------------
-  # Create a GitHub Release and attach the zip — runs after build succeeds
+  # GitHub Release — after all builds pass
   # ---------------------------------------------------------------------------
   release:
     name: Publish GitHub Release
@@ -134,7 +130,7 @@ jobs:
           prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
 
   # ---------------------------------------------------------------------------
-  # Deploy to itch.io — runs after build, only on tag pushes
+  # itch.io deploy — only after GitHub Release succeeds
   # ---------------------------------------------------------------------------
   deploy-itch:
     name: Deploy to itch.io
@@ -152,14 +148,15 @@ jobs:
         run: |
           curl -L -o butler.zip https://github.com/itchio/butler/releases/latest/download/butler-linux-amd64.zip
           unzip butler.zip
-          chmod +x butler
-          ./butler -V
+          chmod +x linux-amd64/butler
+          linux-amd64/butler -V
+          echo "$PWD/linux-amd64" >> $GITHUB_PATH
 
       - name: Push to itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
         run: |
-          ./butler push \
+          butler push \
             "ArcaneJourney-${{ github.ref_name }}-windows.zip" \
             bishal216/arcane-journey:windows \
             --userversion "${{ github.ref_name }}"
