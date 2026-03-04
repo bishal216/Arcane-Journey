@@ -133,9 +133,10 @@ jobs:
           files: ArcaneJourney-${{ github.ref_name }}-windows.zip
           draft: false
           prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
-  # ----------------------------------------------------------------------------
-  # Release to Itch.io using butler — runs after GitHub Release is published
-  # ----------------------------------------------------------------------------
+
+  # ---------------------------------------------------------------------------
+  # Deploy to itch.io — runs after build, only on tag pushes
+  # ---------------------------------------------------------------------------
   deploy-itch:
     name: Deploy to itch.io
     needs: build
@@ -148,12 +149,18 @@ jobs:
         with:
           name: windows-release
 
-      - name: Upload to itch.io
-        uses: josephbmanley/butler-publish-itchio-action@master
+      - name: Install Butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+          ./butler -V
+
+      - name: Push to itch.io
         env:
-          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
-          CHANNEL: windows
-          ITCH_GAME: arcane-journey        # your game slug on itch.io
-          ITCH_USER: bishal216             # your itch.io username
-          PACKAGE: ArcaneJourney-${{ github.ref_name }}-windows.zip
-          VERSION: ${{ github.ref_name }}
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          ./butler push \
+            "ArcaneJourney-${{ github.ref_name }}-windows.zip" \
+            bishal216/arcane-journey:windows \
+            --userversion "${{ github.ref_name }}"
