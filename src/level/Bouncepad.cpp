@@ -1,5 +1,5 @@
-#include "core/DiscoveryTracker.hpp"
-#include "BouncePad.hpp"
+#include "systems/DiscoveryTracker.hpp"
+#include "level/BouncePad.hpp"
 #include <cmath>
 #include <algorithm>
 

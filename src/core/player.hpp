@@ -55,6 +55,10 @@ private:
     bool  m_isClimbing    = false;
     float m_climbInput    = 0.f;
 
+    sf::CircleShape m_head;
+    sf::CircleShape m_eyeL;
+    sf::CircleShape m_eyeR;
+
     void resolveHorizontal(const std::vector<Platform>& platforms);
     void resolveVertical  (const std::vector<Platform>& platforms, GameState& state);
     void updateColor();

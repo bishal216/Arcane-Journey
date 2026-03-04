@@ -1,4 +1,4 @@
-#include "core/DiscoveryTracker.hpp"
+    #include "systems/DiscoveryTracker.hpp"
 #include "ui/HubUI.hpp"
 #include "Constants.hpp"
 #include <iomanip>
@@ -58,6 +58,7 @@ HubUI::HubUI(const sf::Font& font, CoinManager& coins, CosmeticsManager& cosmeti
     : m_font(font), m_coins(coins), m_cosmetics(cosmetics) {}
 
 void HubUI::open(HubPanel panel) {
+    m_prevCursor = -1;   // reset so demo plays fresh
     m_panel  = panel;
     m_cursor = 0;
 }
@@ -257,37 +258,81 @@ void HubUI::drawLore(sf::RenderWindow& w) {
     }
 }
 
+void HubUI::update(float dt) {
+    if (m_panel == HubPanel::WiseMan) {
+        m_demo.update(dt);
+        // Replay on cursor change
+        if (m_cursor != m_prevCursor) {
+            m_prevCursor = m_cursor;
+            bool known = g_discovery.isDiscovered((PlatType)m_cursor);
+            if (known) m_demo.play((PlatType)m_cursor);
+        }
+    }
+}
+
 void HubUI::drawWiseMan(sf::RenderWindow& w) {
     drawBackground(w, "Sage  —  Platform Guide");
 
-    float listX  = WIN_W / 2.f - 290.f;
-    float startY = WIN_H / 2.f - 175.f;
-    int   visible = 10;
+    // Left column — scrollable list
+    float listX  = WIN_W / 2.f - 295.f;
+    float listY  = WIN_H / 2.f - 175.f;
+    int   visible = 11;
     int   start   = std::max(0, m_cursor - visible / 2);
 
     for (int i = start; i < std::min(start + visible, (int)WISDOM.size()); ++i) {
-        bool sel  = (i == m_cursor);
+        bool sel   = (i == m_cursor);
         bool known = g_discovery.isDiscovered((PlatType)i);
 
         sf::Color col;
-        if (!known)       col = sf::Color(80, 80, 90);       // undiscovered — dim
-        else if (sel)     col = sf::Color(100, 240, 140);    // selected
-        else              col = sf::Color(160, 190, 170);
+        if      (!known) col = sf::Color(70, 70, 80);
+        else if (sel)    col = sf::Color(100, 240, 140);
+        else             col = sf::Color(160, 190, 170);
 
         std::string label = known ? WISDOM[i].first : "???  [undiscovered]";
-        auto entry = makeText(label, 17, col);
-        entry.setPosition({listX, startY + (i - start) * 26.f});
+        auto entry = makeText(label, 16, col);
+        entry.setPosition({listX, listY + (i - start) * 28.f});
         w.draw(entry);
+
+        // Selection arrow
+        if (sel) {
+            auto arrow = makeText(">", 16, sf::Color(100, 240, 140));
+            arrow.setPosition({listX - 16.f, listY + (i - start) * 28.f});
+            w.draw(arrow);
+        }
     }
 
-    if (m_cursor < (int)WISDOM.size()) {
-        bool known = g_discovery.isDiscovered((PlatType)m_cursor);
-        std::string body = known ? WISDOM[m_cursor].second
-                                 : "Step on this platform to learn about it.";
-        sf::Color   col  = known ? sf::Color(200, 230, 210) : sf::Color(100, 100, 110);
-        auto t = makeText(body, 16, col);
-        t.setPosition({listX, WIN_H / 2.f + 110.f});
-        w.draw(t);
+    // Right column — animated demo panel
+    float panelX = WIN_W / 2.f - 10.f;
+    float panelY = WIN_H / 2.f - 175.f;
+    float panelW = 295.f;
+    float panelH = 310.f;
+    m_demo.setArea({panelX, panelY}, {panelW, panelH});
+
+    bool known = m_cursor < (int)WISDOM.size() &&
+                 g_discovery.isDiscovered((PlatType)m_cursor);
+
+    if (known) {
+        // Kick off first play when panel first opened
+        if (m_prevCursor == -1) {
+            m_prevCursor = m_cursor;
+            m_demo.play((PlatType)m_cursor);
+        }
+        m_demo.draw(w, m_font);
+    } else {
+        sf::RectangleShape bg({panelW, panelH});
+        bg.setPosition({panelX, panelY});
+        bg.setFillColor(sf::Color(20, 12, 40));
+        bg.setOutlineColor(sf::Color(60, 40, 100));
+        bg.setOutlineThickness(1.f);
+        w.draw(bg);
+
+        auto msg = makeText("Step on this\nplatform to\nunlock its entry.", 16,
+                            sf::Color(90, 80, 110));
+        auto mb = msg.getLocalBounds();
+        msg.setOrigin({mb.position.x + mb.size.x / 2.f,
+                       mb.position.y + mb.size.y / 2.f});
+        msg.setPosition({panelX + panelW / 2.f, panelY + panelH / 2.f});
+        w.draw(msg);
     }
 }
 

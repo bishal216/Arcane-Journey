@@ -1,5 +1,5 @@
-#include "core/DiscoveryTracker.hpp"
-#include "Trapdoor.hpp"
+#include "systems/DiscoveryTracker.hpp"
+#include "level/Trapdoor.hpp"
 #include <cmath>
 #include <algorithm>
 

@@ -64,6 +64,26 @@ CMAKE_BINARY_DIR = D:\GitHub\Arcane-Journey\build
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target package
+package: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Run CPack packaging tool..."
+	C:\msys64\ucrt64\bin\cpack.exe --config ./CPackConfig.cmake
+.PHONY : package
+
+# Special rule for the target package
+package/fast: package
+.PHONY : package/fast
+
+# Special rule for the target package_source
+package_source:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Run CPack packaging tool for source..."
+	C:\msys64\ucrt64\bin\cpack.exe --config ./CPackSourceConfig.cmake
+.PHONY : package_source
+
+# Special rule for the target package_source
+package_source/fast: package_source
+.PHONY : package_source/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
@@ -83,6 +103,51 @@ rebuild_cache:
 # Special rule for the target rebuild_cache
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"Unspecified\" \"devel\" \"headers\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	C:\msys64\ucrt64\bin\cmake.exe -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	C:\msys64\ucrt64\bin\cmake.exe -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	C:\msys64\ucrt64\bin\cmake.exe -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	C:\msys64\ucrt64\bin\cmake.exe -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	C:\msys64\ucrt64\bin\cmake.exe -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	C:\msys64\ucrt64\bin\cmake.exe -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -128,6 +193,71 @@ ArcaneJourney/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/build
 .PHONY : ArcaneJourney/fast
 
+#=============================================================================
+# Target rules for targets named sfml-system
+
+# Build rule for target.
+sfml-system: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 sfml-system
+.PHONY : sfml-system
+
+# fast build rule for target.
+sfml-system/fast:
+	$(MAKE) $(MAKESILENT) -f _deps\sfml-build\src\SFML\System\CMakeFiles\sfml-system.dir\build.make _deps/sfml-build/src/SFML/System/CMakeFiles/sfml-system.dir/build
+.PHONY : sfml-system/fast
+
+#=============================================================================
+# Target rules for targets named sfml-main
+
+# Build rule for target.
+sfml-main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 sfml-main
+.PHONY : sfml-main
+
+# fast build rule for target.
+sfml-main/fast:
+	$(MAKE) $(MAKESILENT) -f _deps\sfml-build\src\SFML\Main\CMakeFiles\sfml-main.dir\build.make _deps/sfml-build/src/SFML/Main/CMakeFiles/sfml-main.dir/build
+.PHONY : sfml-main/fast
+
+#=============================================================================
+# Target rules for targets named sfml-window
+
+# Build rule for target.
+sfml-window: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 sfml-window
+.PHONY : sfml-window
+
+# fast build rule for target.
+sfml-window/fast:
+	$(MAKE) $(MAKESILENT) -f _deps\sfml-build\src\SFML\Window\CMakeFiles\sfml-window.dir\build.make _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/build
+.PHONY : sfml-window/fast
+
+#=============================================================================
+# Target rules for targets named sfml-graphics
+
+# Build rule for target.
+sfml-graphics: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 sfml-graphics
+.PHONY : sfml-graphics
+
+# fast build rule for target.
+sfml-graphics/fast:
+	$(MAKE) $(MAKESILENT) -f _deps\sfml-build\src\SFML\Graphics\CMakeFiles\sfml-graphics.dir\build.make _deps/sfml-build/src/SFML/Graphics/CMakeFiles/sfml-graphics.dir/build
+.PHONY : sfml-graphics/fast
+
+#=============================================================================
+# Target rules for targets named freetype
+
+# Build rule for target.
+freetype: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 freetype
+.PHONY : freetype
+
+# fast build rule for target.
+freetype/fast:
+	$(MAKE) $(MAKESILENT) -f _deps\freetype-build\CMakeFiles\freetype.dir\build.make _deps/freetype-build/CMakeFiles/freetype.dir/build
+.PHONY : freetype/fast
+
 src/core/Camera.obj: src/core/Camera.cpp.obj
 .PHONY : src/core/Camera.obj
 
@@ -151,30 +281,6 @@ src/core/Camera.s: src/core/Camera.cpp.s
 src/core/Camera.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/core/Camera.cpp.s
 .PHONY : src/core/Camera.cpp.s
-
-src/core/DiscoveryTracker.obj: src/core/DiscoveryTracker.cpp.obj
-.PHONY : src/core/DiscoveryTracker.obj
-
-# target to build an object file
-src/core/DiscoveryTracker.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/core/DiscoveryTracker.cpp.obj
-.PHONY : src/core/DiscoveryTracker.cpp.obj
-
-src/core/DiscoveryTracker.i: src/core/DiscoveryTracker.cpp.i
-.PHONY : src/core/DiscoveryTracker.i
-
-# target to preprocess a source file
-src/core/DiscoveryTracker.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/core/DiscoveryTracker.cpp.i
-.PHONY : src/core/DiscoveryTracker.cpp.i
-
-src/core/DiscoveryTracker.s: src/core/DiscoveryTracker.cpp.s
-.PHONY : src/core/DiscoveryTracker.s
-
-# target to generate assembly for a file
-src/core/DiscoveryTracker.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/core/DiscoveryTracker.cpp.s
-.PHONY : src/core/DiscoveryTracker.cpp.s
 
 src/core/Player.obj: src/core/Player.cpp.obj
 .PHONY : src/core/Player.obj
@@ -464,6 +570,54 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/systems/DiscoveryTracker.obj: src/systems/DiscoveryTracker.cpp.obj
+.PHONY : src/systems/DiscoveryTracker.obj
+
+# target to build an object file
+src/systems/DiscoveryTracker.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/systems/DiscoveryTracker.cpp.obj
+.PHONY : src/systems/DiscoveryTracker.cpp.obj
+
+src/systems/DiscoveryTracker.i: src/systems/DiscoveryTracker.cpp.i
+.PHONY : src/systems/DiscoveryTracker.i
+
+# target to preprocess a source file
+src/systems/DiscoveryTracker.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/systems/DiscoveryTracker.cpp.i
+.PHONY : src/systems/DiscoveryTracker.cpp.i
+
+src/systems/DiscoveryTracker.s: src/systems/DiscoveryTracker.cpp.s
+.PHONY : src/systems/DiscoveryTracker.s
+
+# target to generate assembly for a file
+src/systems/DiscoveryTracker.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/systems/DiscoveryTracker.cpp.s
+.PHONY : src/systems/DiscoveryTracker.cpp.s
+
+src/systems/SaveData.obj: src/systems/SaveData.cpp.obj
+.PHONY : src/systems/SaveData.obj
+
+# target to build an object file
+src/systems/SaveData.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/systems/SaveData.cpp.obj
+.PHONY : src/systems/SaveData.cpp.obj
+
+src/systems/SaveData.i: src/systems/SaveData.cpp.i
+.PHONY : src/systems/SaveData.i
+
+# target to preprocess a source file
+src/systems/SaveData.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/systems/SaveData.cpp.i
+.PHONY : src/systems/SaveData.cpp.i
+
+src/systems/SaveData.s: src/systems/SaveData.cpp.s
+.PHONY : src/systems/SaveData.s
+
+# target to generate assembly for a file
+src/systems/SaveData.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/systems/SaveData.cpp.s
+.PHONY : src/systems/SaveData.cpp.s
+
 src/ui/CoinManager.obj: src/ui/CoinManager.cpp.obj
 .PHONY : src/ui/CoinManager.obj
 
@@ -560,29 +714,29 @@ src/ui/Npc.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/ui/Npc.cpp.s
 .PHONY : src/ui/Npc.cpp.s
 
-src/ui/SaveData.obj: src/ui/SaveData.cpp.obj
-.PHONY : src/ui/SaveData.obj
+src/ui/PlatformDemo.obj: src/ui/PlatformDemo.cpp.obj
+.PHONY : src/ui/PlatformDemo.obj
 
 # target to build an object file
-src/ui/SaveData.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/ui/SaveData.cpp.obj
-.PHONY : src/ui/SaveData.cpp.obj
+src/ui/PlatformDemo.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/ui/PlatformDemo.cpp.obj
+.PHONY : src/ui/PlatformDemo.cpp.obj
 
-src/ui/SaveData.i: src/ui/SaveData.cpp.i
-.PHONY : src/ui/SaveData.i
+src/ui/PlatformDemo.i: src/ui/PlatformDemo.cpp.i
+.PHONY : src/ui/PlatformDemo.i
 
 # target to preprocess a source file
-src/ui/SaveData.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/ui/SaveData.cpp.i
-.PHONY : src/ui/SaveData.cpp.i
+src/ui/PlatformDemo.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/ui/PlatformDemo.cpp.i
+.PHONY : src/ui/PlatformDemo.cpp.i
 
-src/ui/SaveData.s: src/ui/SaveData.cpp.s
-.PHONY : src/ui/SaveData.s
+src/ui/PlatformDemo.s: src/ui/PlatformDemo.cpp.s
+.PHONY : src/ui/PlatformDemo.s
 
 # target to generate assembly for a file
-src/ui/SaveData.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/ui/SaveData.cpp.s
-.PHONY : src/ui/SaveData.cpp.s
+src/ui/PlatformDemo.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/ui/PlatformDemo.cpp.s
+.PHONY : src/ui/PlatformDemo.cpp.s
 
 src/ui/SectionAnnouncer.obj: src/ui/SectionAnnouncer.cpp.obj
 .PHONY : src/ui/SectionAnnouncer.obj
@@ -608,6 +762,30 @@ src/ui/SectionAnnouncer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/ui/SectionAnnouncer.cpp.s
 .PHONY : src/ui/SectionAnnouncer.cpp.s
 
+src/ui/SplashScreen.obj: src/ui/SplashScreen.cpp.obj
+.PHONY : src/ui/SplashScreen.obj
+
+# target to build an object file
+src/ui/SplashScreen.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/ui/SplashScreen.cpp.obj
+.PHONY : src/ui/SplashScreen.cpp.obj
+
+src/ui/SplashScreen.i: src/ui/SplashScreen.cpp.i
+.PHONY : src/ui/SplashScreen.i
+
+# target to preprocess a source file
+src/ui/SplashScreen.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/ui/SplashScreen.cpp.i
+.PHONY : src/ui/SplashScreen.cpp.i
+
+src/ui/SplashScreen.s: src/ui/SplashScreen.cpp.s
+.PHONY : src/ui/SplashScreen.s
+
+# target to generate assembly for a file
+src/ui/SplashScreen.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/src/ui/SplashScreen.cpp.s
+.PHONY : src/ui/SplashScreen.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -615,14 +793,22 @@ help:
 	@echo ... clean
 	@echo ... depend
 	@echo ... edit_cache
+	@echo ... install
+	@echo ... install/local
+	@echo ... install/strip
+	@echo ... list_install_components
+	@echo ... package
+	@echo ... package_source
 	@echo ... rebuild_cache
 	@echo ... ArcaneJourney
+	@echo ... freetype
+	@echo ... sfml-graphics
+	@echo ... sfml-main
+	@echo ... sfml-system
+	@echo ... sfml-window
 	@echo ... src/core/Camera.obj
 	@echo ... src/core/Camera.i
 	@echo ... src/core/Camera.s
-	@echo ... src/core/DiscoveryTracker.obj
-	@echo ... src/core/DiscoveryTracker.i
-	@echo ... src/core/DiscoveryTracker.s
 	@echo ... src/core/Player.obj
 	@echo ... src/core/Player.i
 	@echo ... src/core/Player.s
@@ -659,6 +845,12 @@ help:
 	@echo ... src/main.obj
 	@echo ... src/main.i
 	@echo ... src/main.s
+	@echo ... src/systems/DiscoveryTracker.obj
+	@echo ... src/systems/DiscoveryTracker.i
+	@echo ... src/systems/DiscoveryTracker.s
+	@echo ... src/systems/SaveData.obj
+	@echo ... src/systems/SaveData.i
+	@echo ... src/systems/SaveData.s
 	@echo ... src/ui/CoinManager.obj
 	@echo ... src/ui/CoinManager.i
 	@echo ... src/ui/CoinManager.s
@@ -671,12 +863,15 @@ help:
 	@echo ... src/ui/Npc.obj
 	@echo ... src/ui/Npc.i
 	@echo ... src/ui/Npc.s
-	@echo ... src/ui/SaveData.obj
-	@echo ... src/ui/SaveData.i
-	@echo ... src/ui/SaveData.s
+	@echo ... src/ui/PlatformDemo.obj
+	@echo ... src/ui/PlatformDemo.i
+	@echo ... src/ui/PlatformDemo.s
 	@echo ... src/ui/SectionAnnouncer.obj
 	@echo ... src/ui/SectionAnnouncer.i
 	@echo ... src/ui/SectionAnnouncer.s
+	@echo ... src/ui/SplashScreen.obj
+	@echo ... src/ui/SplashScreen.i
+	@echo ... src/ui/SplashScreen.s
 .PHONY : help
 
 

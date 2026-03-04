@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include "Coin.hpp"
+#include "ui/Coin.hpp"
 #include "core/World.hpp"  // for CoinSpawn
 
 class CoinManager {

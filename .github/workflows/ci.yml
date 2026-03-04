@@ -1,6 +1,11 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, master ]
+    tags:     [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
 
 defaults:
   run:
@@ -8,32 +13,123 @@ defaults:
 
 jobs:
   build:
-    name: ${{ matrix.platform.name }} ${{ matrix.config.name }}
+    name: ${{ matrix.platform.name }}
     runs-on: ${{ matrix.platform.os }}
 
     strategy:
       fail-fast: false
       matrix:
         platform:
-        - { name: Windows VS2019, os: windows-2019  }
-        - { name: Windows VS2022, os: windows-2022  }
-        - { name: Linux GCC,      os: ubuntu-latest }
-        - { name: Linux Clang,    os: ubuntu-latest, flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
-        - { name: macOS,          os: macos-latest  }
-        config:
-        - { name: Shared, flags: -DBUILD_SHARED_LIBS=TRUE }
-        - { name: Static, flags: -DBUILD_SHARED_LIBS=FALSE }
+          - { name: Windows MSVC,  os: windows-latest, flags: "" }
+          - { name: Linux GCC,     os: ubuntu-latest,  flags: "" }
+          - { name: Linux Clang,   os: ubuntu-latest,  flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
+          - { name: macOS,         os: macos-latest,   flags: "" }
 
     steps:
-    - name: Install Linux Dependencies
-      if: runner.os == 'Linux'
-      run: sudo apt-get update && sudo apt-get install libxrandr-dev libxcursor-dev libxi-dev libudev-dev libflac-dev libvorbis-dev libgl1-mesa-dev libegl1-mesa-dev libfreetype-dev
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libxrandr-dev libxcursor-dev libxi-dev libudev-dev \
+            libfreetype-dev libgl1-mesa-dev libegl1-mesa-dev \
+            xvfb
 
-    - name: Configure
-      run: cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}}
+      - name: Cache SFML build
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: sfml-${{ matrix.platform.os }}-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: sfml-${{ matrix.platform.os }}-
 
-    - name: Build
-      run: cmake --build build --config Release
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ${{ matrix.platform.flags }}
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Verify executable exists
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            test -f build/Release/ArcaneJourney.exe || test -f build/ArcaneJourney.exe
+          else
+            test -f build/ArcaneJourney
+          fi
+
+      # -----------------------------------------------------------------------
+      # Package a playable Windows zip — only on Windows, only on tag pushes
+      # -----------------------------------------------------------------------
+      - name: Package Windows release
+        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          mkdir -p release/ArcaneJourney
+
+          # Copy executable (MSVC puts it in Release/, MinGW puts it in root)
+          if [ -f build/Release/ArcaneJourney.exe ]; then
+            cp build/Release/ArcaneJourney.exe release/ArcaneJourney/
+          else
+            cp build/ArcaneJourney.exe release/ArcaneJourney/
+          fi
+
+          # Copy assets
+          cp -r assets release/ArcaneJourney/
+
+          # Copy any SFML .dll files that landed next to the exe
+          find build -maxdepth 3 -name "*.dll" | while read dll; do
+            cp "$dll" release/ArcaneJourney/ 2>/dev/null || true
+          done
+
+          # Zip it up
+          cd release
+          7z a "../ArcaneJourney-${{ github.ref_name }}-windows.zip" ArcaneJourney/
+
+      - name: Upload Windows release artifact
+        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: ArcaneJourney-${{ github.ref_name }}-windows.zip
+
+  # ---------------------------------------------------------------------------
+  # Create a GitHub Release and attach the zip — runs after build succeeds
+  # ---------------------------------------------------------------------------
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Windows zip
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Arcane Journey ${{ github.ref_name }}"
+          body: |
+            ## Arcane Journey ${{ github.ref_name }}
+
+            ### How to play
+            1. Download and unzip `ArcaneJourney-${{ github.ref_name }}-windows.zip`
+            2. Run `ArcaneJourney.exe` — no install needed
+
+            ### Controls
+            | Input | Action |
+            |-------|--------|
+            | Arrow keys / WASD | Move |
+            | Space / W / Up | Jump |
+            | Shift | Dash |
+            | Up / Down near rope or ladder | Climb |
+            | E | Talk to NPC |
+            | R | Restart |
+          files: ArcaneJourney-${{ github.ref_name }}-windows.zip
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}

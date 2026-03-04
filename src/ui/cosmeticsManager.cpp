@@ -1,4 +1,4 @@
-#include "CosmeticsManager.hpp"
+#include "ui/CosmeticsManager.hpp"
 
 CosmeticsManager::CosmeticsManager() {
     // Player colors

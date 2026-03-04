@@ -1,5 +1,5 @@
-#include "core/DiscoveryTracker.hpp"
-#include "CoinManager.hpp"
+#include "systems/DiscoveryTracker.hpp"
+#include "ui/CoinManager.hpp"
 #include <cmath>
 
 static const float COLLECT_RADIUS = 24.f;

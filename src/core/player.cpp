@@ -1,13 +1,26 @@
-#include "DiscoveryTracker.hpp"
+#include "systems/DiscoveryTracker.hpp"
 #include "core/Player.hpp"
 #include "Constants.hpp"
 #include <cmath>
 #include <algorithm>
 
-Player::Player() : m_shape({32.f, 44.f}) {
-    m_shape.setOrigin({16.f, 22.f});
-    reset();
-}
+static constexpr float BODY_W = 22.f;
+static constexpr float BODY_H = 32.f;
+static constexpr float HEAD_R = 11.f;
+
+  Player::Player() : m_shape({BODY_W, BODY_H}) {
+      m_shape.setOrigin({BODY_W / 2.f, BODY_H / 2.f});
+
+      m_head.setRadius(HEAD_R);
+      m_head.setOrigin({HEAD_R, HEAD_R});
+
+      m_eyeL.setRadius(2.5f);  m_eyeL.setOrigin({2.5f, 2.5f});
+      m_eyeR.setRadius(2.5f);  m_eyeR.setOrigin({2.5f, 2.5f});
+      m_eyeL.setFillColor(sf::Color(20, 10, 30));
+      m_eyeR.setFillColor(sf::Color(20, 10, 30));
+
+      reset();
+  }
 
 void Player::reset() {
     // Spawn near the bottom of the world — 2 tiles above the floor
@@ -182,16 +195,55 @@ void Player::resolveVertical(const std::vector<Platform>& platforms, GameState& 
 }
 
 void Player::updateColor() {
-    if (m_dashing)
-        m_shape.setFillColor(sf::Color(255, 120, 50));
-    else if (m_isClimbing)
-        m_shape.setFillColor(sf::Color(180, 220, 100));
-    else if (!m_dashAvail)
-        m_shape.setFillColor(sf::Color(160, 100, 220));
-    else
-        m_shape.setFillColor(sf::Color(100, 180, 255));
+    sf::Color bodyCol, headCol;
+
+    if (m_dashing) {
+        bodyCol = sf::Color(255, 120,  50);
+        headCol = sf::Color(255, 160,  80);
+    } else if (m_isClimbing) {
+        bodyCol = sf::Color(180, 220, 100);
+        headCol = sf::Color(210, 240, 140);
+    } else if (!m_dashAvail) {
+        bodyCol = sf::Color(160, 100, 220);
+        headCol = sf::Color(200, 140, 255);
+    } else if (!m_onGround) {
+        bodyCol = sf::Color( 80, 150, 240);
+        headCol = sf::Color(120, 190, 255);
+    } else {
+        bodyCol = sf::Color(100, 180, 255);
+        headCol = sf::Color(140, 210, 255);
+    }
+
+    m_shape.setFillColor(bodyCol);
+    m_shape.setOutlineColor(sf::Color(255, 255, 255, 60));
+    m_shape.setOutlineThickness(1.f);
+
+    m_head.setFillColor(headCol);
+    m_head.setOutlineColor(sf::Color(255, 255, 255, 80));
+    m_head.setOutlineThickness(1.f);
 }
 
 void Player::draw(sf::RenderWindow& window) const {
+    sf::Vector2f pos = m_shape.getPosition();
+
+    // Body
     window.draw(m_shape);
+
+    // Head — copy, then position
+    sf::CircleShape head = m_head;
+    head.setPosition({pos.x, pos.y - BODY_H / 2.f - HEAD_R});
+    window.draw(head);
+
+    // Eyes
+    bool  facingLeft = m_vel.x < -10.f;
+    float eyeY  = pos.y - BODY_H / 2.f - HEAD_R * 0.5f;
+    float eyeOX = facingLeft ? -6.f :  6.f;
+    float eyeIX = facingLeft ? -1.f :  1.f;
+
+    sf::CircleShape eyeL = m_eyeL;
+    sf::CircleShape eyeR = m_eyeR;
+    eyeL.setPosition({pos.x + (facingLeft ? eyeOX : eyeIX), eyeY});
+    eyeR.setPosition({pos.x + (facingLeft ? eyeIX : eyeOX), eyeY});
+    window.draw(eyeL);
+    window.draw(eyeR);
 }

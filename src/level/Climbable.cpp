@@ -1,5 +1,5 @@
-#include "core/DiscoveryTracker.hpp"
-#include "Climbable.hpp"
+#include "systems/DiscoveryTracker.hpp"
+#include "level/Climbable.hpp"
 #include <cmath>
 #include <algorithm>
 

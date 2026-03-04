@@ -1,5 +1,5 @@
-#include "core/DiscoveryTracker.hpp"
-#include "CrumblingPlatform.hpp"
+#include "systems/DiscoveryTracker.hpp"
+#include "level/CrumblingPlatform.hpp"
 #include <cmath>
 #include <algorithm>
 #include <cstdlib>

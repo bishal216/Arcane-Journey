@@ -26,14 +26,18 @@ void World::draw(sf::RenderWindow& window) const {
 }
 
 int World::getSectionIndex(float worldY) const {
-    int idx = -1;
-    for (int i = 0; i < (int)m_sections.size(); ++i)
-        if (worldY <= m_sections[i].startY)
+    // Sections sorted ascending by startY (XXII = top = lowest Y, Training Grounds = bottom = highest Y).
+    // Return the last section whose startY <= playerY — that's the one the player is inside.
+    int idx = 0;
+    for (int i = 0; i < (int)m_sections.size(); ++i) {
+        if (worldY >= m_sections[i].startY)
             idx = i;
+    }
     return idx;
 }
 
 void World::sortSections() {
+    // Ascending: XXII (small Y, near top of world) first, Training Grounds (large Y) last.
     std::sort(m_sections.begin(), m_sections.end(),
-              [](const Section& a, const Section& b){ return a.startY > b.startY; });
+              [](const Section& a, const Section& b){ return a.startY < b.startY; });
 }

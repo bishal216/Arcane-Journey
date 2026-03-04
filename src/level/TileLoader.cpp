@@ -105,7 +105,7 @@ float TileLoader::load(const std::string& path, LevelData& level, float* worldW)
 
     for (const auto& raw : rawRows) {
         if (raw.isSection) {
-            float sectionY = worldH - tileRow * T;
+            float sectionY = tileRow * T;   // top-down: row 0 = top of world
             level.addSection(sectionY, raw.text);
             continue;
         }

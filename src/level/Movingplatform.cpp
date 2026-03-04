@@ -1,5 +1,5 @@
-#include "core/DiscoveryTracker.hpp"
-#include "MovingPlatform.hpp"
+#include "systems/DiscoveryTracker.hpp"
+#include "level/MovingPlatform.hpp"
 #include <cmath>
 #include <algorithm>
 

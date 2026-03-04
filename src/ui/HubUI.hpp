@@ -4,11 +4,13 @@
 #include <vector>
 #include "CoinManager.hpp"
 #include "CosmeticsManager.hpp"
+#include "ui/PlatformDemo.hpp"
 
 enum class HubPanel { None, Shop, Cosmetics, TimeKeeper, Lore, WiseMan };
 
 class HubUI {
 public:
+    void update(float dt);   // call each frame for demo animation
     HubUI(const sf::Font& font, CoinManager& coins, CosmeticsManager& cosmetics);
 
     void open(HubPanel panel);
@@ -29,6 +31,8 @@ private:
     HubPanel          m_panel  = HubPanel::None;
     int               m_cursor = 0;
     float             m_bestTime = -1.f;
+    PlatformDemo      m_demo;
+    int               m_prevCursor = -1;   // detect cursor change
 
     // Lore pages — one per tarot section
     static const std::vector<std::pair<std::string,std::string>> LORE;
@@ -41,6 +45,7 @@ private:
     void drawTimeKeeper (sf::RenderWindow& w);
     void drawLore       (sf::RenderWindow& w);
     void drawWiseMan    (sf::RenderWindow& w);
+
 
     sf::Text makeText(const std::string& str, unsigned size,
                       sf::Color col = sf::Color::White);

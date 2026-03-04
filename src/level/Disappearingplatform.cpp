@@ -1,5 +1,5 @@
-#include "core/DiscoveryTracker.hpp"
-#include "Disappearingplatform.hpp"
+#include "systems/DiscoveryTracker.hpp"
+#include "level/DisappearingPlatform.hpp"
 #include <algorithm>
 #include <cmath>
 

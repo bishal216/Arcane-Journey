@@ -13,7 +13,9 @@
 #include "ui/CosmeticsManager.hpp"
 #include "ui/Npc.hpp"
 #include "ui/HubUI.hpp"
-#include "ui/SaveData.hpp"
+#include "ui/SplashScreen.hpp"
+#include "systems/SaveData.hpp"
+#include "systems/DiscoveryTracker.hpp"
 
 static const std::string SAVE_PATH = "save.dat";
 
@@ -53,7 +55,10 @@ int main() {
         // Restore persistent coin total
         coins.setCollectedCount(save.totalCoins);
 
-        // Restore best time
+        // Restore discoveries
+    g_discovery.fromBits(save.discoveries);
+
+    // Restore best time
         if (save.bestTime > 0.f)
             hubUI.setBestTime(save.bestTime);
 
@@ -67,6 +72,7 @@ int main() {
 
     // Helper: write save to disk
     auto doSave = [&]() {
+        save.discoveries = g_discovery.toBits();
         save.totalCoins = coins.collectedCount();
         save.bestTime   = hubUI.bestTime();
         const auto& items = cosmetics.items();
@@ -132,6 +138,26 @@ int main() {
         runEndTimer  = 0.f;
         hubUI.close();
     };
+
+    // -----------------------------------------------------------------------
+    // Splash screen — runs in its own mini-loop, fades into the game
+    // -----------------------------------------------------------------------
+    {
+        SplashScreen splash(font);
+        sf::Clock splashClock;
+        while (window.isOpen() && !splash.isDone()) {
+            float sdt = splashClock.restart().asSeconds();
+            if (sdt > 0.05f) sdt = 0.05f;
+            while (const std::optional ev = window.pollEvent()) {
+                if (ev->is<sf::Event::Closed>()) { window.close(); return 0; }
+                splash.handleInput(*ev);
+            }
+            splash.update(sdt);
+            window.clear();
+            splash.draw(window);
+            window.display();
+        }
+    }
 
     sf::Clock clock;
 
@@ -219,6 +245,7 @@ int main() {
         }
 
         announcer.update(dt);
+    hubUI.update(dt);
         camera.update(player.position());
 
         camera.apply(window);

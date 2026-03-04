@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include "core/player.hpp"
+#include "core/Player.hpp"
 
 struct BouncePad {
     sf::RectangleShape shape;
