@@ -2,7 +2,6 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
     tags:     [ 'v*' ]
   pull_request:
     branches: [ main, master ]
@@ -139,7 +138,7 @@ jobs:
   # ---------------------------------------------------------------------------
   deploy-itch:
     name: Deploy to itch.io
-    needs: build
+    needs: [build, release]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
 
@@ -151,7 +150,7 @@ jobs:
 
       - name: Install Butler
         run: |
-          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          curl -L -o butler.zip https://github.com/itchio/butler/releases/latest/download/butler-linux-amd64.zip
           unzip butler.zip
           chmod +x butler
           ./butler -V
