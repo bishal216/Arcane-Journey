@@ -1,16 +1,18 @@
-#include "systems/DiscoveryTracker.hpp"
 #include "level/CrumblingPlatform.hpp"
-#include <cmath>
+
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
+
+#include "systems/DiscoveryTracker.hpp"
+#include "systems/Juice.hpp"
 
 // ---------------------------------------------------------------------------
 // CrumblingPlatform
 // ---------------------------------------------------------------------------
 
 CrumblingPlatform::CrumblingPlatform(float x, float y, float w, float h, sf::Color col)
-    : origin({x, y}), baseColor(col)
-{
+    : origin({x, y}), baseColor(col) {
     shape.setSize({w, h});
     shape.setPosition({x, y});
     shape.setFillColor(col);
@@ -80,8 +82,7 @@ void CrumblingPlatform::update(float dt) {
 }
 
 void CrumblingPlatform::draw(sf::RenderWindow& window) const {
-    if (state != CrumbleState::Gone)
-        window.draw(shape);
+    if (state != CrumbleState::Gone) window.draw(shape);
 }
 
 // ---------------------------------------------------------------------------
@@ -93,13 +94,11 @@ void CrumblingPlatformManager::add(float x, float y, float w, float h, sf::Color
 }
 
 void CrumblingPlatformManager::update(float dt) {
-    for (auto& p : m_platforms)
-        p.update(dt);
+    for (auto& p : m_platforms) p.update(dt);
 }
 
 void CrumblingPlatformManager::draw(sf::RenderWindow& window) const {
-    for (const auto& p : m_platforms)
-        p.draw(window);
+    for (const auto& p : m_platforms) p.draw(window);
 }
 
 void CrumblingPlatformManager::reset() {
@@ -112,14 +111,9 @@ void CrumblingPlatformManager::reset() {
     }
 }
 
-bool CrumblingPlatformManager::resolvePlayer(sf::Vector2f& playerPos,
-                                              sf::Vector2f& playerVel,
-                                              sf::FloatRect playerRect,
-                                              bool& onGround,
-                                              bool& dashAvail,
-                                              int& jumpsLeft,
-                                              GameState& state)
-{
+bool CrumblingPlatformManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel,
+                                             sf::FloatRect playerRect, bool& onGround,
+                                             bool& dashAvail, int& jumpsLeft, GameState& state) {
     bool onCrumble = false;
 
     for (auto& cp : m_platforms) {
@@ -129,30 +123,30 @@ bool CrumblingPlatformManager::resolvePlayer(sf::Vector2f& playerPos,
         if (!playerRect.findIntersection(pr)) continue;
 
         float playerBottom = playerRect.position.y + playerRect.size.y;
-        float playerTop    = playerRect.position.y;
-        float platTop      = pr.position.y;
-        float platBottom   = pr.position.y + pr.size.y;
-        float playerLeft   = playerRect.position.x;
-        float playerRight  = playerRect.position.x + playerRect.size.x;
-        float platLeft     = pr.position.x;
-        float platRight    = pr.position.x + pr.size.x;
+        float playerTop = playerRect.position.y;
+        float platTop = pr.position.y;
+        float platBottom = pr.position.y + pr.size.y;
+        float playerLeft = playerRect.position.x;
+        float playerRight = playerRect.position.x + playerRect.size.x;
+        float platLeft = pr.position.x;
+        float platRight = pr.position.x + pr.size.x;
 
-        float overlapTop    = playerBottom - platTop;
-        float overlapBottom = platBottom   - playerTop;
-        float overlapLeft   = playerRight  - platLeft;
-        float overlapRight  = platRight    - playerLeft;
+        float overlapTop = playerBottom - platTop;
+        float overlapBottom = platBottom - playerTop;
+        float overlapLeft = playerRight - platLeft;
+        float overlapRight = platRight - playerLeft;
 
-        float minOverlap = std::min({overlapTop, overlapBottom,
-                                     overlapLeft, overlapRight});
+        float minOverlap = std::min({overlapTop, overlapBottom, overlapLeft, overlapRight});
 
         if (minOverlap == overlapTop && playerVel.y >= 0.f) {
             playerPos.y = platTop - playerRect.size.y / 2.f;
             playerVel.y = 0.f;
-            onGround    = true;
-            dashAvail   = true;
-            jumpsLeft   = 1;
-            onCrumble   = true;
-            cp.onLand(); // trigger crumble
+            onGround = true;
+            dashAvail = true;
+            jumpsLeft = 1;
+            onCrumble = true;
+            cp.onLand();  // trigger crumble
+            g_juice.onCrumble(cp.bounds().position, cp.baseColor);
             g_discovery.discover(PlatType::Crumbling);
         } else if (minOverlap == overlapBottom && playerVel.y < 0.f) {
             playerPos.y = platBottom + playerRect.size.y / 2.f;

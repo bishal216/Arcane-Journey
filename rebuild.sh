@@ -14,3 +14,6 @@ echo "==> Building..."
 cmake --build build --parallel
 
 echo "==> Done. Executable: build/ArcaneJourney.exe"
+
+echo "==> Clearing save data..."
+rm -f save.dat build/save.dat

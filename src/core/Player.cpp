@@ -1,5 +1,6 @@
 #include "systems/DiscoveryTracker.hpp"
 #include "core/Player.hpp"
+#include "systems/Juice.hpp"
 #include "Constants.hpp"
 #include <cmath>
 #include <algorithm>
@@ -15,7 +16,6 @@ static constexpr float HEAD_R = 11.f;
       m_head.setOrigin({HEAD_R, HEAD_R});
 
       m_eyeL.setRadius(2.5f);  m_eyeL.setOrigin({2.5f, 2.5f});
-      m_eyeR.setRadius(2.5f);  m_eyeR.setOrigin({2.5f, 2.5f});
       m_eyeL.setFillColor(sf::Color(20, 10, 30));
       m_eyeR.setFillColor(sf::Color(20, 10, 30));
 
@@ -67,6 +67,7 @@ void Player::update(float dt, const std::vector<Platform>& platforms, GameState&
     if (jumpPressed && m_isClimbing) {
         m_isClimbing = false;
         m_vel.y = JUMP_VEL;
+        g_juice.onJump(m_shape.getPosition());
     }
 
     if (m_dashCoolTimer > 0.f) m_dashCoolTimer -= dt;
@@ -82,6 +83,7 @@ void Player::update(float dt, const std::vector<Platform>& platforms, GameState&
         float len = std::sqrt(dx*dx + dy*dy);
         m_dashDir = {dx / len, dy / len};
         m_vel     = m_dashDir * DASH_SPEED;
+        g_juice.onDash(m_shape.getPosition(), m_dashDir, m_shape.getFillColor());
         m_isClimbing = false;
     }
 
@@ -93,6 +95,7 @@ void Player::update(float dt, const std::vector<Platform>& platforms, GameState&
             m_vel.x  *= 0.4f;
             m_vel.y   = std::min(m_vel.y, 100.f);
         }
+        g_juice.onDash(m_shape.getPosition(), m_dashDir, m_shape.getFillColor());
     } else if (m_isClimbing) {
         float accel = AIR_ACCEL;
         float fric  = AIR_FRIC;
@@ -164,6 +167,7 @@ void Player::resolveHorizontal(const std::vector<Platform>& platforms) {
             else if (m_vel.x < 0.f)
                 m_shape.setPosition({plr.position.x + plr.size.x + pr.size.x / 2.f, m_shape.getPosition().y});
             m_onWall  = true;
+            g_juice.onWallSlide(m_shape.getPosition(), m_wallDir);
             m_wallDir = (m_vel.x > 0.f) ? 1 : -1;
             m_vel.x   = 0.f;
             pr = m_shape.getGlobalBounds();
@@ -180,11 +184,15 @@ void Player::resolveVertical(const std::vector<Platform>& platforms, GameState& 
             if (m_vel.y > 0.f) {
                 m_shape.setPosition({m_shape.getPosition().x, plr.position.y - pr.size.y / 2.f});
                 m_onGround   = true;
+                g_juice.onLand(m_shape.getPosition(), m_vel.y);
                 g_discovery.discover(p.isGoal ? PlatType::Goal : PlatType::Static);
                 m_jumpsLeft  = 1;
                 m_dashAvail  = true;
                 m_isClimbing = false;
-                if (p.isGoal) state = GameState::Won;
+                if (p.isGoal){
+                    state = GameState::Won;
+                    g_juice.onGoal(m_shape.getPosition());
+                } 
             } else {
                 m_shape.setPosition({m_shape.getPosition().x, plr.position.y + plr.size.y + pr.size.y / 2.f});
             }
@@ -224,24 +232,30 @@ void Player::updateColor() {
 }
 
 void Player::draw(sf::RenderWindow& window) const {
+    float sx = g_juice.playerScaleX();
+    float sy = g_juice.playerScaleY();
+
     sf::Vector2f pos = m_shape.getPosition();
 
-    // Body
-    window.draw(m_shape);
+    sf::RectangleShape body({BODY_W * sx, BODY_H * sy});
+    body.setOrigin({BODY_W * sx / 2.f, BODY_H * sy / 2.f});
+    body.setPosition(pos);
+    body.setFillColor(m_shape.getFillColor());
+    body.setOutlineColor(sf::Color(255, 255, 255, 60));
+    body.setOutlineThickness(1.f);
+    window.draw(body);
 
-    // Head — copy, then position
+    // Head stays same size, just shifts with body
     sf::CircleShape head = m_head;
-    head.setPosition({pos.x, pos.y - BODY_H / 2.f - HEAD_R});
+    head.setPosition({pos.x, pos.y - BODY_H * sy / 2.f - HEAD_R});
     window.draw(head);
 
     // Eyes
     bool  facingLeft = m_vel.x < -10.f;
-    float eyeY  = pos.y - BODY_H / 2.f - HEAD_R * 0.5f;
+    float eyeY  = pos.y - BODY_H * sy / 2.f - HEAD_R * 0.5f;
     float eyeOX = facingLeft ? -6.f :  6.f;
     float eyeIX = facingLeft ? -1.f :  1.f;
-
-    sf::CircleShape eyeL = m_eyeL;
-    sf::CircleShape eyeR = m_eyeR;
+    sf::CircleShape eyeL = m_eyeL, eyeR = m_eyeR;
     eyeL.setPosition({pos.x + (facingLeft ? eyeOX : eyeIX), eyeY});
     eyeR.setPosition({pos.x + (facingLeft ? eyeIX : eyeOX), eyeY});
     window.draw(eyeL);

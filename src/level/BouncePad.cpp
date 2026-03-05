@@ -2,6 +2,7 @@
 #include "level/BouncePad.hpp"
 #include <cmath>
 #include <algorithm>
+#include "systems/Juice.hpp"
 
 // ---------------------------------------------------------------------------
 // BouncePad
@@ -98,6 +99,7 @@ void BouncePadManager::resolvePlayer(sf::Vector2f& playerPos,
             playerVel.y = -pad.bounceForce;
             onGround    = false; // airborne immediately
             pad.trigger();
+            g_juice.onBounce(playerPos);
             g_discovery.discover(PlatType::Bounce);
 
             // Re-sync rect

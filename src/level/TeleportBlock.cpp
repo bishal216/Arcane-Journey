@@ -3,7 +3,7 @@
 #include "Constants.hpp"
 #include <cmath>
 #include <algorithm>
-
+#include "systems/Juice.hpp"
 void TeleportBlockManager::add(float x, float y, float w, float h) {
     TeleportBlock tb;
     tb.bounds    = sf::FloatRect({x, y}, {w, (float)TILE});
@@ -53,6 +53,7 @@ void TeleportBlockManager::update(float dt, sf::Vector2f& playerPos, bool player
 
             if (tb.chargeTimer >= CHARGE_TIME) {
                 // Teleport!
+                #include "systems/Juice.hpp"
                 g_discovery.discover(PlatType::Teleport);
                 auto& dest = m_blocks[tb.pairIndex];
                 playerPos = dest.spawnPos;

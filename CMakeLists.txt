@@ -48,6 +48,7 @@ add_executable(ArcaneJourney
 
     src/systems/DiscoveryTracker.cpp
     src/systems/SaveData.cpp
+    src/systems/Juice.cpp
 )
 
 target_include_directories(ArcaneJourney PRIVATE src)

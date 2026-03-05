@@ -1,23 +1,29 @@
 #include <SFML/Graphics.hpp>
-#include <string>
 #include <algorithm>
-#include <sstream>
 #include <iomanip>
+#include <sstream>
+#include <string>
+
 #include "Constants.hpp"
+#include "core/Camera.hpp"
+#include "core/Player.hpp"
 #include "level/LevelData.hpp"
 #include "level/TileLoader.hpp"
-#include "core/Player.hpp"
-#include "core/Camera.hpp"
-#include "ui/SectionAnnouncer.hpp"
+#include "systems/DiscoveryTracker.hpp"
+#include "systems/Juice.hpp"
+#include "systems/SaveData.hpp"
 #include "ui/CoinManager.hpp"
 #include "ui/CosmeticsManager.hpp"
-#include "ui/Npc.hpp"
 #include "ui/HubUI.hpp"
+#include "ui/Npc.hpp"
+#include "ui/SectionAnnouncer.hpp"
 #include "ui/SplashScreen.hpp"
-#include "systems/SaveData.hpp"
-#include "systems/DiscoveryTracker.hpp"
 
 static const std::string SAVE_PATH = "save.dat";
+
+// Player body dimensions — keep in sync with Player.cpp
+static constexpr float BODY_W = 22.f;
+static constexpr float BODY_H = 32.f;
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({WIN_W, WIN_H}), "Arcane Journey", sf::Style::Close);
@@ -26,40 +32,40 @@ int main() {
     sf::Font font;
     font.openFromFile("assets/fonts/DejaVuSans.ttf");
 
-    // --- Load level ---
+    // -----------------------------------------------------------------------
+    // Load level
+    // -----------------------------------------------------------------------
     LevelData level;
     float worldW = 0.f;
     float worldH = TileLoader::load("assets/levels/level.txt", level, &worldW);
 
-    // --- Construct managers ---
-    Player           player;
-    Camera           camera;
+    // -----------------------------------------------------------------------
+    // Construct managers
+    // -----------------------------------------------------------------------
+    Player player;
+    Camera camera;
     SectionAnnouncer announcer(font);
-    CoinManager      coins;
+    CoinManager coins;
     coins.init(level.coinSpawns());
     CosmeticsManager cosmetics;
-    NpcManager       npcs;
-    HubUI            hubUI(font, coins, cosmetics);
+    NpcManager npcs;
+    HubUI hubUI(font, coins, cosmetics);
 
-    player.setWorldH(worldH);  player.setWorldW(worldW);
-    camera.setWorldH(worldH);  camera.setWorldW(worldW);
+    player.setWorldH(worldH);
+    player.setWorldW(worldW);
+    camera.setWorldH(worldH);
+    camera.setWorldW(worldW);
     npcs.build(worldH);
     player.reset();
 
-    // --- Load save ---
+    // -----------------------------------------------------------------------
+    // Load save
+    // -----------------------------------------------------------------------
     SaveData save;
     if (save.load(SAVE_PATH)) {
-        // Restore persistent coin total
         coins.setCollectedCount(save.totalCoins);
-
-        // Restore discoveries
-    g_discovery.fromBits(save.discoveries);
-
-    // Restore best time
-        if (save.bestTime > 0.f)
-            hubUI.setBestTime(save.bestTime);
-
-        // Restore cosmetics
+        g_discovery.fromBits(save.discoveries);
+        if (save.bestTime > 0.f) hubUI.setBestTime(save.bestTime);
         auto& items = const_cast<std::vector<Cosmetic>&>(cosmetics.items());
         for (int i = 0; i < (int)items.size() && i < (int)save.unlocked.size(); ++i) {
             items[i].unlocked = save.unlocked[i];
@@ -67,11 +73,10 @@ int main() {
         }
     }
 
-    // Helper: write save to disk
     auto doSave = [&]() {
         save.discoveries = g_discovery.toBits();
         save.totalCoins = coins.collectedCount();
-        save.bestTime   = hubUI.bestTime();
+        save.bestTime = hubUI.bestTime();
         const auto& items = cosmetics.items();
         save.unlocked.resize(items.size());
         save.equipped.resize(items.size());
@@ -82,20 +87,44 @@ int main() {
         save.save(SAVE_PATH);
     };
 
+    // -----------------------------------------------------------------------
+    // Game state
+    // -----------------------------------------------------------------------
     announcer.resetSeen((int)level.sections().size());
 
     float foolThreshold = worldH;
     for (const auto& s : level.sections())
-        if (s.name == "I - The Fool") { foolThreshold = s.startY; break; }
+        if (s.name == "I - The Fool") {
+            foolThreshold = s.startY;
+            break;
+        }
 
-    GameState state        = GameState::Playing;
-    bool      inHub        = true;
-    bool      runActive    = false;
-    float     runTimer     = 0.f;
-    bool      timerRunning = false;
-    float     runEndTimer  = 0.f;
+    GameState state = GameState::Playing;
+    bool inHub = true;
+    bool runActive = false;
+    float runTimer = 0.f;
+    bool timerRunning = false;
+    float runEndTimer = 0.f;
 
-    // --- HUD ---
+    auto doReset = [&]() {
+        doSave();
+        player.reset();
+        coins.reset();
+        coins.setCollectedCount(save.totalCoins);
+        level.resetDynamic();
+        announcer.resetSeen((int)level.sections().size());
+        state = GameState::Playing;
+        inHub = true;
+        runActive = false;
+        runTimer = 0.f;
+        timerRunning = false;
+        runEndTimer = 0.f;
+        hubUI.close();
+    };
+
+    // -----------------------------------------------------------------------
+    // HUD elements
+    // -----------------------------------------------------------------------
     sf::Text hudText(font, "", 20);
     hudText.setFillColor(sf::Color(210, 210, 210));
     hudText.setOutlineColor(sf::Color::Black);
@@ -115,29 +144,11 @@ int main() {
     runEndText.setOutlineThickness(2.f);
 
     sf::RectangleShape dashIndicator({16.f, 16.f});
-    dashIndicator.setOutlineColor(sf::Color::Black);
+    dashIndicator.setOutlineColor(sf::Color(255, 255, 255, 120));
     dashIndicator.setOutlineThickness(1.f);
 
-    auto doReset = [&]() {
-        // Save before resetting so persistent data isn't lost
-        doSave();
-        player.reset();
-        coins.reset();
-        // Restore persistent coin total after reset clears it
-        coins.setCollectedCount(save.totalCoins);
-        level.resetDynamic();
-        announcer.resetSeen((int)level.sections().size());
-        state        = GameState::Playing;
-        inHub        = true;
-        runActive    = false;
-        runTimer     = 0.f;
-        timerRunning = false;
-        runEndTimer  = 0.f;
-        hubUI.close();
-    };
-
     // -----------------------------------------------------------------------
-    // Splash screen — runs in its own mini-loop, fades into the game
+    // Splash screen
     // -----------------------------------------------------------------------
     {
         SplashScreen splash(font);
@@ -146,7 +157,10 @@ int main() {
             float sdt = splashClock.restart().asSeconds();
             if (sdt > 0.05f) sdt = 0.05f;
             while (const std::optional ev = window.pollEvent()) {
-                if (ev->is<sf::Event::Closed>()) { window.close(); return 0; }
+                if (ev->is<sf::Event::Closed>()) {
+                    window.close();
+                    return 0;
+                }
                 splash.handleInput(*ev);
             }
             splash.update(sdt);
@@ -156,29 +170,49 @@ int main() {
         }
     }
 
+    // -----------------------------------------------------------------------
+    // Main loop
+    // -----------------------------------------------------------------------
     sf::Clock clock;
 
     while (window.isOpen()) {
         float dt = clock.restart().asSeconds();
         if (dt > 0.05f) dt = 0.05f;
 
+        // -------------------------------------------------------------------
+        // Events
+        // -------------------------------------------------------------------
         while (const std::optional ev = window.pollEvent()) {
-            if (ev->is<sf::Event::Closed>()) { doSave(); window.close(); }
+            if (ev->is<sf::Event::Closed>()) {
+                doSave();
+                window.close();
+            }
+
             if (const auto* k = ev->getIf<sf::Event::KeyPressed>()) {
                 if (k->code == sf::Keyboard::Key::R) {
                     doReset();
                 } else if (hubUI.isOpen()) {
                     hubUI.handleInput(k->code);
-                    doSave(); // cosmetics/shop changes persist immediately
+                    doSave();
                 } else if (k->code == sf::Keyboard::Key::E && inHub) {
                     int zi = npcs.getNearbyNpc(player.position());
                     if (zi >= 0) {
                         switch (npcs.typeAt(zi)) {
-                            case NpcType::Shop:      hubUI.open(HubPanel::Shop);      break;
-                            case NpcType::Cosmetics: hubUI.open(HubPanel::Cosmetics); break;
-                            case NpcType::TimeKeeper:  hubUI.open(HubPanel::TimeKeeper);  break;
-                        case NpcType::Lore:        hubUI.open(HubPanel::Lore);       break;
-                        case NpcType::WiseMan:     hubUI.open(HubPanel::WiseMan);    break;
+                            case NpcType::Shop:
+                                hubUI.open(HubPanel::Shop);
+                                break;
+                            case NpcType::Cosmetics:
+                                hubUI.open(HubPanel::Cosmetics);
+                                break;
+                            case NpcType::TimeKeeper:
+                                hubUI.open(HubPanel::TimeKeeper);
+                                break;
+                            case NpcType::Lore:
+                                hubUI.open(HubPanel::Lore);
+                                break;
+                            case NpcType::WiseMan:
+                                hubUI.open(HubPanel::WiseMan);
+                                break;
                         }
                     }
                 } else if (k->code == sf::Keyboard::Key::Escape) {
@@ -187,6 +221,9 @@ int main() {
             }
         }
 
+        // -------------------------------------------------------------------
+        // Update
+        // -------------------------------------------------------------------
         if (!hubUI.isOpen() && state == GameState::Playing) {
             player.update(dt, level.platforms(), state);
             level.update(dt);
@@ -195,65 +232,105 @@ int main() {
 
             float py = player.position().y;
 
+            // Leaving hub — start run
             if (inHub && py < foolThreshold) {
-                inHub        = false;
-                runActive    = true;
+                inHub = false;
+                runActive = true;
                 timerRunning = true;
-                runTimer     = 0.f;
+                runTimer = 0.f;
                 coins.resetRun();
             }
 
+            // Returning to hub — end run
             if (runActive && py >= foolThreshold) {
-                runActive    = false;
+                runActive = false;
                 timerRunning = false;
-                inHub        = true;
-                runEndTimer  = 3.5f;
+                inHub = true;
+                runEndTimer = 3.5f;
                 level.resetDynamic();
-                doSave(); // save at end of each run
+                doSave();
 
                 int mins = (int)(runTimer / 60.f);
                 float secs = runTimer - mins * 60.f;
                 std::ostringstream ss;
-                ss << "Run ended — " << mins << ":"
-                   << std::fixed << std::setprecision(2)
+                ss << "Run ended — " << mins << ":" << std::fixed << std::setprecision(2)
                    << std::setw(5) << std::setfill('0') << secs;
                 runEndText.setString(ss.str());
                 auto rb = runEndText.getLocalBounds();
-                runEndText.setOrigin({rb.position.x + rb.size.x / 2.f,
-                                      rb.position.y + rb.size.y / 2.f});
+                runEndText.setOrigin(
+                    {rb.position.x + rb.size.x / 2.f, rb.position.y + rb.size.y / 2.f});
                 runEndText.setPosition({(float)WIN_W / 2.f, (float)WIN_H - 100.f});
             }
 
-            if (timerRunning) runTimer  += dt;
-            if (runEndTimer  > 0.f)      runEndTimer -= dt;
+            if (timerRunning) runTimer += dt;
+            if (runEndTimer > 0.f) runEndTimer -= dt;
 
+            // Section announcer
             int sec = level.getSectionIndex(py);
             if (sec >= 0 && !announcer.hasSeen(sec)) {
                 announcer.markSeen(sec);
                 announcer.trigger(level.sections()[sec].name);
             }
 
+            // Win
             if (state == GameState::Won) {
                 timerRunning = false;
-                runActive    = false;
+                runActive = false;
                 hubUI.setBestTime(runTimer);
-                doSave(); // save on win
+                doSave();
             }
         }
 
         announcer.update(dt);
-    hubUI.update(dt);
+        g_juice.update(dt);
+        hubUI.update(dt);
         camera.update(player.position());
 
+        // -------------------------------------------------------------------
+        // Draw — world space
+        // -------------------------------------------------------------------
+
+        // Apply camera + screen shake to view
         camera.apply(window);
+        {
+            sf::View view = window.getView();
+            view.move(g_juice.shakeOffset());
+            window.setView(view);
+        }
+
         window.clear(sf::Color(18, 8, 38));
+
         level.draw(window);
         npcs.draw(window, font);
         coins.draw(window);
+
+        // Dash afterimage trail (drawn before player)
+        for (const auto& img : g_juice.afterimages()) {
+            sf::RectangleShape ghost({BODY_W * img.scaleX, BODY_H * img.scaleY});
+            ghost.setOrigin({BODY_W * img.scaleX / 2.f, BODY_H * img.scaleY / 2.f});
+            ghost.setPosition(img.pos);
+            ghost.setFillColor(
+                sf::Color(img.color.r, img.color.g, img.color.b, (uint8_t)(img.alpha * 180.f)));
+            window.draw(ghost);
+        }
+
         player.draw(window);
 
+        // Particles (drawn in world space so they stick to platforms)
+        g_juice.draw(window);
+
+        // -------------------------------------------------------------------
+        // Draw — screen space (HUD, UI)
+        // -------------------------------------------------------------------
         camera.applyDefault(window);
 
+        // Dash indicator
+        dashIndicator.setFillColor(player.isDashAvail() ? sf::Color(100, 200, 255, 200)
+                                                        : sf::Color(60, 40, 100, 180));
+        dashIndicator.setPosition({10.f, 36.f});
+        window.draw(dashIndicator);
+
+        // HUD text
         float progress = std::clamp(1.f - (player.position().y / worldH), 0.f, 1.f);
         std::ostringstream hud;
         hud << "Height: " << (int)(progress * 100) << "%"
@@ -261,9 +338,8 @@ int main() {
         if (timerRunning) {
             int mins = (int)(runTimer / 60.f);
             float secs = runTimer - mins * 60.f;
-            hud << "   Time: " << mins << ":"
-                << std::fixed << std::setprecision(2)
-                << std::setw(5) << std::setfill('0') << secs;
+            hud << "   Time: " << mins << ":" << std::fixed << std::setprecision(2) << std::setw(5)
+                << std::setfill('0') << secs;
         }
         if (inHub) hud << "   [E] Interact";
         hud << "   [R] Restart";
@@ -271,9 +347,7 @@ int main() {
         hudText.setPosition({10.f, 10.f});
         window.draw(hudText);
 
-        dashIndicator.setPosition({10.f, 36.f});
-        window.draw(dashIndicator);
-
+        // NPC prompt / hub hint
         if (inHub && !hubUI.isOpen()) {
             int zi = npcs.getNearbyNpc(player.position());
             if (zi >= 0) {
@@ -289,6 +363,7 @@ int main() {
             window.draw(promptText);
         }
 
+        // Run end banner
         if (runEndTimer > 0.f) {
             uint8_t a = (uint8_t)(std::min(1.f, runEndTimer / 0.5f) * 255.f);
             runEndText.setFillColor(sf::Color(200, 160, 255, a));
@@ -299,14 +374,23 @@ int main() {
         announcer.draw(window);
         hubUI.draw(window);
 
+        // Win screen
         if (state == GameState::Won) {
             auto b = winText.getLocalBounds();
-            winText.setPosition({(float)WIN_W / 2.f - b.size.x / 2.f,
-                                 (float)WIN_H / 2.f - 40.f});
+            winText.setPosition({(float)WIN_W / 2.f - b.size.x / 2.f, (float)WIN_H / 2.f - 40.f});
             window.draw(winText);
+        }
+
+        // Flash overlay — drawn last so it's on top of everything
+        if (g_juice.flashAlpha() > 0.f) {
+            sf::RectangleShape flash({(float)WIN_W, (float)WIN_H});
+            flash.setFillColor(sf::Color(255, 255, 255, (uint8_t)(g_juice.flashAlpha() * 255.f)));
+            window.draw(flash);
         }
 
         window.display();
     }
+
+    doSave();
     return 0;
 }
