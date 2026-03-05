@@ -24,7 +24,7 @@ int main() {
     window.setFramerateLimit(60);
 
     sf::Font font;
-    font.openFromFile("assets/fonts/DejaVuSans.ttf")
+    font.openFromFile("assets/fonts/DejaVuSans.ttf");
 
     // --- Load level ---
     LevelData level;
