@@ -59,7 +59,7 @@ jobs:
           fi
 
       # -----------------------------------------------------------------------
-      # Package — Windows only, tag pushes only
+      # Package Windows — tag pushes only
       # -----------------------------------------------------------------------
       - name: Package Windows release
         if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/')
@@ -88,6 +88,53 @@ jobs:
           name: windows-release
           path: ArcaneJourney-${{ github.ref_name }}-windows.zip
 
+      # -----------------------------------------------------------------------
+      # Package macOS — tag pushes only
+      # -----------------------------------------------------------------------
+      - name: Package macOS release
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          mkdir -p release/ArcaneJourney.app/Contents/MacOS
+          mkdir -p release/ArcaneJourney.app/Contents/Resources
+
+          cp build/ArcaneJourney release/ArcaneJourney.app/Contents/MacOS/
+
+          # Copy assets into the app bundle
+          cp -r assets release/ArcaneJourney.app/Contents/Resources/
+
+          # Copy any dylibs SFML placed next to the binary
+          find build -maxdepth 3 -name "*.dylib" | while read lib; do
+            cp "$lib" release/ArcaneJourney.app/Contents/MacOS/ 2>/dev/null || true
+          done
+
+          # Minimal Info.plist so macOS recognises it as an app
+          cat > release/ArcaneJourney.app/Contents/Info.plist << 'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+            "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleName</key>             <string>ArcaneJourney</string>
+            <key>CFBundleExecutable</key>        <string>ArcaneJourney</string>
+            <key>CFBundleIdentifier</key>        <string>com.bishal216.arcanejourney</string>
+            <key>CFBundleVersion</key>           <string>${{ github.ref_name }}</string>
+            <key>CFBundlePackageType</key>       <string>APPL</string>
+            <key>NSHighResolutionCapable</key>   <true/>
+          </dict>
+          </plist>
+          PLIST
+
+          # Zip the .app bundle
+          cd release
+          zip -r "../ArcaneJourney-${{ github.ref_name }}-macos.zip" ArcaneJourney.app/
+
+      - name: Upload macOS artifact
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release
+          path: ArcaneJourney-${{ github.ref_name }}-macos.zip
+
   # ---------------------------------------------------------------------------
   # GitHub Release — after all builds pass
   # ---------------------------------------------------------------------------
@@ -105,6 +152,11 @@ jobs:
         with:
           name: windows-release
 
+      - name: Download macOS zip
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-release
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -113,8 +165,9 @@ jobs:
             ## Arcane Journey ${{ github.ref_name }}
 
             ### How to play
-            1. Download and unzip `ArcaneJourney-${{ github.ref_name }}-windows.zip`
-            2. Run `ArcaneJourney.exe` — no install needed
+            **Windows:** Download and unzip `ArcaneJourney-${{ github.ref_name }}-windows.zip`, run `ArcaneJourney.exe`
+            **macOS:** Download and unzip `ArcaneJourney-${{ github.ref_name }}-macos.zip`, open `ArcaneJourney.app`
+            > macOS may show a security warning — right-click the app and choose Open to bypass it
 
             ### Controls
             | Input | Action |
@@ -125,7 +178,9 @@ jobs:
             | Up / Down near rope or ladder | Climb |
             | E | Talk to NPC |
             | R | Restart |
-          files: ArcaneJourney-${{ github.ref_name }}-windows.zip
+          files: |
+            ArcaneJourney-${{ github.ref_name }}-windows.zip
+            ArcaneJourney-${{ github.ref_name }}-macos.zip
           draft: false
           prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
 
@@ -144,6 +199,11 @@ jobs:
         with:
           name: windows-release
 
+      - name: Download macOS zip
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-release
+
       - name: Install Butler
         run: |
           curl -L -o butler.zip https://github.com/itchio/butler/releases/latest/download/butler-linux-amd64.zip
@@ -152,11 +212,20 @@ jobs:
           linux-amd64/butler -V
           echo "$PWD/linux-amd64" >> $GITHUB_PATH
 
-      - name: Push to itch.io
+      - name: Push Windows to itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
         run: |
           butler push \
             "ArcaneJourney-${{ github.ref_name }}-windows.zip" \
             bishal216/arcane-journey:windows \
+            --userversion "${{ github.ref_name }}"
+
+      - name: Push macOS to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          butler push \
+            "ArcaneJourney-${{ github.ref_name }}-macos.zip" \
+            bishal216/arcane-journey:osx \
             --userversion "${{ github.ref_name }}"
