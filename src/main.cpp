@@ -24,10 +24,7 @@ int main() {
     window.setFramerateLimit(60);
 
     sf::Font font;
-    font.openFromFile("C:/msys64/ucrt64/share/fonts/TTF/DejaVuSans.ttf")
-    || font.openFromFile("C:/Windows/Fonts/arial.ttf")
-    || font.openFromFile("C:/Windows/Fonts/calibri.ttf")
-    || font.openFromFile("C:/Windows/Fonts/segoeui.ttf");
+    font.openFromFile("assets/fonts/DejaVuSans.ttf")
 
     // --- Load level ---
     LevelData level;
