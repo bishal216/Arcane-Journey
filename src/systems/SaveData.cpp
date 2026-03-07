@@ -3,10 +3,11 @@
 #include <cstdint>
 #include <fstream>
 
-// Format v4:
+// Format v5:
 //   [4]  magic "ARCJ"
-//   [1]  version = 4
+//   [1]  version = 5
 //   [4]  totalCoins (int32)
+//   [4]  coinFraction (float)
 //   [4]  bestTime   (float)
 //   [2]  discoveries (uint16 bitmask)
 //   [1]  numArtifacts
@@ -20,7 +21,7 @@
 //   [n]  eyeEquipped flags
 
 static constexpr char MAGIC[4] = {'A', 'R', 'C', 'J'};
-static constexpr uint8_t VERSION = 4;
+static constexpr uint8_t VERSION = 5;
 
 bool SaveData::load(const std::string& path) {
     std::ifstream f(path, std::ios::binary);
@@ -38,6 +39,8 @@ bool SaveData::load(const std::string& path) {
     int32_t coins;
     f.read(reinterpret_cast<char*>(&coins), 4);
     totalCoins = coins;
+
+    f.read(reinterpret_cast<char*>(&coinFraction), 4);
 
     f.read(reinterpret_cast<char*>(&bestTime), 4);
     f.read(reinterpret_cast<char*>(&discoveries), 2);
@@ -72,6 +75,7 @@ void SaveData::save(const std::string& path) const {
 
     int32_t coins = totalCoins;
     f.write(reinterpret_cast<const char*>(&coins), 4);
+    f.write(reinterpret_cast<const char*>(&coinFraction), 4);
     f.write(reinterpret_cast<const char*>(&bestTime), 4);
     f.write(reinterpret_cast<const char*>(&discoveries), 2);
 

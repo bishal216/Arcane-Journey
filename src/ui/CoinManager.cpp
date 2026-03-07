@@ -19,12 +19,14 @@ void CoinManager::reset() {
     for (auto& c : m_coins) c.collectedThisRun = false;
     m_collectedTotal = 0;
     m_runTotal = 0;
+    m_coinFraction = 0.f;
 }
 
 void CoinManager::resetRun() {
-    m_collectedTotal = 0;
-    for (auto& c : m_coins)
-        if (c.collectedThisRun) m_collectedTotal++;
+    // m_collectedTotal is authoritative — set by main from save.totalCoins
+    // Just clear the per-run counter and fraction accumulator
+    m_runTotal = 0;
+    m_coinFraction = 0.f;
     g_discovery.discover(PlatType::Coin);
 }
 

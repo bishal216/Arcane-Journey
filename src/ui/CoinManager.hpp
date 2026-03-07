@@ -20,7 +20,9 @@ class CoinManager {
     int totalCoins() const { return (int)m_coins.size(); }
     int collectedCount() const { return m_collectedTotal; }
     int runTotal() const { return m_runTotal; }
+    float coinFraction() const { return m_coinFraction; }
     void setCollectedCount(int v) { m_collectedTotal = v; }
+    void setCoinFraction(float v) { m_coinFraction = v; }
 
    private:
     std::vector<Coin> m_coins;

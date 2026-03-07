@@ -5,6 +5,7 @@
 
 struct SaveData {
     int32_t totalCoins = 0;
+    float coinFraction = 0.f;
     float bestTime = -1.f;  // pure (no artifacts) best
     uint16_t discoveries = 0;
     std::vector<bool> artifactOwned;

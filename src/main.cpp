@@ -64,7 +64,7 @@ int main() {
     SaveData save;
     if (save.load(SAVE_PATH)) {
         coins.setCollectedCount(save.totalCoins);
-        g_discovery.fromBits(save.discoveries);
+        coins.setCoinFraction(save.coinFraction);
         if (save.bestTime > 0.f) hubUI.setBestTime(save.bestTime);
         g_artifacts.fromBits(save.artifactOwned, save.artifactEquipped);
         g_achievements.restoreBits(save.achievCompleted, save.achievClaimed);
@@ -76,6 +76,7 @@ int main() {
     auto doSave = [&]() {
         save.discoveries = g_discovery.toBits();
         save.totalCoins = coins.collectedCount();
+        save.coinFraction = coins.coinFraction();
         save.bestTime = hubUI.bestTime();
         save.artifactOwned = g_artifacts.ownedBits();
         save.artifactEquipped = g_artifacts.equippedBits();
@@ -119,7 +120,7 @@ int main() {
         player.resetRun();
         coins.reset();
         coins.setCollectedCount(save.totalCoins);
-        level.resetDynamic();
+        coins.setCoinFraction(save.coinFraction);
         announcer.resetSeen((int)level.sections().size());
         state = GameState::Playing;
         inHub = true;
@@ -315,9 +316,11 @@ int main() {
                 runEndTimer = 3.5f;
                 level.resetDynamic();
                 save.totalCoins = coins.collectedCount();
+                save.coinFraction = coins.coinFraction();
                 doSave();
                 coins.reset();
                 coins.setCollectedCount(save.totalCoins);
+                coins.setCoinFraction(save.coinFraction);
 
                 int mins = (int)(runTimer / 60.f);
                 float secs = runTimer - mins * 60.f;
