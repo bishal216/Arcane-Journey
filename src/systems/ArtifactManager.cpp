@@ -59,7 +59,10 @@ void ArtifactManager::buildArtifactList() {
     m = {};
     m.speedMult = 1.5f;
     m.doubleJump = false;
-    m_artifacts.push_back(make(2, "Overclock Gauntlet", "Move speed +50%, no double jump",
+    m.countdownTimer = true;
+    m.countdownSeconds = 300.f;
+    m_artifacts.push_back(make(2, "Overclock Gauntlet",
+                               "Move speed +50%, no double jump, but run ends after 5 minutes",
                                "Hums ominously. Don't ask where it came from.", 15,
                                sf::Color(255, 180, 60), CosmeticSlot::Hat, m));
 
@@ -83,8 +86,10 @@ void ArtifactManager::buildArtifactList() {
     m = {};
     m.glassCannon = true;
     m.coinMult = 2.f;
+    m.loseCoinsOnFail = true;
     m_artifacts.push_back(make(
-        5, "Devil's Pact", "Coins worth 2x, but falling far resets you to hub",
+        5, "Devil's Pact",
+        "Coins worth 2x, but hard falls send you to hub and lose half your coins",
         "The contract was very small print.", 20, sf::Color(220, 60, 60), CosmeticSlot::Aura, m));
 
     // 6 — Coin Halo

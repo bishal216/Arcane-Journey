@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <algorithm>
+#include <cmath>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -292,6 +293,33 @@ int main() {
             coins.update(player.position());
             g_artifacts.updateGhost(dt, player.position());
 
+            // Glass Cannon — hard fall detected, force hub return
+            if (player.glassCannonTriggered() && runActive) {
+                player.clearGlassCannon();
+                player.reset();
+                player.resetRun();
+                if (g_artifacts.mods().loseCoinsOnFail) {
+                    int lost = coins.collectedCount() / 2;
+                    coins.setCollectedCount(coins.collectedCount() - lost);
+                }
+                runActive = false;
+                timerRunning = false;
+                inHub = true;
+                runEndTimer = 3.5f;
+                level.resetDynamic();
+                save.totalCoins = coins.collectedCount();
+                save.coinFraction = coins.coinFraction();
+                doSave();
+                coins.reset();
+                coins.setCollectedCount(save.totalCoins);
+                coins.setCoinFraction(save.coinFraction);
+                runEndText.setString("Glass Cannon! Sent back to hub.");
+                auto rb = runEndText.getLocalBounds();
+                runEndText.setOrigin(
+                    {rb.position.x + rb.size.x / 2.f, rb.position.y + rb.size.y / 2.f});
+                runEndText.setPosition({(float)WIN_W / 2.f, (float)WIN_H - 100.f});
+            }
+
             // Track dash usage for Ghost Run achievement
             if (player.hasDashBeenUsed()) dashUsedThisRun = true;
 
@@ -315,6 +343,10 @@ int main() {
                 inHub = true;
                 runEndTimer = 3.5f;
                 level.resetDynamic();
+                if (g_artifacts.mods().loseCoinsOnFail) {
+                    int lost = coins.collectedCount() / 2;
+                    coins.setCollectedCount(coins.collectedCount() - lost);
+                }
                 save.totalCoins = coins.collectedCount();
                 save.coinFraction = coins.coinFraction();
                 doSave();
@@ -336,6 +368,36 @@ int main() {
 
             if (timerRunning) runTimer += dt;
             if (runEndTimer > 0.f) runEndTimer -= dt;
+
+            // Countdown timer — Overclock Gauntlet: run ends when it hits 0
+            if (timerRunning && runActive && g_artifacts.mods().countdownTimer) {
+                float timeLeft = g_artifacts.mods().countdownSeconds - runTimer;
+                if (timeLeft <= 0.f) {
+                    // Time's up — force hub return
+                    player.reset();
+                    player.resetRun();
+                    if (g_artifacts.mods().loseCoinsOnFail) {
+                        int lost = coins.collectedCount() / 2;
+                        coins.setCollectedCount(coins.collectedCount() - lost);
+                    }
+                    runActive = false;
+                    timerRunning = false;
+                    inHub = true;
+                    runEndTimer = 3.5f;
+                    level.resetDynamic();
+                    save.totalCoins = coins.collectedCount();
+                    save.coinFraction = coins.coinFraction();
+                    doSave();
+                    coins.reset();
+                    coins.setCollectedCount(save.totalCoins);
+                    coins.setCoinFraction(save.coinFraction);
+                    runEndText.setString("Time's up! Sent back to hub.");
+                    auto rb = runEndText.getLocalBounds();
+                    runEndText.setOrigin(
+                        {rb.position.x + rb.size.x / 2.f, rb.position.y + rb.size.y / 2.f});
+                    runEndText.setPosition({(float)WIN_W / 2.f, (float)WIN_H - 100.f});
+                }
+            }
 
             // Section announcer
             int sec = level.getSectionIndex(py);
@@ -460,10 +522,29 @@ int main() {
         hud << "Height: " << (int)(progress * 100) << "%"
             << "   Coins: " << coins.collectedCount() << "/" << coins.totalCoins();
         if (timerRunning) {
-            int mins = (int)(runTimer / 60.f);
-            float secs = runTimer - mins * 60.f;
-            hud << "   Time: " << mins << ":" << std::fixed << std::setprecision(2) << std::setw(5)
-                << std::setfill('0') << secs;
+            const auto& mods = g_artifacts.mods();
+            if (mods.countdownTimer) {
+                float timeLeft = std::max(0.f, mods.countdownSeconds - runTimer);
+                int mins = (int)(timeLeft / 60.f);
+                float secs = timeLeft - mins * 60.f;
+                // Flash red when under 30 seconds
+                if (timeLeft < 30.f) {
+                    float flash = std::fmod(timeLeft, 0.5f) < 0.25f ? 255.f : 180.f;
+                    hudText.setFillColor(sf::Color((uint8_t)flash, 60, 60));
+                } else {
+                    hudText.setFillColor(sf::Color(210, 210, 210));
+                }
+                hud << "   Time: " << mins << ":" << std::fixed << std::setprecision(2)
+                    << std::setw(5) << std::setfill('0') << secs << " ⬇";
+            } else {
+                hudText.setFillColor(sf::Color(210, 210, 210));
+                int mins = (int)(runTimer / 60.f);
+                float secs = runTimer - mins * 60.f;
+                hud << "   Time: " << mins << ":" << std::fixed << std::setprecision(2)
+                    << std::setw(5) << std::setfill('0') << secs;
+            }
+        } else {
+            hudText.setFillColor(sf::Color(210, 210, 210));
         }
         if (inHub) hud << "   [E] Interact";
         hud << "   [R] Restart";

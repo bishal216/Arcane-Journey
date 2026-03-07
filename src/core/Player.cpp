@@ -247,9 +247,8 @@ void Player::resolveVertical(const std::vector<Platform>& platforms, GameState& 
                 else
                     m_vel.y = 0.f;
 
-                // Glass Cannon — hard fall resets to hub
-                if (g_artifacts.mods().glassCannon && prevVY > 500.f)
-                    state = GameState::Playing;  // flag handled in main — treat as forced reset
+                // Glass Cannon — hard fall, signal main to return to hub
+                if (g_artifacts.mods().glassCannon && prevVY > 500.f) m_glassCannonTriggered = true;
 
                 if (p.isGoal) state = GameState::Won;
             } else {

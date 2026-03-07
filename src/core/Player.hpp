@@ -14,7 +14,11 @@ class Player {
     void resetRun() {
         m_glassDashUsed = false;
         m_dashEverUsed = false;
+        m_glassCannonTriggered = false;
     }
+
+    bool glassCannonTriggered() const { return m_glassCannonTriggered; }
+    void clearGlassCannon() { m_glassCannonTriggered = false; }
     void setWorldH(float h) { m_worldH = h; }
     void setWorldW(float w) { m_worldW = w; }
 
@@ -59,8 +63,9 @@ class Player {
     bool m_dashing = false;
     float m_dashTimer = 0.f;
     float m_dashCoolTimer = 0.f;
-    bool m_glassDashUsed = false;  // Glass Dash artifact — one dash per run
-    bool m_dashEverUsed = false;   // for Ghost Run achievement tracking
+    bool m_glassDashUsed = false;         // Glass Dash artifact — one dash per run
+    bool m_dashEverUsed = false;          // for Ghost Run achievement tracking
+    bool m_glassCannonTriggered = false;  // Glass Cannon hard-fall signal to main
     sf::Vector2f m_dashDir = {0.f, 0.f};
     bool m_prevSpace = false;
     bool m_prevUp = false;
