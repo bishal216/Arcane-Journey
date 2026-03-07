@@ -1,29 +1,27 @@
 #include "ui/SplashScreen.hpp"
-#include "Constants.hpp"
+
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <algorithm>
 
-static float randf(float lo, float hi) {
-    return lo + (hi - lo) * (std::rand() % 1000) / 999.f;
-}
+#include "Constants.hpp"
+
+static float randf(float lo, float hi) { return lo + (hi - lo) * (std::rand() % 1000) / 999.f; }
 
 // ---------------------------------------------------------------------------
 // Constructor
 // ---------------------------------------------------------------------------
 
 SplashScreen::SplashScreen(const sf::Font& font)
-    : m_title (font, "ARCANE JOURNEY", 64)
-    , m_subtitle(font, "A journey through the tarot", 22)
-    , m_prompt(font, "Press any key to begin", 20)
-{
+    : m_title(font, "ARCANE JOURNEY", 64),
+      m_subtitle(font, "A journey through the tarot", 22),
+      m_prompt(font, "Press any key to begin", 20) {
     // Title
     m_title.setFillColor(sf::Color(220, 200, 255));
     m_title.setOutlineColor(sf::Color(80, 40, 140));
     m_title.setOutlineThickness(3.f);
     auto tb = m_title.getLocalBounds();
-    m_title.setOrigin({tb.position.x + tb.size.x / 2.f,
-                       tb.position.y + tb.size.y / 2.f});
+    m_title.setOrigin({tb.position.x + tb.size.x / 2.f, tb.position.y + tb.size.y / 2.f});
     m_title.setPosition({WIN_W / 2.f, WIN_H / 2.f - 60.f});
 
     // Subtitle
@@ -31,8 +29,7 @@ SplashScreen::SplashScreen(const sf::Font& font)
     m_subtitle.setOutlineColor(sf::Color(40, 20, 80));
     m_subtitle.setOutlineThickness(1.5f);
     auto sb = m_subtitle.getLocalBounds();
-    m_subtitle.setOrigin({sb.position.x + sb.size.x / 2.f,
-                          sb.position.y + sb.size.y / 2.f});
+    m_subtitle.setOrigin({sb.position.x + sb.size.x / 2.f, sb.position.y + sb.size.y / 2.f});
     m_subtitle.setPosition({WIN_W / 2.f, WIN_H / 2.f + 20.f});
 
     // Prompt
@@ -40,8 +37,7 @@ SplashScreen::SplashScreen(const sf::Font& font)
     m_prompt.setOutlineColor(sf::Color(40, 20, 80));
     m_prompt.setOutlineThickness(1.f);
     auto pb = m_prompt.getLocalBounds();
-    m_prompt.setOrigin({pb.position.x + pb.size.x / 2.f,
-                        pb.position.y + pb.size.y / 2.f});
+    m_prompt.setOrigin({pb.position.x + pb.size.x / 2.f, pb.position.y + pb.size.y / 2.f});
     m_prompt.setPosition({WIN_W / 2.f, WIN_H / 2.f + 120.f});
 
     // Overlay
@@ -61,28 +57,28 @@ void SplashScreen::buildStars() {
     std::srand(42);
     m_stars.resize(120);
     for (auto& s : m_stars) {
-        s.pos        = {randf(0.f, (float)WIN_W), randf(0.f, (float)WIN_H)};
-        s.speed      = randf(4.f, 18.f);
-        s.size       = randf(1.f, 3.f);
+        s.pos = {randf(0.f, (float)WIN_W), randf(0.f, (float)WIN_H)};
+        s.speed = randf(4.f, 18.f);
+        s.size = randf(1.f, 3.f);
         s.brightness = randf(0.4f, 1.f);
     }
 }
 
 void SplashScreen::buildPlatforms() {
     m_plats = {
-        {{120.f, WIN_H / 2.f + 160.f}, 0.0f, 0.6f, sf::Color( 80, 190,  80), {96.f,  14.f}},
-        {{780.f, WIN_H / 2.f + 140.f}, 1.2f, 0.8f, sf::Color(120, 210, 255), {80.f,  14.f}},
-        {{ 60.f, WIN_H / 2.f + 200.f}, 2.5f, 0.5f, sf::Color(230, 210,  90), {64.f,  14.f}},
-        {{860.f, WIN_H / 2.f + 180.f}, 0.8f, 0.7f, sf::Color(140,  80, 200), {72.f,  14.f}},
-        {{300.f, WIN_H / 2.f + 220.f}, 3.1f, 0.4f, sf::Color( 80, 220, 120), {88.f,  14.f}},
-        {{650.f, WIN_H / 2.f + 210.f}, 1.8f, 0.9f, sf::Color(160, 100,  50), {80.f,  14.f}},
+        {{120.f, WIN_H / 2.f + 160.f}, 0.0f, 0.6f, sf::Color(80, 190, 80), {96.f, 14.f}},
+        {{780.f, WIN_H / 2.f + 140.f}, 1.2f, 0.8f, sf::Color(120, 210, 255), {80.f, 14.f}},
+        {{60.f, WIN_H / 2.f + 200.f}, 2.5f, 0.5f, sf::Color(230, 210, 90), {64.f, 14.f}},
+        {{860.f, WIN_H / 2.f + 180.f}, 0.8f, 0.7f, sf::Color(140, 80, 200), {72.f, 14.f}},
+        {{300.f, WIN_H / 2.f + 220.f}, 3.1f, 0.4f, sf::Color(80, 220, 120), {88.f, 14.f}},
+        {{650.f, WIN_H / 2.f + 210.f}, 1.8f, 0.9f, sf::Color(160, 100, 50), {80.f, 14.f}},
     };
 }
 
 void SplashScreen::buildSigil() {
     float cx = WIN_W / 2.f;
     float cy = WIN_H / 2.f - 180.f;
-    float r  = 48.f;
+    float r = 48.f;
 
     // Outer ring
     m_sigilRing.setRadius(r);
@@ -141,12 +137,11 @@ sf::Color SplashScreen::withAlpha(sf::Color c, float a) const {
 
 void SplashScreen::handleInput(const sf::Event& ev) {
     if (m_state != SplashState::Idle) return;
-    bool pressed = ev.is<sf::Event::KeyPressed>() ||
-                   ev.is<sf::Event::MouseButtonPressed>();
+    bool pressed = ev.is<sf::Event::KeyPressed>() || ev.is<sf::Event::MouseButtonPressed>();
     if (pressed) {
         m_anyKey = true;
-        m_state  = SplashState::FadeOut;
-        m_timer  = 0.f;
+        m_state = SplashState::FadeOut;
+        m_timer = 0.f;
     }
 }
 
@@ -157,8 +152,7 @@ void SplashScreen::update(float dt) {
     // Drift stars upward, wrap at top
     for (auto& s : m_stars) {
         s.pos.y -= s.speed * dt;
-        if (s.pos.y < -4.f)
-            s.pos.y = (float)WIN_H + 2.f;
+        if (s.pos.y < -4.f) s.pos.y = (float)WIN_H + 2.f;
     }
 
     switch (m_state) {
@@ -177,8 +171,7 @@ void SplashScreen::update(float dt) {
 
         case SplashState::FadeOut:
             m_alpha = 1.f - std::min(m_timer / FADEOUT_TIME, 1.f);
-            if (m_timer >= FADEOUT_TIME)
-                m_state = SplashState::Done;
+            if (m_timer >= FADEOUT_TIME) m_state = SplashState::Done;
             break;
 
         case SplashState::Done:
@@ -219,7 +212,7 @@ void SplashScreen::draw(sf::RenderWindow& window) const {
     // Sigil — tint by alpha
     auto drawSigil = [&]() {
         // Rings
-        sf::CircleShape ring  = m_sigilRing;
+        sf::CircleShape ring = m_sigilRing;
         sf::CircleShape inner = m_sigilInner;
         ring.setOutlineColor(withAlpha(sf::Color(160, 100, 220), a));
         inner.setFillColor(withAlpha(sf::Color(80, 40, 120), a * 0.5f));
@@ -244,9 +237,9 @@ void SplashScreen::draw(sf::RenderWindow& window) const {
     drawSigil();
 
     // Title
-    sf::Text title   = m_title;
-    sf::Text sub     = m_subtitle;
-    sf::Text prompt  = m_prompt;
+    sf::Text title = m_title;
+    sf::Text sub = m_subtitle;
+    sf::Text prompt = m_prompt;
 
     title.setFillColor(withAlpha(sf::Color(220, 200, 255), a));
     title.setOutlineColor(withAlpha(sf::Color(80, 40, 140), a));
@@ -254,9 +247,8 @@ void SplashScreen::draw(sf::RenderWindow& window) const {
     sub.setOutlineColor(withAlpha(sf::Color(40, 20, 80), a));
 
     // Prompt pulsing opacity
-    float promptA = m_state == SplashState::Idle
-                    ? a * (0.5f + 0.5f * std::sin(m_pulse * 3.f))
-                    : 0.f;
+    float promptA =
+        m_state == SplashState::Idle ? a * (0.5f + 0.5f * std::sin(m_pulse * 3.f)) : 0.f;
     prompt.setFillColor(withAlpha(sf::Color(200, 180, 240), promptA));
     prompt.setOutlineColor(withAlpha(sf::Color(40, 20, 80), promptA));
 

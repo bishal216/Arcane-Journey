@@ -2,8 +2,10 @@
 
 #include <cmath>
 
+#include "systems/ArtifactManager.hpp"
 #include "systems/DiscoveryTracker.hpp"
 #include "systems/Juice.hpp"
+
 static const float COLLECT_RADIUS = 24.f;
 
 void CoinManager::init(const std::vector<CoinSpawn>& spawns) {
@@ -27,16 +29,27 @@ void CoinManager::resetRun() {
 }
 
 void CoinManager::update(sf::Vector2f playerPos) {
+    const auto& qm = g_artifacts.mods();
+
+    // Coin Magnet — use larger radius if artifact equipped
+    float radius = std::max(COLLECT_RADIUS, qm.coinMagnetRadius);
+
     for (auto& c : m_coins) {
         if (c.collectedThisRun) continue;
         sf::Vector2f coinPos = c.shape.getPosition();
         float dx = playerPos.x - coinPos.x;
         float dy = playerPos.y - coinPos.y;
-        if (std::sqrt(dx * dx + dy * dy) < COLLECT_RADIUS) {
+        if (std::sqrt(dx * dx + dy * dy) < radius) {
             c.collectedThisRun = true;
-            m_collectedTotal++;
-            g_juice.onCoinCollect(c.shape.getPosition());
+            // coinMult — add fractional coins (tracked as float, floored for display)
+            m_collectedTotal += (int)qm.coinMult;
+            m_coinFraction += qm.coinMult - (int)qm.coinMult;
+            if (m_coinFraction >= 1.f) {
+                m_collectedTotal++;
+                m_coinFraction -= 1.f;
+            }
             g_discovery.discover(PlatType::Coin);
+            g_juice.onCoinCollect(coinPos);
             m_runTotal++;
         }
     }

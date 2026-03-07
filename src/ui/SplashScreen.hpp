@@ -5,7 +5,7 @@
 enum class SplashState { FadeIn, Idle, FadeOut, Done };
 
 class SplashScreen {
-public:
+   public:
     SplashScreen(const sf::Font& font);
 
     void handleInput(const sf::Event& ev);
@@ -14,29 +14,29 @@ public:
 
     bool isDone() const { return m_state == SplashState::Done; }
 
-private:
+   private:
     // State
-    SplashState m_state     = SplashState::FadeIn;
-    float       m_timer     = 0.f;
-    float       m_alpha     = 0.f;   // 0..1 overall fade
-    float       m_pulse     = 0.f;   // prompt pulse timer
-    bool        m_anyKey    = false;
+    SplashState m_state = SplashState::FadeIn;
+    float m_timer = 0.f;
+    float m_alpha = 0.f;  // 0..1 overall fade
+    float m_pulse = 0.f;  // prompt pulse timer
+    bool m_anyKey = false;
 
     // Stars
     struct Star {
         sf::Vector2f pos;
-        float        speed;
-        float        size;
-        float        brightness;
+        float speed;
+        float size;
+        float brightness;
     };
     std::vector<Star> m_stars;
 
     // Floating platforms
     struct FloatPlat {
         sf::Vector2f origin;
-        float        phase;
-        float        speed;
-        sf::Color    color;
+        float phase;
+        float speed;
+        sf::Color color;
         sf::Vector2f size;
     };
     std::vector<FloatPlat> m_plats;
@@ -54,8 +54,8 @@ private:
     // Overlay for fade in/out
     sf::RectangleShape m_overlay;
 
-    static constexpr float FADEIN_TIME  = 2.2f;
-    static constexpr float IDLE_TIME    = 99.f;  // waits for key
+    static constexpr float FADEIN_TIME = 2.2f;
+    static constexpr float IDLE_TIME = 99.f;  // waits for key
     static constexpr float FADEOUT_TIME = 0.8f;
 
     void buildSigil();

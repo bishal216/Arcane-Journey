@@ -1,16 +1,16 @@
-#include "systems/DiscoveryTracker.hpp"
 #include "level/Climbable.hpp"
-#include <cmath>
+
 #include <algorithm>
+#include <cmath>
+
+#include "systems/DiscoveryTracker.hpp"
 
 // ---------------------------------------------------------------------------
 // Climbable
 // ---------------------------------------------------------------------------
 
-Climbable::Climbable(float x, float topY, float height,
-                     ClimbableType t, sf::Color col)
-    : type(t), baseColor(col)
-{
+Climbable::Climbable(float x, float topY, float height, ClimbableType t, sf::Color col)
+    : type(t), baseColor(col) {
     float w = (t == ClimbableType::Rope) ? ROPE_W : LADDER_W;
 
     shape.setSize({w, height});
@@ -30,13 +30,13 @@ Climbable::Climbable(float x, float topY, float height,
 
 void Climbable::update(float dt) {
     pulseTimer += dt;
-    swayTimer  += dt;
+    swayTimer += dt;
 
     if (type == ClimbableType::Rope) {
         // Gentle horizontal sway on the rope visual
         float sway = std::sin(swayTimer * 1.4f) * swayAmount;
-        auto  pos  = shape.getPosition();
-        shape.setPosition({pos.x + sway * dt, pos.y}); // just cosmetic drift
+        auto pos = shape.getPosition();
+        shape.setPosition({pos.x + sway * dt, pos.y});  // just cosmetic drift
     }
 }
 
@@ -70,9 +70,9 @@ void Climbable::draw(sf::RenderWindow& window) const {
         // Draw knot dots along rope for texture
         sf::CircleShape knot(2.5f);
         knot.setFillColor(sf::Color(baseColor.r - 40, baseColor.g - 30, baseColor.b - 20, 200));
-        auto  p = shape.getPosition();
+        auto p = shape.getPosition();
         float h = shape.getSize().y;
-        int   n = static_cast<int>(h / 30.f);
+        int n = static_cast<int>(h / 30.f);
         for (int i = 1; i < n; ++i) {
             knot.setPosition({p.x, p.y + i * 30.f});
             window.draw(knot);
@@ -100,14 +100,9 @@ void ClimbableManager::draw(sf::RenderWindow& window) const {
     for (const auto& c : m_climbables) c.draw(window);
 }
 
-bool ClimbableManager::resolvePlayer(sf::Vector2f& playerPos,
-                                      sf::Vector2f& playerVel,
-                                      sf::FloatRect playerRect,
-                                      bool&         onGround,
-                                      bool&         isClimbing,
-                                      float         climbInput,
-                                      float         dt)
-{
+bool ClimbableManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel,
+                                     sf::FloatRect playerRect, bool& onGround, bool& isClimbing,
+                                     float climbInput, float dt) {
     // Check if player overlaps any climbable grab zone
     for (const auto& c : m_climbables) {
         if (!playerRect.findIntersection(c.bounds())) continue;
@@ -122,11 +117,10 @@ bool ClimbableManager::resolvePlayer(sf::Vector2f& playerPos,
         playerPos.x = snapX;
 
         // Suspend gravity, drive vertical by input
-        playerVel.x  = 0.f;
-        playerVel.y  = climbInput * CLIMB_SPEED;
-        onGround     = false;
-        isClimbing   = true;
-        g_discovery.discover(c.type == ClimbableType::Rope ? PlatType::Rope : PlatType::Ladder);
+        playerVel.x = 0.f;
+        playerVel.y = climbInput * CLIMB_SPEED;
+        onGround = false;
+        isClimbing = true;
 
         // Clamp player within rope/ladder vertical bounds
         float halfH = playerRect.size.y * 0.5f;
@@ -134,13 +128,13 @@ bool ClimbableManager::resolvePlayer(sf::Vector2f& playerPos,
             // Reached top — let them step off onto platform above
             playerPos.y = c.topY() + halfH;
             playerVel.y = 0.f;
-            isClimbing  = false;
-            onGround    = true;
+            isClimbing = false;
+            onGround = true;
         }
         if (playerPos.y + halfH > c.bottomY()) {
             playerPos.y = c.bottomY() - halfH;
             playerVel.y = 0.f;
-            isClimbing  = false;
+            isClimbing = false;
         }
 
         return true;

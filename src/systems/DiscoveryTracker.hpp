@@ -23,17 +23,17 @@ enum class PlatType : int {
 };
 
 class DiscoveryTracker {
-public:
+   public:
     void discover(PlatType t) { m_found.set((int)t); }
     bool isDiscovered(PlatType t) const { return m_found.test((int)t); }
 
     // Serialise to/from a uint16_t bitmask for SaveData
-    uint16_t toBits()       const { return (uint16_t)m_found.to_ulong(); }
-    void     fromBits(uint16_t b) { m_found = std::bitset<(int)PlatType::COUNT>(b); }
+    uint16_t toBits() const { return (uint16_t)m_found.to_ulong(); }
+    void fromBits(uint16_t b) { m_found = std::bitset<(int)PlatType::COUNT>(b); }
 
     void reset() { m_found.reset(); }
 
-private:
+   private:
     std::bitset<(int)PlatType::COUNT> m_found;
 };
 

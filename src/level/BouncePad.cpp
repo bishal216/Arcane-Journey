@@ -1,16 +1,16 @@
-#include "systems/DiscoveryTracker.hpp"
-#include "level/BouncePad.hpp"
-#include <cmath>
+#include "BouncePad.hpp"
+
 #include <algorithm>
-#include "systems/Juice.hpp"
+#include <cmath>
+
+#include "systems/DiscoveryTracker.hpp"
 
 // ---------------------------------------------------------------------------
 // BouncePad
 // ---------------------------------------------------------------------------
 
 BouncePad::BouncePad(float x, float y, float w, float h, float force, sf::Color col)
-    : origin({x, y}), size({w, h}), bounceForce(force)
-{
+    : origin({x, y}), size({w, h}), bounceForce(force) {
     shape.setSize({w, h});
     shape.setPosition({x, y});
     shape.setFillColor(col);
@@ -19,7 +19,7 @@ BouncePad::BouncePad(float x, float y, float w, float h, float force, sf::Color 
 }
 
 void BouncePad::trigger() {
-    animTimer  = 0.f;
+    animTimer = 0.f;
     animActive = true;
 }
 
@@ -39,12 +39,11 @@ void BouncePad::update(float dt) {
     // t=0: normal, t=0.2: max squash, t=1: normal
     float squash = 1.f - 0.5f * std::sin(t * 3.14159f);  // 0.5 -> 1.0 -> 0.5
     float stretchH = size.y * squash;
-    float stretchW = size.x * (2.f - squash); // compensate width
+    float stretchW = size.x * (2.f - squash);  // compensate width
 
     shape.setSize({stretchW, stretchH});
     // Keep bottom edge fixed so it doesn't appear to float
-    shape.setPosition({origin.x - (stretchW - size.x) / 2.f,
-                       origin.y + (size.y - stretchH)});
+    shape.setPosition({origin.x - (stretchW - size.x) / 2.f, origin.y + (size.y - stretchH)});
 }
 
 void BouncePad::draw(sf::RenderWindow& window) const {
@@ -66,40 +65,33 @@ void BouncePad::draw(sf::RenderWindow& window) const {
 // BouncePadManager
 // ---------------------------------------------------------------------------
 
-void BouncePadManager::add(float x, float y, float w, float h,
-                            float force, sf::Color col) {
+void BouncePadManager::add(float x, float y, float w, float h, float force, sf::Color col) {
     m_pads.emplace_back(x, y, w, h, force, col);
 }
 
 void BouncePadManager::update(float dt) {
-    for (auto& p : m_pads)
-        p.update(dt);
+    for (auto& p : m_pads) p.update(dt);
 }
 
 void BouncePadManager::draw(sf::RenderWindow& window) const {
-    for (const auto& p : m_pads)
-        p.draw(window);
+    for (const auto& p : m_pads) p.draw(window);
 }
 
-void BouncePadManager::resolvePlayer(sf::Vector2f& playerPos,
-                                      sf::Vector2f& playerVel,
-                                      sf::FloatRect playerRect,
-                                      bool& onGround)
-{
+void BouncePadManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel,
+                                     sf::FloatRect playerRect, bool& onGround) {
     for (auto& pad : m_pads) {
         sf::FloatRect pr = pad.bounds();
         if (!playerRect.findIntersection(pr)) continue;
 
         float playerBottom = playerRect.position.y + playerRect.size.y;
-        float platTop      = pr.position.y;
+        float platTop = pr.position.y;
 
         // Only bounce when falling onto the top surface
         if (playerVel.y >= 0.f && playerBottom <= platTop + 8.f) {
             playerPos.y = platTop - playerRect.size.y / 2.f;
             playerVel.y = -pad.bounceForce;
-            onGround    = false; // airborne immediately
+            onGround = false;  // airborne immediately
             pad.trigger();
-            g_juice.onBounce(playerPos);
             g_discovery.discover(PlatType::Bounce);
 
             // Re-sync rect

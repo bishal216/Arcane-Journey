@@ -1,11 +1,11 @@
-#include "level/CrumblingPlatform.hpp"
+#include "CrumblingPlatform.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
 
+#include "systems/ArtifactManager.hpp"
 #include "systems/DiscoveryTracker.hpp"
-#include "systems/Juice.hpp"
 
 // ---------------------------------------------------------------------------
 // CrumblingPlatform
@@ -28,7 +28,7 @@ void CrumblingPlatform::onLand() {
 }
 
 void CrumblingPlatform::update(float dt) {
-    timer += dt;
+    timer += dt * g_artifacts.mods().crumbleSpeedMult;
 
     switch (state) {
         case CrumbleState::Solid:
@@ -146,8 +146,6 @@ bool CrumblingPlatformManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector
             jumpsLeft = 1;
             onCrumble = true;
             cp.onLand();  // trigger crumble
-            g_juice.onCrumble(cp.bounds().position, cp.baseColor);
-            g_discovery.discover(PlatType::Crumbling);
         } else if (minOverlap == overlapBottom && playerVel.y < 0.f) {
             playerPos.y = platBottom + playerRect.size.y / 2.f;
             playerVel.y = 0.f;

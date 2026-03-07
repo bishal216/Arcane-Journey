@@ -1,19 +1,22 @@
-#include "systems/DiscoveryTracker.hpp"
 #include "level/DisappearingPlatform.hpp"
+
 #include <algorithm>
 #include <cmath>
+
+#include "systems/ArtifactManager.hpp"
+#include "systems/DiscoveryTracker.hpp"
 
 // ---------------------------------------------------------------------------
 // DisappearingPlatform
 // ---------------------------------------------------------------------------
 
-DisappearingPlatform::DisappearingPlatform(float x, float y, float w, float h,
-                                           sf::Color col,
-                                           float visTime, float hidTime,
-                                           float fade, float offset)
-    : baseColor(col), visibleTime(visTime), hiddenTime(hidTime),
-      fadeTime(fade), phaseOffset(offset)
-{
+DisappearingPlatform::DisappearingPlatform(float x, float y, float w, float h, sf::Color col,
+                                           float visTime, float hidTime, float fade, float offset)
+    : baseColor(col),
+      visibleTime(visTime),
+      hiddenTime(hidTime),
+      fadeTime(fade),
+      phaseOffset(offset) {
     shape.setSize({w, h});
     shape.setPosition({x, y});
     shape.setFillColor(col);
@@ -25,10 +28,19 @@ DisappearingPlatform::DisappearingPlatform(float x, float y, float w, float h,
     // Advance state to match offset
     float cycle = visTime + fade + hidTime + fade;
     float t = std::fmod(offset, cycle);
-    if      (t < visTime)            { state = DisappearState::Visible;   timer = t; }
-    else if (t < visTime + fade)     { state = DisappearState::FadingOut; timer = t - visTime; }
-    else if (t < visTime + fade + hidTime) { state = DisappearState::Hidden; timer = t - visTime - fade; }
-    else                             { state = DisappearState::FadingIn;  timer = t - visTime - fade - hidTime; }
+    if (t < visTime) {
+        state = DisappearState::Visible;
+        timer = t;
+    } else if (t < visTime + fade) {
+        state = DisappearState::FadingOut;
+        timer = t - visTime;
+    } else if (t < visTime + fade + hidTime) {
+        state = DisappearState::Hidden;
+        timer = t - visTime - fade;
+    } else {
+        state = DisappearState::FadingIn;
+        timer = t - visTime - fade - hidTime;
+    }
 }
 
 void DisappearingPlatform::update(float dt) {
@@ -57,7 +69,7 @@ void DisappearingPlatform::update(float dt) {
         }
 
         case DisappearState::Hidden:
-            if (timer >= hiddenTime) {
+            if (timer >= hiddenTime * g_artifacts.mods().disappearMult) {
                 state = DisappearState::FadingIn;
                 timer = 0.f;
             }
@@ -79,39 +91,29 @@ void DisappearingPlatform::update(float dt) {
 }
 
 void DisappearingPlatform::draw(sf::RenderWindow& window) const {
-    if (state != DisappearState::Hidden)
-        window.draw(shape);
+    if (state != DisappearState::Hidden) window.draw(shape);
 }
 
 // ---------------------------------------------------------------------------
 // DisappearingPlatformManager
 // ---------------------------------------------------------------------------
 
-void DisappearingPlatformManager::add(float x, float y, float w, float h,
-                                      sf::Color col,
-                                      float visTime, float hidTime,
-                                      float fade, float offset)
-{
+void DisappearingPlatformManager::add(float x, float y, float w, float h, sf::Color col,
+                                      float visTime, float hidTime, float fade, float offset) {
     m_platforms.emplace_back(x, y, w, h, col, visTime, hidTime, fade, offset);
 }
 
 void DisappearingPlatformManager::update(float dt) {
-    for (auto& p : m_platforms)
-        p.update(dt);
+    for (auto& p : m_platforms) p.update(dt);
 }
 
 void DisappearingPlatformManager::draw(sf::RenderWindow& window) const {
-    for (const auto& p : m_platforms)
-        p.draw(window);
+    for (const auto& p : m_platforms) p.draw(window);
 }
 
-void DisappearingPlatformManager::resolvePlayer(sf::Vector2f& playerPos,
-                                                sf::Vector2f& playerVel,
-                                                sf::FloatRect playerRect,
-                                                bool& onGround,
-                                                bool& dashAvail,
-                                                int&  jumpsLeft)
-{
+void DisappearingPlatformManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel,
+                                                sf::FloatRect playerRect, bool& onGround,
+                                                bool& dashAvail, int& jumpsLeft) {
     for (const auto& p : m_platforms) {
         if (!p.isSolid()) continue;
 
@@ -119,29 +121,27 @@ void DisappearingPlatformManager::resolvePlayer(sf::Vector2f& playerPos,
         if (!playerRect.findIntersection(pr)) continue;
 
         float playerBottom = playerRect.position.y + playerRect.size.y;
-        float playerTop    = playerRect.position.y;
-        float platTop      = pr.position.y;
-        float platBottom   = pr.position.y + pr.size.y;
-        float playerLeft   = playerRect.position.x;
-        float playerRight  = playerRect.position.x + playerRect.size.x;
-        float platLeft     = pr.position.x;
-        float platRight    = pr.position.x + pr.size.x;
+        float playerTop = playerRect.position.y;
+        float platTop = pr.position.y;
+        float platBottom = pr.position.y + pr.size.y;
+        float playerLeft = playerRect.position.x;
+        float playerRight = playerRect.position.x + playerRect.size.x;
+        float platLeft = pr.position.x;
+        float platRight = pr.position.x + pr.size.x;
 
-        float overlapTop    = playerBottom - platTop;
-        float overlapBottom = platBottom   - playerTop;
-        float overlapLeft   = playerRight  - platLeft;
-        float overlapRight  = platRight    - playerLeft;
+        float overlapTop = playerBottom - platTop;
+        float overlapBottom = platBottom - playerTop;
+        float overlapLeft = playerRight - platLeft;
+        float overlapRight = platRight - playerLeft;
 
-        float minOverlap = std::min({overlapTop, overlapBottom,
-                                     overlapLeft, overlapRight});
+        float minOverlap = std::min({overlapTop, overlapBottom, overlapLeft, overlapRight});
 
         if (minOverlap == overlapTop && playerVel.y >= 0.f) {
             playerPos.y = platTop - playerRect.size.y / 2.f;
             playerVel.y = 0.f;
-            onGround    = true;
-            g_discovery.discover(PlatType::Disappearing);
-            dashAvail   = true;
-            jumpsLeft   = 1;
+            onGround = true;
+            dashAvail = true;
+            jumpsLeft = 1;
         } else if (minOverlap == overlapBottom && playerVel.y < 0.f) {
             playerPos.y = platBottom + playerRect.size.y / 2.f;
             playerVel.y = 0.f;

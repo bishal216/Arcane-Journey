@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+
 #include "level/LevelData.hpp"
 
 // Parses a .txt tile map and populates LevelData.
@@ -19,6 +20,6 @@
 //   float worldH = TileLoader::load("assets/levels/level.txt", level);
 
 class TileLoader {
-public:
+   public:
     static float load(const std::string& path, LevelData& level, float* worldW = nullptr);
 };

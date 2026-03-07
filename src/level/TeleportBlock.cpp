@@ -1,13 +1,15 @@
-#include "systems/DiscoveryTracker.hpp"
 #include "level/TeleportBlock.hpp"
-#include "Constants.hpp"
-#include <cmath>
+
 #include <algorithm>
-#include "systems/Juice.hpp"
+#include <cmath>
+
+#include "Constants.hpp"
+#include "systems/DiscoveryTracker.hpp"
+
 void TeleportBlockManager::add(float x, float y, float w, float h) {
     TeleportBlock tb;
-    tb.bounds    = sf::FloatRect({x, y}, {w, (float)TILE});
-    tb.spawnPos  = {x + w * 0.5f, y - TILEF};   // land one tile above the block
+    tb.bounds = sf::FloatRect({x, y}, {w, (float)TILE});
+    tb.spawnPos = {x + w * 0.5f, y - TILEF};  // land one tile above the block
     tb.pairIndex = -1;
 
     tb.body.setSize({w, (float)TILE});
@@ -26,7 +28,7 @@ void TeleportBlockManager::add(float x, float y, float w, float h) {
 void TeleportBlockManager::pairAll() {
     // Sequential pairing: 0↔1, 2↔3, 4↔5 ...
     for (int i = 0; i + 1 < (int)m_blocks.size(); i += 2) {
-        m_blocks[i    ].pairIndex = i + 1;
+        m_blocks[i].pairIndex = i + 1;
         m_blocks[i + 1].pairIndex = i;
     }
     // Odd one out — no pair, just acts as a platform
@@ -37,7 +39,7 @@ void TeleportBlockManager::update(float dt, sf::Vector2f& playerPos, bool player
         if (tb.cooldown > 0.f) {
             tb.cooldown -= dt;
             tb.chargeTimer = 0.f;
-            tb.playerOn    = false;
+            tb.playerOn = false;
             // Update fill bar to empty during cooldown
             tb.fill.setSize({0.f, 4.f});
             continue;
@@ -53,19 +55,18 @@ void TeleportBlockManager::update(float dt, sf::Vector2f& playerPos, bool player
 
             if (tb.chargeTimer >= CHARGE_TIME) {
                 // Teleport!
-                #include "systems/Juice.hpp"
                 g_discovery.discover(PlatType::Teleport);
                 auto& dest = m_blocks[tb.pairIndex];
                 playerPos = dest.spawnPos;
 
                 // Apply cooldown to DESTINATION so player doesn't bounce back
-                dest.cooldown     = COOLDOWN;
-                dest.chargeTimer  = 0.f;
+                dest.cooldown = COOLDOWN;
+                dest.chargeTimer = 0.f;
                 dest.fill.setSize({0.f, 4.f});
 
                 // Reset this block too
                 tb.chargeTimer = 0.f;
-                tb.cooldown    = COOLDOWN;
+                tb.cooldown = COOLDOWN;
                 tb.fill.setSize({0.f, 4.f});
             }
         } else {
@@ -75,23 +76,23 @@ void TeleportBlockManager::update(float dt, sf::Vector2f& playerPos, bool player
             tb.fill.setSize({tb.bounds.size.x * progress, 4.f});
         }
 
-        tb.playerOn = false;   // reset each frame — resolvePlayer sets it back
+        tb.playerOn = false;  // reset each frame — resolvePlayer sets it back
     }
 }
 
-void TeleportBlockManager::resolvePlayer(sf::Vector2f& pos, sf::Vector2f& vel,
-                                          sf::FloatRect pb, bool& onGround) {
+void TeleportBlockManager::resolvePlayer(sf::Vector2f& pos, sf::Vector2f& vel, sf::FloatRect pb,
+                                         bool& onGround) {
     for (auto& tb : m_blocks) {
         if (!pb.findIntersection(tb.bounds)) continue;
 
         float pbBottom = pb.position.y + pb.size.y;
-        float tbTop    = tb.bounds.position.y;
+        float tbTop = tb.bounds.position.y;
 
         if (vel.y >= 0.f && pbBottom <= tbTop + vel.y + 2.f) {
             // Landing on top
-            pos.y      = tbTop - pb.size.y / 2.f;
-            vel.y      = 0.f;
-            onGround   = true;
+            pos.y = tbTop - pb.size.y / 2.f;
+            vel.y = 0.f;
+            onGround = true;
             tb.playerOn = true;
         }
     }
@@ -100,8 +101,7 @@ void TeleportBlockManager::resolvePlayer(sf::Vector2f& pos, sf::Vector2f& vel,
 void TeleportBlockManager::draw(sf::RenderWindow& window) const {
     for (const auto& tb : m_blocks) {
         window.draw(tb.body);
-        if (tb.fill.getSize().x > 0.f)
-            window.draw(tb.fill);
+        if (tb.fill.getSize().x > 0.f) window.draw(tb.fill);
 
         // Draw a small arrow pointing toward the pair
         // (simple visual cue — just tint differently if paired)

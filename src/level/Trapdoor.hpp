@@ -9,8 +9,8 @@
 //   then snaps shut — player must move off before it closes.
 
 enum class TrapdoorStyle {
-    OneWay,   // silent, always-passable from below (classic one-way platform)
-    Hatch     // visible door that swings open after landing, closes again
+    OneWay,  // silent, always-passable from below (classic one-way platform)
+    Hatch    // visible door that swings open after landing, closes again
 };
 
 enum class HatchState {
@@ -21,22 +21,21 @@ enum class HatchState {
 };
 
 struct Trapdoor {
-    sf::RectangleShape  shape;
-    sf::Vector2f        origin;
-    sf::Color           baseColor;
-    TrapdoorStyle       style;
+    sf::RectangleShape shape;
+    sf::Vector2f origin;
+    sf::Color baseColor;
+    TrapdoorStyle style;
 
     // Hatch animation
-    HatchState  hatchState  = HatchState::Closed;
-    float       hatchTimer  = 0.f;
-    float       openAngle   = 0.f;   // degrees, 0=closed 90=open
+    HatchState hatchState = HatchState::Closed;
+    float hatchTimer = 0.f;
+    float openAngle = 0.f;  // degrees, 0=closed 90=open
 
-    static constexpr float OPEN_TIME  = 0.18f;  // seconds to swing open
-    static constexpr float STAY_TIME  = 0.55f;  // seconds it stays open
+    static constexpr float OPEN_TIME = 0.18f;   // seconds to swing open
+    static constexpr float STAY_TIME = 0.55f;   // seconds it stays open
     static constexpr float CLOSE_TIME = 0.25f;  // seconds to swing closed
 
-    Trapdoor(float x, float y, float w, float h,
-             TrapdoorStyle s, sf::Color col);
+    Trapdoor(float x, float y, float w, float h, TrapdoorStyle s, sf::Color col);
 
     // Call when player lands on top
     void onLand();
@@ -51,24 +50,18 @@ struct Trapdoor {
 };
 
 class TrapdoorManager {
-public:
-    void addOneWay(float x, float y, float w, float h,
-                   sf::Color col = sf::Color(120, 80, 40));
-    void addHatch (float x, float y, float w, float h,
-                   sf::Color col = sf::Color(100, 70, 35));
+   public:
+    void addOneWay(float x, float y, float w, float h, sf::Color col = sf::Color(120, 80, 40));
+    void addHatch(float x, float y, float w, float h, sf::Color col = sf::Color(100, 70, 35));
 
     void update(float dt);
     void draw(sf::RenderWindow& window) const;
 
     // One-way collision resolve: only blocks player falling downward.
     // Returns true if player landed on something this frame.
-    bool resolvePlayer(sf::Vector2f& playerPos,
-                       sf::Vector2f& playerVel,
-                       sf::FloatRect playerRect,
-                       bool&         onGround,
-                       bool&         dashAvail,
-                       int&          jumpsLeft);
+    bool resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel, sf::FloatRect playerRect,
+                       bool& onGround, bool& dashAvail, int& jumpsLeft);
 
-private:
+   private:
     std::vector<Trapdoor> m_trapdoors;
 };

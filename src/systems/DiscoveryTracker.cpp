@@ -1,3 +1,3 @@
-#include "systems/DiscoveryTracker.hpp"
+#include "DiscoveryTracker.hpp"
 
 DiscoveryTracker g_discovery;

@@ -1,10 +1,10 @@
 #include "core/Camera.hpp"
-#include "Constants.hpp"
+
 #include <algorithm>
 
-Camera::Camera()
-    : m_view(sf::FloatRect({0.f, 0.f}, {(float)WIN_W, (float)WIN_H}))
-{}
+#include "Constants.hpp"
+
+Camera::Camera() : m_view(sf::FloatRect({0.f, 0.f}, {(float)WIN_W, (float)WIN_H})) {}
 
 void Camera::update(sf::Vector2f target) {
     // Horizontal: follow player but clamp to world width
@@ -18,14 +18,10 @@ void Camera::update(sf::Vector2f target) {
     m_view.setCenter({camX + WIN_W / 2.f, camY + WIN_H / 2.f});
 }
 
-void Camera::apply(sf::RenderWindow& window) const {
-    window.setView(m_view);
-}
+void Camera::apply(sf::RenderWindow& window) const { window.setView(m_view); }
 
 void Camera::applyDefault(sf::RenderWindow& window) const {
     window.setView(window.getDefaultView());
 }
 
-float Camera::top() const {
-    return m_view.getCenter().y - WIN_H / 2.f;
-}
+float Camera::top() const { return m_view.getCenter().y - WIN_H / 2.f; }

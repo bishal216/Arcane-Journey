@@ -9,11 +9,12 @@
 #include "core/Player.hpp"
 #include "level/LevelData.hpp"
 #include "level/TileLoader.hpp"
+#include "systems/AchievementManager.hpp"
+#include "systems/ArtifactManager.hpp"
 #include "systems/DiscoveryTracker.hpp"
 #include "systems/Juice.hpp"
 #include "systems/SaveData.hpp"
 #include "ui/CoinManager.hpp"
-#include "ui/CosmeticsManager.hpp"
 #include "ui/HubUI.hpp"
 #include "ui/Npc.hpp"
 #include "ui/SectionAnnouncer.hpp"
@@ -21,7 +22,6 @@
 
 static const std::string SAVE_PATH = "save.dat";
 
-// Player body dimensions — keep in sync with Player.cpp
 static constexpr float BODY_W = 22.f;
 static constexpr float BODY_H = 32.f;
 
@@ -30,7 +30,8 @@ int main() {
     window.setFramerateLimit(60);
 
     sf::Font font;
-    font.openFromFile("assets/fonts/DejaVuSans.ttf");
+    if (!font.openFromFile("assets/fonts/DejaVuSans.ttf"))
+        (void)font.openFromFile("C:/Windows/Fonts/arial.ttf");
 
     // -----------------------------------------------------------------------
     // Load level
@@ -47,9 +48,8 @@ int main() {
     SectionAnnouncer announcer(font);
     CoinManager coins;
     coins.init(level.coinSpawns());
-    CosmeticsManager cosmetics;
     NpcManager npcs;
-    HubUI hubUI(font, coins, cosmetics);
+    HubUI hubUI(font, coins);
 
     player.setWorldH(worldH);
     player.setWorldW(worldW);
@@ -66,23 +66,29 @@ int main() {
         coins.setCollectedCount(save.totalCoins);
         g_discovery.fromBits(save.discoveries);
         if (save.bestTime > 0.f) hubUI.setBestTime(save.bestTime);
-        auto& items = const_cast<std::vector<Cosmetic>&>(cosmetics.items());
-        for (int i = 0; i < (int)items.size() && i < (int)save.unlocked.size(); ++i) {
-            items[i].unlocked = save.unlocked[i];
-            items[i].equipped = save.equipped[i];
-        }
+        g_artifacts.fromBits(save.artifactOwned, save.artifactEquipped);
+        g_achievements.restoreBits(save.achievCompleted, save.achievClaimed);
+        // Restore owned eye cosmetics
+        for (int i = 0; i < (int)save.eyeOwned.size(); ++i)
+            if (save.eyeOwned[i]) g_artifacts.grantEyeCosmetic(100 + i);
     }
 
     auto doSave = [&]() {
         save.discoveries = g_discovery.toBits();
         save.totalCoins = coins.collectedCount();
         save.bestTime = hubUI.bestTime();
-        const auto& items = cosmetics.items();
-        save.unlocked.resize(items.size());
-        save.equipped.resize(items.size());
-        for (int i = 0; i < (int)items.size(); ++i) {
-            save.unlocked[i] = items[i].unlocked;
-            save.equipped[i] = items[i].equipped;
+        save.artifactOwned = g_artifacts.ownedBits();
+        save.artifactEquipped = g_artifacts.equippedBits();
+        save.achievCompleted = g_achievements.completedBits();
+        save.achievClaimed = g_achievements.claimedBits();
+        // Eye cosmetics — 8 slots (ids 100-107)
+        save.eyeOwned.assign(8, false);
+        save.eyeEquipped.assign(8, false);
+        for (const auto& a : g_artifacts.artifacts()) {
+            if (a.id >= 100 && a.id <= 107) {
+                save.eyeOwned[a.id - 100] = a.owned;
+                save.eyeEquipped[a.id - 100] = a.equipped;
+            }
         }
         save.save(SAVE_PATH);
     };
@@ -105,6 +111,7 @@ int main() {
     float runTimer = 0.f;
     bool timerRunning = false;
     float runEndTimer = 0.f;
+    bool dashUsedThisRun = false;  // for Ghost Run achievement
 
     auto doReset = [&]() {
         doSave();
@@ -119,6 +126,7 @@ int main() {
         runTimer = 0.f;
         timerRunning = false;
         runEndTimer = 0.f;
+        dashUsedThisRun = false;
         hubUI.close();
     };
 
@@ -146,6 +154,12 @@ int main() {
     sf::RectangleShape dashIndicator({16.f, 16.f});
     dashIndicator.setOutlineColor(sf::Color(255, 255, 255, 120));
     dashIndicator.setOutlineThickness(1.f);
+
+    // Chronicler "new achievement" notification badge
+    sf::Text achievNotif(font, "! New achievement", 16);
+    achievNotif.setFillColor(sf::Color(120, 255, 120));
+    achievNotif.setOutlineColor(sf::Color::Black);
+    achievNotif.setOutlineThickness(1.5f);
 
     // -----------------------------------------------------------------------
     // Splash screen
@@ -229,6 +243,10 @@ int main() {
             level.update(dt);
             level.resolvePlayer(player, dt, state);
             coins.update(player.position());
+            g_artifacts.updateGhost(dt, player.position());
+
+            // Track dash usage for Ghost Run achievement
+            if (player.hasDashBeenUsed()) dashUsedThisRun = true;
 
             float py = player.position().y;
 
@@ -238,11 +256,12 @@ int main() {
                 runActive = true;
                 timerRunning = true;
                 runTimer = 0.f;
+                dashUsedThisRun = false;
                 coins.resetRun();
             }
 
-            // Returning to hub — end run
-            if (runActive && py >= foolThreshold) {
+            // Returning to hub without winning — end run
+            if (runActive && py >= foolThreshold && state != GameState::Won) {
                 runActive = false;
                 timerRunning = false;
                 inHub = true;
@@ -276,7 +295,29 @@ int main() {
             if (state == GameState::Won) {
                 timerRunning = false;
                 runActive = false;
-                hubUI.setBestTime(runTimer);
+                g_juice.onGoal(player.position());
+
+                // Build run result
+                RunResult result;
+                result.time = runTimer;
+                result.coinsCollected = coins.collectedCount();
+                result.totalCoins = coins.totalCoins();
+                result.dashUsed = dashUsedThisRun;
+                for (const auto& a : g_artifacts.artifacts())
+                    if (a.equipped) result.equippedIds.push_back(a.id);
+
+                // Pure best time — only if no gameplay artifacts equipped
+                bool anyGameplayArtifact = false;
+                for (const auto& a : g_artifacts.artifacts())
+                    if (a.equipped && a.id < 100) {
+                        anyGameplayArtifact = true;
+                        break;
+                    }
+                if (!anyGameplayArtifact) hubUI.setBestTime(runTimer);
+
+                // Check achievements
+                g_achievements.onRunComplete(result);
+
                 doSave();
             }
         }
@@ -289,8 +330,6 @@ int main() {
         // -------------------------------------------------------------------
         // Draw — world space
         // -------------------------------------------------------------------
-
-        // Apply camera + screen shake to view
         camera.apply(window);
         {
             sf::View view = window.getView();
@@ -304,7 +343,8 @@ int main() {
         npcs.draw(window, font);
         coins.draw(window);
 
-        // Dash afterimage trail (drawn before player)
+        g_artifacts.drawGhost(window);
+
         for (const auto& img : g_juice.afterimages()) {
             sf::RectangleShape ghost({BODY_W * img.scaleX, BODY_H * img.scaleY});
             ghost.setOrigin({BODY_W * img.scaleX / 2.f, BODY_H * img.scaleY / 2.f});
@@ -315,8 +355,6 @@ int main() {
         }
 
         player.draw(window);
-
-        // Particles (drawn in world space so they stick to platforms)
         g_juice.draw(window);
 
         // -------------------------------------------------------------------
@@ -324,7 +362,8 @@ int main() {
         // -------------------------------------------------------------------
         camera.applyDefault(window);
 
-        // Dash indicator
+        g_artifacts.drawBadges(window, font);
+
         dashIndicator.setFillColor(player.isDashAvail() ? sf::Color(100, 200, 255, 200)
                                                         : sf::Color(60, 40, 100, 180));
         dashIndicator.setPosition({10.f, 36.f});
@@ -347,11 +386,15 @@ int main() {
         hudText.setPosition({10.f, 10.f});
         window.draw(hudText);
 
-        // NPC prompt / hub hint
+        // NPC prompt
         if (inHub && !hubUI.isOpen()) {
             int zi = npcs.getNearbyNpc(player.position());
             if (zi >= 0) {
-                promptText.setString("[E] Open " + npcs.nameAt(zi));
+                std::string npcPrompt = "[E] Open " + npcs.nameAt(zi);
+                // Add "!" badge if Chronicler has unclaimed achievements
+                if (npcs.typeAt(zi) == NpcType::TimeKeeper && g_achievements.hasUnclaimed())
+                    npcPrompt += "  ★ New!";
+                promptText.setString(npcPrompt);
                 promptText.setFillColor(sf::Color(255, 255, 180));
             } else {
                 promptText.setString("Jump up to begin your journey");
@@ -371,6 +414,11 @@ int main() {
             window.draw(runEndText);
         }
 
+        // Unclaimed achievement toast (bottom-left, fades after win)
+        if (state == GameState::Won && g_achievements.hasUnclaimed()) {
+            window.draw(achievNotif);
+        }
+
         announcer.draw(window);
         hubUI.draw(window);
 
@@ -381,7 +429,7 @@ int main() {
             window.draw(winText);
         }
 
-        // Flash overlay — drawn last so it's on top of everything
+        // Flash overlay
         if (g_juice.flashAlpha() > 0.f) {
             sf::RectangleShape flash({(float)WIN_W, (float)WIN_H});
             flash.setFillColor(sf::Color(255, 255, 255, (uint8_t)(g_juice.flashAlpha() * 255.f)));
