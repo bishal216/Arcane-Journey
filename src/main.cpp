@@ -131,8 +131,53 @@ int main() {
     };
 
     // -----------------------------------------------------------------------
-    // HUD elements
+    // Section background colors — one per tarot card, keyed by section name
     // -----------------------------------------------------------------------
+    // Each color is the "midnight" mood of that card — dark but distinct
+    struct BgColor {
+        sf::Color top;
+        sf::Color bottom;
+    };
+    auto lerpColor = [](sf::Color a, sf::Color b, float t) -> sf::Color {
+        return sf::Color((uint8_t)(a.r + (b.r - a.r) * t), (uint8_t)(a.g + (b.g - a.g) * t),
+                         (uint8_t)(a.b + (b.b - a.b) * t));
+    };
+
+    // name → flat clear color (we lerp between adjacent sections)
+    static const std::pair<std::string, sf::Color> SEC_COLORS[] = {
+        {"Training Grounds", sf::Color(18, 8, 38)},           // deep purple — home
+        {"I - The Fool", sf::Color(30, 18, 65)},              // indigo — naive wonder
+        {"II - The Magician", sf::Color(12, 35, 65)},         // dark teal — arcane
+        {"III - The High Priestess", sf::Color(15, 15, 75)},  // midnight blue — mystery
+        {"IV - The Empress", sf::Color(18, 50, 18)},          // forest — abundance
+        {"V - The Emperor", sf::Color(60, 12, 12)},           // crimson — authority
+        {"VI - The Hierophant", sf::Color(35, 22, 60)},       // purple — tradition
+        {"VII - The Lovers", sf::Color(65, 15, 45)},          // rose-dark — passion
+        {"VIII - The Chariot", sf::Color(12, 18, 65)},        // royal blue — drive
+        {"IX - Strength", sf::Color(65, 35, 8)},              // amber — courage
+        {"X - The Hermit", sf::Color(22, 22, 40)},            // slate — solitude
+        {"XI - Wheel of Fortune", sf::Color(50, 22, 60)},     // purple-gold — fate
+        {"XII - Justice", sf::Color(15, 40, 60)},             // steel blue — order
+        {"XIII - The Hanged Man", sf::Color(8, 45, 50)},      // teal — surrender
+        {"XIV - Death", sf::Color(8, 8, 15)},                 // near-black — transition
+        {"XV - Temperance", sf::Color(15, 50, 65)},           // cyan — balance
+        {"XVI - The Devil", sf::Color(60, 8, 8)},             // blood red — bondage
+        {"XVII - The Tower", sf::Color(55, 28, 8)},           // burnt orange — upheaval
+        {"XVIII - The Star", sf::Color(8, 18, 70)},           // cobalt — hope
+        {"XIX - The Moon", sf::Color(12, 12, 55)},            // cold navy — illusion
+        {"XX - The Sun", sf::Color(70, 55, 8)},               // gold — joy
+        {"XXI - Judgement", sf::Color(55, 15, 55)},           // violet — awakening
+        {"XXII - The World", sf::Color(15, 60, 40)},          // emerald — completion
+    };
+
+    auto getSectionColor = [&](const std::string& name) -> sf::Color {
+        for (const auto& p : SEC_COLORS)
+            if (p.first == name) return p.second;
+        return sf::Color(18, 8, 38);
+    };
+
+    sf::Color bgCurrent(18, 8, 38);
+    sf::Color bgTarget(18, 8, 38);
     sf::Text hudText(font, "", 20);
     hudText.setFillColor(sf::Color(210, 210, 210));
     hudText.setOutlineColor(sf::Color::Black);
@@ -327,6 +372,37 @@ int main() {
         hubUI.update(dt);
         camera.update(player.position());
 
+        // Smoothly lerp background color toward current section's color
+        {
+            const auto& secs = level.sections();
+            int si = level.getSectionIndex(player.position().y);
+            if (si >= 0 && si < (int)secs.size()) {
+                sf::Color colCurrent = getSectionColor(secs[si].name);
+
+                // Blend toward the next section above (si-1) as player approaches it
+                // secTop = this section's startY (player entered here coming from below)
+                // secBottom = previous section's startY (the boundary above us)
+                if (si > 0) {
+                    float secTop = secs[si].startY;        // lower boundary (larger Y)
+                    float secAbove = secs[si - 1].startY;  // upper boundary (smaller Y)
+                    float height = secTop - secAbove;
+                    if (height > 0.f) {
+                        // t=0 when player just entered (near secTop), t=1 when near top of section
+                        float t = std::clamp((secTop - player.position().y) / height, 0.f, 1.f);
+                        sf::Color colAbove = getSectionColor(secs[si - 1].name);
+                        bgTarget = lerpColor(colCurrent, colAbove, t * 0.5f);
+                    } else {
+                        bgTarget = colCurrent;
+                    }
+                } else {
+                    bgTarget = getSectionColor(secs[si].name);
+                }
+            }
+            // Smooth transition
+            float speed = std::min(1.f, dt * 2.f);
+            bgCurrent = lerpColor(bgCurrent, bgTarget, speed);
+        }
+
         // -------------------------------------------------------------------
         // Draw — world space
         // -------------------------------------------------------------------
@@ -337,7 +413,7 @@ int main() {
             window.setView(view);
         }
 
-        window.clear(sf::Color(18, 8, 38));
+        window.clear(bgCurrent);
 
         level.draw(window);
         npcs.draw(window, font);
