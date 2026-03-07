@@ -30,6 +30,7 @@ class MovingPlatformManager {
 
     void update(float dt);
     void draw(sf::RenderWindow& window) const;
+    void reset();  // return all platforms to pointA
 
     // Resolve player collision. Carries player if standing on top.
     // Returns true if player is on any moving platform this frame.

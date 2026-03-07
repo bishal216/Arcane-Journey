@@ -1,40 +1,46 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <vector>
 
 enum class NpcType { Shop, Cosmetics, TimeKeeper, Lore, WiseMan };
 
 struct Npc {
     NpcType type;
     std::string name;
-    sf::Vector2f pos;  // feet position
+    sf::Vector2f pos;
     sf::Color bodyColor;
     sf::Color headColor;
 
-    // Drawn shapes (built once in constructor)
     sf::RectangleShape body;
     sf::CircleShape head;
-    sf::RectangleShape nameTag;
 
-    float interactRadius = 80.f;
+    float interactRadius = 90.f;
+
+    // Dialogue
+    std::vector<std::string> lines;
+    int lineIndex = 0;        // which line is showing
+    float lineTimer = 0.f;    // time on current line
+    float revealTimer = 0.f;  // typewriter progress
+    int revealChars = 0;      // chars revealed so far
+    bool playerNearby = false;
 };
 
 class NpcManager {
    public:
-    void build(float worldH);  // call after TileLoader::load
+    void build(float worldH);
 
-    // Returns type of NPC player is near, or -1
     int getNearbyNpc(sf::Vector2f playerPos) const;
     NpcType typeAt(int index) const { return m_npcs[index].type; }
     std::string nameAt(int index) const { return m_npcs[index].name; }
 
+    void update(float dt, sf::Vector2f playerPos);
     void draw(sf::RenderWindow& window, const sf::Font& font) const;
 
    private:
     std::vector<Npc> m_npcs;
     sf::Clock m_bobClock;
-    const sf::Font* m_font = nullptr;
 
     void addNpc(float x, float floorY, NpcType type, const std::string& name, sf::Color bodyCol,
-                sf::Color headCol);
+                sf::Color headCol, std::vector<std::string> lines);
 };

@@ -23,6 +23,7 @@ class TeleportBlockManager {
 
     void update(float dt, sf::Vector2f& playerPos, bool playerOnGround);
     void draw(sf::RenderWindow& window) const;
+    void reset();  // clear all charge/cooldown state
 
     // Solid collision — returns true and resolves if player lands on top
     void resolvePlayer(sf::Vector2f& pos, sf::Vector2f& vel, sf::FloatRect playerBounds,

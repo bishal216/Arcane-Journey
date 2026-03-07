@@ -142,3 +142,15 @@ bool MovingPlatformManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f&
 
     return carried;
 }
+
+void MovingPlatformManager::reset() {
+    for (auto& p : m_platforms) {
+        p.shape.setPosition(p.pointA);
+        p.m_dir = p.pointB - p.pointA;
+        float len = std::sqrt(p.m_dir.x * p.m_dir.x + p.m_dir.y * p.m_dir.y);
+        if (len > 0.f) p.m_dir /= len;
+        p.m_towardB = true;
+        p.velocity = p.m_dir * p.speed;
+        p.prevPos = p.pointA;
+    }
+}

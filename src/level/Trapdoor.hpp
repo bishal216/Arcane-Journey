@@ -56,8 +56,7 @@ class TrapdoorManager {
 
     void update(float dt);
     void draw(sf::RenderWindow& window) const;
-
-    // One-way collision resolve: only blocks player falling downward.
+    void reset();  // close all hatches: only blocks player falling downward.
     // Returns true if player landed on something this frame.
     bool resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel, sf::FloatRect playerRect,
                        bool& onGround, bool& dashAvail, int& jumpsLeft);

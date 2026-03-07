@@ -40,8 +40,6 @@ void Player::reset() {
     m_isClimbing = false;
     m_climbInput = 0.f;
     m_prevOnGround = false;
-    m_glassDashUsed = false;
-    m_dashEverUsed = false;
 }
 
 void Player::update(float dt, const std::vector<Platform>& platforms, GameState& state) {

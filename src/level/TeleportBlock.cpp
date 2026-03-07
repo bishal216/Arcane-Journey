@@ -107,3 +107,11 @@ void TeleportBlockManager::draw(sf::RenderWindow& window) const {
         // (simple visual cue — just tint differently if paired)
     }
 }
+
+void TeleportBlockManager::reset() {
+    for (auto& b : m_blocks) {
+        b.chargeTimer = 0.f;
+        b.cooldown = 0.f;
+        b.playerOn = false;
+    }
+}

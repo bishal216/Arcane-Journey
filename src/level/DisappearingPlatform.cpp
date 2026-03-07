@@ -157,3 +157,23 @@ void DisappearingPlatformManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vec
                                playerPos.y - playerRect.size.y / 2.f};
     }
 }
+
+void DisappearingPlatformManager::reset() {
+    for (auto& p : m_platforms) {
+        float t = std::fmod(p.phaseOffset, p.visibleTime + p.fadeTime + p.hiddenTime + p.fadeTime);
+        if (t < p.visibleTime) {
+            p.state = DisappearState::Visible;
+            p.timer = t;
+        } else if (t < p.visibleTime + p.fadeTime) {
+            p.state = DisappearState::FadingOut;
+            p.timer = t - p.visibleTime;
+        } else if (t < p.visibleTime + p.fadeTime + p.hiddenTime) {
+            p.state = DisappearState::Hidden;
+            p.timer = t - p.visibleTime - p.fadeTime;
+        } else {
+            p.state = DisappearState::FadingIn;
+            p.timer = t - p.visibleTime - p.fadeTime - p.hiddenTime;
+        }
+        p.shape.setFillColor(p.baseColor);
+    }
+}

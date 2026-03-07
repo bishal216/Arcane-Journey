@@ -116,6 +116,7 @@ int main() {
     auto doReset = [&]() {
         doSave();
         player.reset();
+        player.resetRun();
         coins.reset();
         coins.setCollectedCount(save.totalCoins);
         level.resetDynamic();
@@ -302,6 +303,7 @@ int main() {
                 timerRunning = true;
                 runTimer = 0.f;
                 dashUsedThisRun = false;
+                player.resetRun();
                 coins.resetRun();
             }
 
@@ -312,7 +314,10 @@ int main() {
                 inHub = true;
                 runEndTimer = 3.5f;
                 level.resetDynamic();
+                save.totalCoins = coins.collectedCount();
                 doSave();
+                coins.reset();
+                coins.setCollectedCount(save.totalCoins);
 
                 int mins = (int)(runTimer / 60.f);
                 float secs = runTimer - mins * 60.f;
@@ -370,6 +375,7 @@ int main() {
         announcer.update(dt);
         g_juice.update(dt);
         hubUI.update(dt);
+        npcs.update(dt, player.position());
         camera.update(player.position());
 
         // Smoothly lerp background color toward current section's color

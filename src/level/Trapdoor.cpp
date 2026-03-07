@@ -205,3 +205,10 @@ bool TrapdoorManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playe
 
     return landed;
 }
+
+void TrapdoorManager::reset() {
+    for (auto& t : m_trapdoors) {
+        t.hatchState = HatchState::Closed;
+        t.hatchTimer = 0.f;
+    }
+}

@@ -11,6 +11,10 @@ class Player {
     Player();
 
     void reset();
+    void resetRun() {
+        m_glassDashUsed = false;
+        m_dashEverUsed = false;
+    }
     void setWorldH(float h) { m_worldH = h; }
     void setWorldW(float w) { m_worldW = w; }
 

@@ -92,7 +92,13 @@ void LevelData::resolvePlayer(Player& player, float dt, GameState& state) {
     player.setClimbing(climbing);
 }
 
-void LevelData::resetDynamic() { m_crumbling.reset(); }
+void LevelData::resetDynamic() {
+    m_crumbling.reset();
+    m_moving.reset();
+    m_disappearing.reset();
+    m_trapdoors.reset();
+    m_teleports.reset();
+}
 
 const std::vector<Platform>& LevelData::platforms() const { return m_world.platforms(); }
 const std::vector<Section>& LevelData::sections() const { return m_world.sections(); }
