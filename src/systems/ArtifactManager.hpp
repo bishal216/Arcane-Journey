@@ -21,6 +21,11 @@ struct ActiveMods {
     float coinMult = 1.f;
     float coinMagnetRadius = 0.f;
     float sizeScale = 1.f;
+    float climbSpeedMult = 1.f;    // rope/ladder climb speed
+    float dashCooldownMult = 1.f;  // <1 = faster cooldown, >1 = slower
+    float dashDurationMult = 1.f;  // how long dash lasts
+    float wallJumpMult = 1.f;      // wall jump X and Y force
+    float bounceMult = 1.f;        // bounce landing velocity (Bouncy Boots)
     bool dashEnabled = true;
     bool doubleJump = true;
     bool wallJump = true;
@@ -85,9 +90,18 @@ class ArtifactManager {
     void drawGhost(sf::RenderWindow& window) const;
     void drawBadges(sf::RenderWindow& window, const sf::Font& font) const;
 
+    // --- Feedback flash on equip/unequip ---
+    struct EquipFlash {
+        int id;
+        float timer;    // counts down from 1.0
+        bool wasEquip;  // true = equipped, false = unequipped
+    };
+    void updateFlashes(float dt);  // call every frame from main
+
    private:
     std::vector<Artifact> m_artifacts;
     ActiveMods m_mods;
+    std::vector<EquipFlash> m_equipFlashes;
 
     // Haunted ghost
     struct GhostFrame {

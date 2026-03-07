@@ -127,9 +127,10 @@ void ArtifactManager::buildArtifactList() {
     m = {};
     m.bouncy = true;
     m.jumpMult = 1.2f;
-    m_artifacts.push_back(make(10, "Bouncy Boots", "Every landing triggers a small bounce",
-                               "Annoyingly fun. Funly annoying.", 10, sf::Color(255, 160, 80),
-                               CosmeticSlot::Boots, m));
+    m.bounceMult = 1.4f;
+    m_artifacts.push_back(make(
+        10, "Bouncy Boots", "Every landing triggers a bounce. Jump +20%, bounce force +40%.",
+        "Annoyingly fun. Funly annoying.", 10, sf::Color(255, 160, 80), CosmeticSlot::Boots, m));
 
     // 11 — Purist's Band
     m = {};
@@ -222,7 +223,6 @@ int ArtifactManager::equippedCount() const {
 }
 
 bool ArtifactManager::equip(int id) {
-    // Find the artifact we want to equip
     Artifact* target = nullptr;
     for (auto& a : m_artifacts)
         if (a.id == id && a.owned) {
@@ -231,11 +231,15 @@ bool ArtifactManager::equip(int id) {
         }
     if (!target) return false;
 
-    // Unequip any existing artifact in the same slot
+    // Unequip any existing artifact in the same slot — flash it out
     for (auto& a : m_artifacts)
-        if (a.equipped && a.slot == target->slot && a.id != id) a.equipped = false;
+        if (a.equipped && a.slot == target->slot && a.id != id) {
+            a.equipped = false;
+            m_equipFlashes.push_back({a.id, 1.f, false});
+        }
 
     target->equipped = true;
+    m_equipFlashes.push_back({id, 1.f, true});
     rebuildMods();
     return true;
 }
@@ -244,6 +248,7 @@ void ArtifactManager::unequip(int id) {
     for (auto& a : m_artifacts) {
         if (a.id == id) {
             a.equipped = false;
+            m_equipFlashes.push_back({id, 1.f, false});
             rebuildMods();
             return;
         }
@@ -271,8 +276,13 @@ void ArtifactManager::rebuildMods() {
         m_mods.fallMult = highestMult(m_mods.fallMult, m.fallMult);
         m_mods.speedMult = highestMult(m_mods.speedMult, m.speedMult);
         m_mods.dashSpeedMult = highestMult(m_mods.dashSpeedMult, m.dashSpeedMult);
+        m_mods.dashCooldownMult = highestMult(m_mods.dashCooldownMult, m.dashCooldownMult);
+        m_mods.dashDurationMult = highestMult(m_mods.dashDurationMult, m.dashDurationMult);
         m_mods.gravityMult = highestMult(m_mods.gravityMult, m.gravityMult);
         m_mods.frictionMult = highestMult(m_mods.frictionMult, m.frictionMult);
+        m_mods.wallJumpMult = highestMult(m_mods.wallJumpMult, m.wallJumpMult);
+        m_mods.climbSpeedMult = highestMult(m_mods.climbSpeedMult, m.climbSpeedMult);
+        m_mods.bounceMult = highestMult(m_mods.bounceMult, m.bounceMult);
         m_mods.crumbleSpeedMult = highestMult(m_mods.crumbleSpeedMult, m.crumbleSpeedMult);
         m_mods.platformSpeedMult = highestMult(m_mods.platformSpeedMult, m.platformSpeedMult);
         m_mods.disappearMult = highestMult(m_mods.disappearMult, m.disappearMult);
@@ -1310,23 +1320,89 @@ void ArtifactManager::drawGhost(sf::RenderWindow& window) const {
 }
 
 // ---------------------------------------------------------------------------
+void ArtifactManager::updateFlashes(float dt) {
+    for (auto& f : m_equipFlashes) f.timer -= dt * 1.8f;
+    m_equipFlashes.erase(std::remove_if(m_equipFlashes.begin(), m_equipFlashes.end(),
+                                        [](const EquipFlash& f) { return f.timer <= 0.f; }),
+                         m_equipFlashes.end());
+}
+
 // Draw HUD badges — one per equipped artifact, top-right corner
 // ---------------------------------------------------------------------------
 void ArtifactManager::drawBadges(sf::RenderWindow& window, const sf::Font& font) const {
     float x = (float)WIN_W - 190.f;
     float y = 10.f;
+
+    // Draw active badges (equipped)
     for (const auto& a : m_artifacts) {
-        if (!a.equipped) continue;
+        if (!a.equipped && a.id >= 100) continue;  // skip unequipped eye cosmetics
+        if (!a.equipped) {
+            // Check if this artifact has an unequip flash fading out
+            bool hasFlash = false;
+            float flashT = 0.f;
+            for (const auto& f : m_equipFlashes)
+                if (f.id == a.id && !f.wasEquip) {
+                    hasFlash = true;
+                    flashT = f.timer;
+                    break;
+                }
+            if (!hasFlash) continue;
+
+            // Draw fading-out badge (slides right and fades)
+            float fade = std::max(0.f, flashT);
+            uint8_t alpha = (uint8_t)(fade * 200.f);
+            float ox = (1.f - fade) * 20.f;  // slides right as it fades
+
+            sf::RectangleShape badge({180.f, 24.f});
+            badge.setPosition({x + ox, y});
+            badge.setFillColor(sf::Color(60, 20, 20, alpha));
+            badge.setOutlineColor(sf::Color(a.color.r, a.color.g, a.color.b, alpha));
+            badge.setOutlineThickness(1.5f);
+            window.draw(badge);
+
+            sf::Text label(font, "– " + a.name, 14);
+            label.setFillColor(sf::Color(220, 120, 120, alpha));
+            label.setPosition({x + ox + 6.f, y + 4.f});
+            window.draw(label);
+
+            y += 28.f;
+            continue;
+        }
+
+        // Normal equipped badge — check for equip flash
+        float flashT = 0.f;
+        bool flashing = false;
+        for (const auto& f : m_equipFlashes)
+            if (f.id == a.id && f.wasEquip) {
+                flashing = true;
+                flashT = f.timer;
+                break;
+            }
+
+        // Pulse: brightness spikes at flashT=1, settles by flashT=0
+        float pulse = flashing ? flashT : 0.f;
+        float bright = 1.f + pulse * 1.2f;
+        auto tint = [&](sf::Color c) -> sf::Color {
+            return sf::Color((uint8_t)std::min(255.f, c.r * bright),
+                             (uint8_t)std::min(255.f, c.g * bright),
+                             (uint8_t)std::min(255.f, c.b * bright));
+        };
+
+        // Slide in from right on equip
+        float ox = flashing ? (flashT * 12.f) : 0.f;
+
         sf::RectangleShape badge({180.f, 24.f});
-        badge.setPosition({x, y});
-        badge.setFillColor(sf::Color(20, 10, 40, 200));
-        badge.setOutlineColor(a.color);
-        badge.setOutlineThickness(1.5f);
+        badge.setPosition({x + ox, y});
+        badge.setFillColor(
+            flashing ? sf::Color(20, (uint8_t)(10 + pulse * 30), (uint8_t)(40 + pulse * 60), 230)
+                     : sf::Color(20, 10, 40, 200));
+        badge.setOutlineColor(tint(a.color));
+        badge.setOutlineThickness(flashing ? 2.f : 1.5f);
         window.draw(badge);
 
-        sf::Text label(font, a.name, 14);
-        label.setFillColor(a.color);
-        label.setPosition({x + 6.f, y + 4.f});
+        sf::Text label(font, (flashing ? "+ " : "") + a.name, 14);
+        label.setFillColor(tint(a.color));
+        label.setPosition({x + ox + 6.f, y + 4.f});
         window.draw(label);
 
         y += 28.f;

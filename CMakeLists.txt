@@ -24,6 +24,7 @@ FetchContent_MakeAvailable(SFML)
 add_executable(ArcaneJourney
     # Root
     src/main.cpp
+    src/RunManager.cpp
 
     # core/
     src/core/Camera.cpp

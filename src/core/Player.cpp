@@ -86,11 +86,11 @@ void Player::update(float dt, const std::vector<Platform>& platforms, GameState&
 
     if (shiftPressed && canDash) {
         m_dashing = true;
-        m_dashTimer = DASH_DURATION;
+        m_dashTimer = DASH_DURATION * qm.dashDurationMult;
         m_dashAvail = false;
-        m_dashCoolTimer = DASH_COOLDOWN;
+        m_dashCoolTimer = DASH_COOLDOWN * qm.dashCooldownMult;
         m_dashEverUsed = true;
-        if (m_glassDashUsed == false) m_glassDashUsed = true;  // only matters for GlassDash
+        if (m_glassDashUsed == false) m_glassDashUsed = true;
 
         float dx = right ? 1.f : (left ? -1.f : (m_vel.x >= 0.f ? 1.f : -1.f));
         float dy = up ? -1.f : (down ? 1.f : 0.f);
@@ -155,8 +155,8 @@ void Player::update(float dt, const std::vector<Platform>& platforms, GameState&
                 m_jumpsLeft = 1;
                 g_juice.onJump(m_shape.getPosition());
             } else if (m_onWall && qm.wallJump) {
-                m_vel.x = -(float)m_wallDir * WALL_JUMP_X;
-                m_vel.y = WALL_JUMP_Y * qm.jumpMult;
+                m_vel.x = -(float)m_wallDir * WALL_JUMP_X * qm.wallJumpMult;
+                m_vel.y = WALL_JUMP_Y * qm.jumpMult * qm.wallJumpMult;
                 m_jumpsLeft = 1;
                 g_juice.onJump(m_shape.getPosition());
             } else if (m_jumpsLeft > 0 && qm.doubleJump) {
@@ -243,7 +243,7 @@ void Player::resolveVertical(const std::vector<Platform>& platforms, GameState& 
 
                 // Bouncy Castle
                 if (g_artifacts.mods().bouncy)
-                    m_vel.y = -180.f;
+                    m_vel.y = -180.f * g_artifacts.mods().bounceMult;
                 else
                     m_vel.y = 0.f;
 

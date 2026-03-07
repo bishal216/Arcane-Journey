@@ -1,8 +1,9 @@
-#include "level/Climbable.hpp"
+#include "Climbable.hpp"
 
 #include <algorithm>
 #include <cmath>
 
+#include "systems/ArtifactManager.hpp"
 #include "systems/DiscoveryTracker.hpp"
 
 // ---------------------------------------------------------------------------
@@ -118,7 +119,7 @@ bool ClimbableManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& play
 
         // Suspend gravity, drive vertical by input
         playerVel.x = 0.f;
-        playerVel.y = climbInput * CLIMB_SPEED;
+        playerVel.y = climbInput * CLIMB_SPEED * g_artifacts.mods().climbSpeedMult;
         onGround = false;
         isClimbing = true;
 
