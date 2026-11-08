@@ -55,6 +55,8 @@ const std::vector<std::pair<std::string, std::string>> HubUI::WISDOM = {
      "Stand still for half a second and you'll vanish — reappear elsewhere."},
     {"Coin             [C]", "Collect these. Spend them on artifacts at the Merchant."},
     {"Goal             [G]", "The golden platform at the very top. Reach it to win the run."},
+    {"Sinking          [S]",
+     "Sinks under your weight, then slowly rises back. Don't ride it down."},
 };
 
 // ---------------------------------------------------------------------------

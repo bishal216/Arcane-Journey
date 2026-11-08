@@ -38,6 +38,7 @@ add_executable(ArcaneJourney
     src/level/DisappearingPlatform.cpp
     src/level/LevelData.cpp
     src/level/MovingPlatform.cpp
+    src/level/SinkingPlatform.cpp
     src/level/TeleportBlock.cpp
     src/level/TileLoader.cpp
     src/level/Trapdoor.cpp

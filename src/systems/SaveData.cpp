@@ -1,6 +1,8 @@
 #include "systems/SaveData.hpp"
 
+#include <algorithm>
 #include <cstdint>
+#include <cstdio>
 #include <fstream>
 
 // Format v5:
@@ -36,38 +38,53 @@ bool SaveData::load(const std::string& path) {
     f.read(reinterpret_cast<char*>(&ver), 1);
     if (ver != VERSION) return false;
 
-    int32_t coins;
+    // Read into locals first so a truncated/corrupt file leaves this object untouched
+    int32_t coins = 0;
+    float frac = 0.f, best = -1.f;
+    uint16_t disc = 0;
     f.read(reinterpret_cast<char*>(&coins), 4);
-    totalCoins = coins;
-
-    f.read(reinterpret_cast<char*>(&coinFraction), 4);
-
-    f.read(reinterpret_cast<char*>(&bestTime), 4);
-    f.read(reinterpret_cast<char*>(&discoveries), 2);
+    f.read(reinterpret_cast<char*>(&frac), 4);
+    f.read(reinterpret_cast<char*>(&best), 4);
+    f.read(reinterpret_cast<char*>(&disc), 2);
+    if (f.fail()) return false;
 
     auto readBoolVec = [&](std::vector<bool>& v) {
-        uint8_t n;
+        uint8_t n = 0;
         f.read(reinterpret_cast<char*>(&n), 1);
-        v.resize(n, false);
-        for (int i = 0; i < n; ++i) {
-            uint8_t b;
+        v.assign(n, false);
+        for (int i = 0; i < n && !f.fail(); ++i) {
+            uint8_t b = 0;
             f.read(reinterpret_cast<char*>(&b), 1);
             v[i] = b != 0;
         }
     };
 
-    readBoolVec(artifactOwned);
-    readBoolVec(artifactEquipped);
-    readBoolVec(achievCompleted);
-    readBoolVec(achievClaimed);
-    readBoolVec(eyeOwned);
-    readBoolVec(eyeEquipped);
+    SaveData tmp;
+    readBoolVec(tmp.artifactOwned);
+    readBoolVec(tmp.artifactEquipped);
+    readBoolVec(tmp.achievCompleted);
+    readBoolVec(tmp.achievClaimed);
+    readBoolVec(tmp.eyeOwned);
+    readBoolVec(tmp.eyeEquipped);
+    if (f.fail()) return false;
 
-    return !f.fail();
+    totalCoins = coins;
+    coinFraction = frac;
+    bestTime = best;
+    discoveries = disc;
+    artifactOwned = std::move(tmp.artifactOwned);
+    artifactEquipped = std::move(tmp.artifactEquipped);
+    achievCompleted = std::move(tmp.achievCompleted);
+    achievClaimed = std::move(tmp.achievClaimed);
+    eyeOwned = std::move(tmp.eyeOwned);
+    eyeEquipped = std::move(tmp.eyeEquipped);
+    return true;
 }
 
 void SaveData::save(const std::string& path) const {
-    std::ofstream f(path, std::ios::binary);
+    // Write to a temp file then rename, so a crash mid-write can't corrupt the save
+    const std::string tmpPath = path + ".tmp";
+    std::ofstream f(tmpPath, std::ios::binary);
     if (!f) return;
 
     f.write(MAGIC, 4);
@@ -94,4 +111,12 @@ void SaveData::save(const std::string& path) const {
     writeBoolVec(achievClaimed);
     writeBoolVec(eyeOwned);
     writeBoolVec(eyeEquipped);
+
+    f.close();
+    if (f.fail()) {
+        std::remove(tmpPath.c_str());
+        return;
+    }
+    std::remove(path.c_str());  // rename() won't overwrite on Windows
+    std::rename(tmpPath.c_str(), path.c_str());
 }

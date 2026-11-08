@@ -3,6 +3,8 @@
 #include <cmath>
 #include <iomanip>
 #include <sstream>
+#include <iostream>
+#include <stdexcept>
 #include <string>
 
 #include "Constants.hpp"
@@ -37,7 +39,13 @@ int main() {
     // Load level
     LevelData level;
     float worldW = 0.f;
-    float worldH = TileLoader::load("assets/levels/level.txt", level, &worldW);
+    float worldH = 0.f;
+    try {
+        worldH = TileLoader::load("assets/levels/level.txt", level, &worldW);
+    } catch (const std::exception& e) {
+        std::cerr << "Fatal: " << e.what() << "\n";
+        return 1;
+    }
 
     // Construct managers
     Player player;
@@ -61,6 +69,7 @@ int main() {
         coins.setCollectedCount(save.totalCoins);
         coins.setCoinFraction(save.coinFraction);
         if (save.bestTime > 0.f) hubUI.setBestTime(save.bestTime);
+        g_discovery.fromBits(save.discoveries);
         g_artifacts.fromBits(save.artifactOwned, save.artifactEquipped);
         g_achievements.restoreBits(save.achievCompleted, save.achievClaimed);
         for (int i = 0; i < (int)save.eyeOwned.size(); ++i)

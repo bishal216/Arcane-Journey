@@ -37,6 +37,8 @@ static sf::Color platformColor(char sym) {
             return sf::Color(255, 210, 40);
         case 'T':
             return sf::Color(80, 40, 180);
+        case 'S':
+            return sf::Color(60, 180, 160);  // sinking — teal
         case 'G':
             return sf::Color(255, 215, 0);
         default:
@@ -164,6 +166,9 @@ float TileLoader::load(const std::string& path, LevelData& level, float* worldW)
                     break;
                 case 'H':
                     level.addTrapdoorHatch(x, y, w, T, col);
+                    break;
+                case 'S':
+                    level.addSinking(x, y, w, T, col);
                     break;
 
                 case '*':

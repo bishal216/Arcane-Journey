@@ -1,0 +1,209 @@
+diff --git a/.gitignore b/.gitignore
+index b484b58..cf0a3e1 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -5,3 +5,4 @@ out
+ .vscode
+ build/
+ save.dat
++save.dat.tmp
+diff --git a/folder_structure.txt b/folder_structure.txt
+deleted file mode 100644
+index cfe67ba71a4536a5c2dba4024406639d612f8ad8..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 812
+zcmb`FK?=e!5Jlfw@F;o!cY>gJhHR=-Ek-LzwDj`T-&hgcnRGFbNoIcjyyV%fSYTLF
+z5!i5Nr)-I1Pr;Rv8Cz=YyO^~)opX%Ur=hyhx#P?Mt5t(%%7p)Q3w3(k7)DVr@>9$6
+zSZY?z9txZ6&PS?gY~H;_uhO$F6A6D*zO&@Hxeb3Lmx&S6RuMGWC6lkwudFip^a_UG
+F>0Znrm74$n
+
+diff --git a/src/RunManager.cpp b/src/RunManager.cpp
+index 20bd03a..4f6ad81 100644
+--- a/src/RunManager.cpp
++++ b/src/RunManager.cpp
+@@ -116,6 +116,8 @@ void RunManager::update(float dt, GameState& state) {
+ // fullReset — R key
+ // ---------------------------------------------------------------------------
+ void RunManager::fullReset(GameState& state) {
++    // Abandoning an active run counts as a failure (prevents dodging loseCoinsOnFail)
++    if (m_runActive && state != GameState::Won) applyLossPenalty();
+     doSave();
+     m_player.reset();
+     m_player.resetRun();
+diff --git a/src/core/Player.cpp b/src/core/Player.cpp
+index 007f274..2c07570 100644
+--- a/src/core/Player.cpp
++++ b/src/core/Player.cpp
+@@ -75,11 +75,6 @@ void Player::update(float dt, const std::vector<Platform>& platforms, GameState&
+ 
+     if (m_dashCoolTimer > 0.f) m_dashCoolTimer -= dt;
+ 
+-    // Lead Boots — dash recharges instantly on ground
+-    if (m_onGround && !qm.dashEnabled == false) {
+-        // handled via dashEnabled flag — instant recharge uses coolTimer=0
+-    }
+-
+     // --- Dash ---
+     bool canDash = qm.dashEnabled && m_dashAvail && !m_dashing && m_dashCoolTimer <= 0.f &&
+                    !(m_glassDashUsed);  // Glass Dash: one dash per run
+diff --git a/src/level/Climbable.cpp b/src/level/Climbable.cpp
+index 455af92..10257f8 100644
+--- a/src/level/Climbable.cpp
++++ b/src/level/Climbable.cpp
+@@ -107,11 +107,12 @@ bool ClimbableManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& play
+     for (const auto& c : m_climbables) {
+         if (!playerRect.findIntersection(c.bounds())) continue;
+ 
+-        // If player has significant upward velocity they just jumped —
+-        // don't re-engage the climbable this frame so the jump carries through.
+-        if (playerVel.y < -100.f) {
+-            isClimbing = false;
+-            return false;
++        // If the player is NOT already climbing and is moving upward faster than the
++        // maximum climb speed, they just jumped (or were launched) — don't re-grab this
++        // frame so the jump carries through. (A fixed -100 threshold would also trip on
++        // normal climbing, since CLIMB_SPEED is 160.)
++        if (!isClimbing && playerVel.y < -CLIMB_SPEED * g_artifacts.mods().climbSpeedMult) {
++            continue;
+         }
+ 
+         // Only engage climbing if they press up/down (or are already climbing).
+diff --git a/src/main.cpp b/src/main.cpp
+index 7654bc8..16933a6 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -3,6 +3,8 @@
+ #include <cmath>
+ #include <iomanip>
+ #include <sstream>
++#include <iostream>
++#include <stdexcept>
+ #include <string>
+ 
+ #include "Constants.hpp"
+@@ -37,7 +39,13 @@ int main() {
+     // Load level
+     LevelData level;
+     float worldW = 0.f;
+-    float worldH = TileLoader::load("assets/levels/level.txt", level, &worldW);
++    float worldH = 0.f;
++    try {
++        worldH = TileLoader::load("assets/levels/level.txt", level, &worldW);
++    } catch (const std::exception& e) {
++        std::cerr << "Fatal: " << e.what() << "\n";
++        return 1;
++    }
+ 
+     // Construct managers
+     Player player;
+@@ -61,6 +69,7 @@ int main() {
+         coins.setCollectedCount(save.totalCoins);
+         coins.setCoinFraction(save.coinFraction);
+         if (save.bestTime > 0.f) hubUI.setBestTime(save.bestTime);
++        g_discovery.fromBits(save.discoveries);
+         g_artifacts.fromBits(save.artifactOwned, save.artifactEquipped);
+         g_achievements.restoreBits(save.achievCompleted, save.achievClaimed);
+         for (int i = 0; i < (int)save.eyeOwned.size(); ++i)
+diff --git a/src/systems/SaveData.cpp b/src/systems/SaveData.cpp
+index 0ae6321..de3ca2a 100644
+--- a/src/systems/SaveData.cpp
++++ b/src/systems/SaveData.cpp
+@@ -1,6 +1,8 @@
+ #include "systems/SaveData.hpp"
+ 
++#include <algorithm>
+ #include <cstdint>
++#include <cstdio>
+ #include <fstream>
+ 
+ // Format v5:
+@@ -36,38 +38,53 @@ bool SaveData::load(const std::string& path) {
+     f.read(reinterpret_cast<char*>(&ver), 1);
+     if (ver != VERSION) return false;
+ 
+-    int32_t coins;
++    // Read into locals first so a truncated/corrupt file leaves this object untouched
++    int32_t coins = 0;
++    float frac = 0.f, best = -1.f;
++    uint16_t disc = 0;
+     f.read(reinterpret_cast<char*>(&coins), 4);
+-    totalCoins = coins;
+-
+-    f.read(reinterpret_cast<char*>(&coinFraction), 4);
+-
+-    f.read(reinterpret_cast<char*>(&bestTime), 4);
+-    f.read(reinterpret_cast<char*>(&discoveries), 2);
++    f.read(reinterpret_cast<char*>(&frac), 4);
++    f.read(reinterpret_cast<char*>(&best), 4);
++    f.read(reinterpret_cast<char*>(&disc), 2);
++    if (f.fail()) return false;
+ 
+     auto readBoolVec = [&](std::vector<bool>& v) {
+-        uint8_t n;
++        uint8_t n = 0;
+         f.read(reinterpret_cast<char*>(&n), 1);
+-        v.resize(n, false);
+-        for (int i = 0; i < n; ++i) {
+-            uint8_t b;
++        v.assign(n, false);
++        for (int i = 0; i < n && !f.fail(); ++i) {
++            uint8_t b = 0;
+             f.read(reinterpret_cast<char*>(&b), 1);
+             v[i] = b != 0;
+         }
+     };
+ 
+-    readBoolVec(artifactOwned);
+-    readBoolVec(artifactEquipped);
+-    readBoolVec(achievCompleted);
+-    readBoolVec(achievClaimed);
+-    readBoolVec(eyeOwned);
+-    readBoolVec(eyeEquipped);
++    SaveData tmp;
++    readBoolVec(tmp.artifactOwned);
++    readBoolVec(tmp.artifactEquipped);
++    readBoolVec(tmp.achievCompleted);
++    readBoolVec(tmp.achievClaimed);
++    readBoolVec(tmp.eyeOwned);
++    readBoolVec(tmp.eyeEquipped);
++    if (f.fail()) return false;
+ 
+-    return !f.fail();
++    totalCoins = coins;
++    coinFraction = frac;
++    bestTime = best;
++    discoveries = disc;
++    artifactOwned = std::move(tmp.artifactOwned);
++    artifactEquipped = std::move(tmp.artifactEquipped);
++    achievCompleted = std::move(tmp.achievCompleted);
++    achievClaimed = std::move(tmp.achievClaimed);
++    eyeOwned = std::move(tmp.eyeOwned);
++    eyeEquipped = std::move(tmp.eyeEquipped);
++    return true;
+ }
+ 
+ void SaveData::save(const std::string& path) const {
+-    std::ofstream f(path, std::ios::binary);
++    // Write to a temp file then rename, so a crash mid-write can't corrupt the save
++    const std::string tmpPath = path + ".tmp";
++    std::ofstream f(tmpPath, std::ios::binary);
+     if (!f) return;
+ 
+     f.write(MAGIC, 4);
+@@ -94,4 +111,12 @@ void SaveData::save(const std::string& path) const {
+     writeBoolVec(achievClaimed);
+     writeBoolVec(eyeOwned);
+     writeBoolVec(eyeEquipped);
++
++    f.close();
++    if (f.fail()) {
++        std::remove(tmpPath.c_str());
++        return;
++    }
++    std::remove(path.c_str());  // rename() won't overwrite on Windows
++    std::rename(tmpPath.c_str(), path.c_str());
+ }
+\ No newline at end of file

@@ -33,6 +33,9 @@ void LevelData::addTrapdoorHatch(float x, float y, float w, float h, sf::Color c
     m_trapdoors.addHatch(x, y, w, h, col);
 }
 void LevelData::addTeleport(float x, float y, float w, float h) { m_teleports.add(x, y, w, h); }
+void LevelData::addSinking(float x, float y, float w, float h, sf::Color col) {
+    m_sinking.add(x, y, w, h, col);
+}
 void LevelData::addCoin(float cx, float cy) { m_world.addCoin(cx, cy); }
 void LevelData::addSection(float worldY, const std::string& name) {
     m_world.addSection(worldY, name);
@@ -49,6 +52,7 @@ void LevelData::update(float dt) {
     m_disappearing.update(dt);
     m_climbables.update(dt);
     m_trapdoors.update(dt);
+    m_sinking.update(dt);
     // Teleport update called separately in resolvePlayer (needs playerPos)
 }
 
@@ -61,6 +65,7 @@ void LevelData::draw(sf::RenderWindow& window) const {
     m_crumbling.draw(window);
     m_bounce.draw(window);
     m_disappearing.draw(window);
+    m_sinking.draw(window);
 }
 
 void LevelData::resolvePlayer(Player& player, float dt, GameState& state) {
@@ -79,6 +84,7 @@ void LevelData::resolvePlayer(Player& player, float dt, GameState& state) {
     m_disappearing.resolvePlayer(pos, vel, bounds, onGround, dash, jumps);
     m_trapdoors.resolvePlayer(pos, vel, bounds, onGround, dash, jumps);
     m_teleports.resolvePlayer(pos, vel, bounds, onGround);
+    m_sinking.resolvePlayer(pos, vel, bounds, onGround, dash, jumps, dt);
     m_climbables.resolvePlayer(pos, vel, bounds, onGround, climbing, climbIn, dt);
 
     // Teleport update needs current onGround state and can modify pos
@@ -98,6 +104,7 @@ void LevelData::resetDynamic() {
     m_disappearing.reset();
     m_trapdoors.reset();
     m_teleports.reset();
+    m_sinking.reset();
 }
 
 const std::vector<Platform>& LevelData::platforms() const { return m_world.platforms(); }

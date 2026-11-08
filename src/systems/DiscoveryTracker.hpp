@@ -19,6 +19,7 @@ enum class PlatType : int {
     Teleport,
     Coin,
     Goal,
+    Sinking,
     COUNT
 };
 

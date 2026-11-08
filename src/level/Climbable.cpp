@@ -104,18 +104,23 @@ void ClimbableManager::draw(sf::RenderWindow& window) const {
 bool ClimbableManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel,
                                      sf::FloatRect playerRect, bool& onGround, bool& isClimbing,
                                      float climbInput, float dt) {
-    // Check if player overlaps any climbable grab zone
     for (const auto& c : m_climbables) {
         if (!playerRect.findIntersection(c.bounds())) continue;
 
-        // Player is touching this climbable.
+        // If the player is NOT already climbing and is moving upward faster than the
+        // maximum climb speed, they just jumped (or were launched) — don't re-grab this
+        // frame so the jump carries through. (A fixed -100 threshold would also trip on
+        // normal climbing, since CLIMB_SPEED is 160.)
+        if (!isClimbing && playerVel.y < -CLIMB_SPEED * g_artifacts.mods().climbSpeedMult) {
+            continue;
+        }
+
         // Only engage climbing if they press up/down (or are already climbing).
         bool wantsClimb = (climbInput != 0.f) || isClimbing;
         if (!wantsClimb) continue;
 
         // Snap player X to centre of climbable
-        float snapX = c.centerX();
-        playerPos.x = snapX;
+        playerPos.x = c.centerX();
 
         // Suspend gravity, drive vertical by input
         playerVel.x = 0.f;
@@ -123,10 +128,9 @@ bool ClimbableManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& play
         onGround = false;
         isClimbing = true;
 
-        // Clamp player within rope/ladder vertical bounds
+        // Clamp within rope/ladder vertical bounds
         float halfH = playerRect.size.y * 0.5f;
         if (playerPos.y - halfH < c.topY()) {
-            // Reached top — let them step off onto platform above
             playerPos.y = c.topY() + halfH;
             playerVel.y = 0.f;
             isClimbing = false;
@@ -141,7 +145,6 @@ bool ClimbableManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& play
         return true;
     }
 
-    // Not on any climbable
     isClimbing = false;
     return false;
 }

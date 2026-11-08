@@ -1,0 +1,64 @@
+Change Dir: 'D:/GitHub/Arcane-Journey/build'
+
+Run Build Command(s): "C:/Program Files/CMake/bin/cmake.exe" -E env VERBOSE=1 C:/msys64/ucrt64/bin/mingw32-make.exe -f Makefile
+C:\msys64\ucrt64\bin\cmake.exe -SD:\GitHub\Arcane-Journey -BD:\GitHub\Arcane-Journey\build --check-build-system CMakeFiles\Makefile.cmake 0
+C:\msys64\ucrt64\bin\cmake.exe -E cmake_progress_start D:\GitHub\Arcane-Journey\build\CMakeFiles D:\GitHub\Arcane-Journey\build\\CMakeFiles\progress.marks
+C:/msys64/ucrt64/bin/mingw32-make.exe  -f CMakeFiles\Makefile2 all
+mingw32-make[1]: Entering directory 'D:/GitHub/Arcane-Journey/build'
+C:/msys64/ucrt64/bin/mingw32-make.exe  -f _deps\freetype-build\CMakeFiles\freetype.dir\build.make _deps/freetype-build/CMakeFiles/freetype.dir/depend
+mingw32-make[2]: Entering directory 'D:/GitHub/Arcane-Journey/build'
+C:\msys64\ucrt64\bin\cmake.exe -E cmake_depends "MinGW Makefiles" D:\GitHub\Arcane-Journey D:\GitHub\Arcane-Journey\build\_deps\freetype-src D:\GitHub\Arcane-Journey\build D:\GitHub\Arcane-Journey\build\_deps\freetype-build D:\GitHub\Arcane-Journey\build\_deps\freetype-build\CMakeFiles\freetype.dir\DependInfo.cmake "--color=" freetype
+mingw32-make[2]: Leaving directory 'D:/GitHub/Arcane-Journey/build'
+C:/msys64/ucrt64/bin/mingw32-make.exe  -f _deps\freetype-build\CMakeFiles\freetype.dir\build.make _deps/freetype-build/CMakeFiles/freetype.dir/build
+mingw32-make[2]: Entering directory 'D:/GitHub/Arcane-Journey/build'
+mingw32-make[2]: Nothing to be done for '_deps/freetype-build/CMakeFiles/freetype.dir/build'.
+mingw32-make[2]: Leaving directory 'D:/GitHub/Arcane-Journey/build'
+[ 32%] Built target freetype
+C:/msys64/ucrt64/bin/mingw32-make.exe  -f _deps\sfml-build\src\SFML\System\CMakeFiles\sfml-system.dir\build.make _deps/sfml-build/src/SFML/System/CMakeFiles/sfml-system.dir/depend
+mingw32-make[2]: Entering directory 'D:/GitHub/Arcane-Journey/build'
+C:\msys64\ucrt64\bin\cmake.exe -E cmake_depends "MinGW Makefiles" D:\GitHub\Arcane-Journey D:\GitHub\Arcane-Journey\build\_deps\sfml-src\src\SFML\System D:\GitHub\Arcane-Journey\build D:\GitHub\Arcane-Journey\build\_deps\sfml-build\src\SFML\System D:\GitHub\Arcane-Journey\build\_deps\sfml-build\src\SFML\System\CMakeFiles\sfml-system.dir\DependInfo.cmake "--color=" sfml-system
+mingw32-make[2]: Leaving directory 'D:/GitHub/Arcane-Journey/build'
+C:/msys64/ucrt64/bin/mingw32-make.exe  -f _deps\sfml-build\src\SFML\System\CMakeFiles\sfml-system.dir\build.make _deps/sfml-build/src/SFML/System/CMakeFiles/sfml-system.dir/build
+mingw32-make[2]: Entering directory 'D:/GitHub/Arcane-Journey/build'
+mingw32-make[2]: Nothing to be done for '_deps/sfml-build/src/SFML/System/CMakeFiles/sfml-system.dir/build'.
+mingw32-make[2]: Leaving directory 'D:/GitHub/Arcane-Journey/build'
+[ 40%] Built target sfml-system
+C:/msys64/ucrt64/bin/mingw32-make.exe  -f _deps\sfml-build\src\SFML\Window\CMakeFiles\sfml-window.dir\build.make _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/depend
+mingw32-make[2]: Entering directory 'D:/GitHub/Arcane-Journey/build'
+C:\msys64\ucrt64\bin\cmake.exe -E cmake_depends "MinGW Makefiles" D:\GitHub\Arcane-Journey D:\GitHub\Arcane-Journey\build\_deps\sfml-src\src\SFML\Window D:\GitHub\Arcane-Journey\build D:\GitHub\Arcane-Journey\build\_deps\sfml-build\src\SFML\Window D:\GitHub\Arcane-Journey\build\_deps\sfml-build\src\SFML\Window\CMakeFiles\sfml-window.dir\DependInfo.cmake "--color=" sfml-window
+mingw32-make[2]: Leaving directory 'D:/GitHub/Arcane-Journey/build'
+C:/msys64/ucrt64/bin/mingw32-make.exe  -f _deps\sfml-build\src\SFML\Window\CMakeFiles\sfml-window.dir\build.make _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/build
+mingw32-make[2]: Entering directory 'D:/GitHub/Arcane-Journey/build'
+mingw32-make[2]: Nothing to be done for '_deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/build'.
+mingw32-make[2]: Leaving directory 'D:/GitHub/Arcane-Journey/build'
+[ 60%] Built target sfml-window
+C:/msys64/ucrt64/bin/mingw32-make.exe  -f _deps\sfml-build\src\SFML\Graphics\CMakeFiles\sfml-graphics.dir\build.make _deps/sfml-build/src/SFML/Graphics/CMakeFiles/sfml-graphics.dir/depend
+mingw32-make[2]: Entering directory 'D:/GitHub/Arcane-Journey/build'
+C:\msys64\ucrt64\bin\cmake.exe -E cmake_depends "MinGW Makefiles" D:\GitHub\Arcane-Journey D:\GitHub\Arcane-Journey\build\_deps\sfml-src\src\SFML\Graphics D:\GitHub\Arcane-Journey\build D:\GitHub\Arcane-Journey\build\_deps\sfml-build\src\SFML\Graphics D:\GitHub\Arcane-Journey\build\_deps\sfml-build\src\SFML\Graphics\CMakeFiles\sfml-graphics.dir\DependInfo.cmake "--color=" sfml-graphics
+mingw32-make[2]: Leaving directory 'D:/GitHub/Arcane-Journey/build'
+C:/msys64/ucrt64/bin/mingw32-make.exe  -f _deps\sfml-build\src\SFML\Graphics\CMakeFiles\sfml-graphics.dir\build.make _deps/sfml-build/src/SFML/Graphics/CMakeFiles/sfml-graphics.dir/build
+mingw32-make[2]: Entering directory 'D:/GitHub/Arcane-Journey/build'
+mingw32-make[2]: Nothing to be done for '_deps/sfml-build/src/SFML/Graphics/CMakeFiles/sfml-graphics.dir/build'.
+mingw32-make[2]: Leaving directory 'D:/GitHub/Arcane-Journey/build'
+[ 80%] Built target sfml-graphics
+C:/msys64/ucrt64/bin/mingw32-make.exe  -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/depend
+mingw32-make[2]: Entering directory 'D:/GitHub/Arcane-Journey/build'
+C:\msys64\ucrt64\bin\cmake.exe -E cmake_depends "MinGW Makefiles" D:\GitHub\Arcane-Journey D:\GitHub\Arcane-Journey D:\GitHub\Arcane-Journey\build D:\GitHub\Arcane-Journey\build D:\GitHub\Arcane-Journey\build\CMakeFiles\ArcaneJourney.dir\DependInfo.cmake "--color=" ArcaneJourney
+mingw32-make[2]: Leaving directory 'D:/GitHub/Arcane-Journey/build'
+C:/msys64/ucrt64/bin/mingw32-make.exe  -f CMakeFiles\ArcaneJourney.dir\build.make CMakeFiles/ArcaneJourney.dir/build
+mingw32-make[2]: Entering directory 'D:/GitHub/Arcane-Journey/build'
+[ 80%] Building CXX object CMakeFiles/ArcaneJourney.dir/src/main.cpp.obj
+C:\msys64\ucrt64\bin\c++.exe -DSFML_STATIC @CMakeFiles/ArcaneJourney.dir/includes_CXX.rsp -std=gnu++17 -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/ArcaneJourney.dir/src/main.cpp.obj -MF CMakeFiles\ArcaneJourney.dir\src\main.cpp.obj.d -o CMakeFiles\ArcaneJourney.dir\src\main.cpp.obj -c D:\GitHub\Arcane-Journey\src\main.cpp
+mingw32-make[2]: Leaving directory 'D:/GitHub/Arcane-Journey/build'
+cmake.exe : mingw32-make[2]: *** [CMakeFiles\ArcaneJourney.dir\build.make:79: 
+CMakeFiles/ArcaneJourney.dir/src/main.cpp.obj] Error 1
+At line:1 char:1
++ & cmake --build build --verbose 2>&1 | Out-File -Encoding ASCII err.t ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (mingw32-make[2]...pp.obj] Error 1:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+mingw32-make[1]: *** [CMakeFiles\Makefile2:240: CMakeFiles/ArcaneJourney.dir/all] Error 2
+mingw32-make[1]: Leaving directory 'D:/GitHub/Arcane-Journey/build'
+mingw32-make: *** [Makefile:155: all] Error 2
+

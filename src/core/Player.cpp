@@ -75,11 +75,6 @@ void Player::update(float dt, const std::vector<Platform>& platforms, GameState&
 
     if (m_dashCoolTimer > 0.f) m_dashCoolTimer -= dt;
 
-    // Lead Boots — dash recharges instantly on ground
-    if (m_onGround && !qm.dashEnabled == false) {
-        // handled via dashEnabled flag — instant recharge uses coolTimer=0
-    }
-
     // --- Dash ---
     bool canDash = qm.dashEnabled && m_dashAvail && !m_dashing && m_dashCoolTimer <= 0.f &&
                    !(m_glassDashUsed);  // Glass Dash: one dash per run

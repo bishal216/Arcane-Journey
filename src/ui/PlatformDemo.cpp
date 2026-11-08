@@ -199,6 +199,16 @@ void PlatformDemo::buildFrames(PlatType type) {
         };
         break;
 
+    case PlatType::Sinking:
+        m_frames = {
+            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, sf::Color(40,180,170), CHAR_DEF,  "Sinks under your weight."},
+            {0.5f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(40,180,170), CHAR_LAND, "Sinking..."},
+            {1.2f, {cx, py + 28.f},     {cx - pw/2, py + 50.f}, {pw, ph}, sf::Color(240,100,20), CHAR_LAND, "...step off to let it recover."},
+            {0.4f, {cx + 60.f, floor - 80.f},  {cx - pw/2, py + 50.f}, {pw, ph}, sf::Color(240,100,20), CHAR_DEF, ""},
+            {0.8f, {cx + 60.f, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, sf::Color(40,180,170), CHAR_DEF,  "Good as new."},
+        };
+        break;
+
     default:
         m_frames = {
             {0.5f, {cx, cy}, {cx - 48.f, cy + 30.f}, {96.f, 16.f}, PLAT_DEF, CHAR_DEF, "???"},

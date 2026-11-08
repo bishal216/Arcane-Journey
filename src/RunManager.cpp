@@ -116,6 +116,8 @@ void RunManager::update(float dt, GameState& state) {
 // fullReset — R key
 // ---------------------------------------------------------------------------
 void RunManager::fullReset(GameState& state) {
+    // Abandoning an active run counts as a failure (prevents dodging loseCoinsOnFail)
+    if (m_runActive && state != GameState::Won) applyLossPenalty();
     doSave();
     m_player.reset();
     m_player.resetRun();

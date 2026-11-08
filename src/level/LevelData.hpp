@@ -10,6 +10,7 @@
 #include "level/CrumblingPlatform.hpp"
 #include "level/DisappearingPlatform.hpp"
 #include "level/MovingPlatform.hpp"
+#include "level/SinkingPlatform.hpp"
 #include "level/TeleportBlock.hpp"
 #include "level/Trapdoor.hpp"
 
@@ -30,6 +31,7 @@ class LevelData {
     void addTrapdoorOneWay(float x, float y, float w, float h, sf::Color col);
     void addTrapdoorHatch(float x, float y, float w, float h, sf::Color col);
     void addTeleport(float x, float y, float w, float h);
+    void addSinking(float x, float y, float w, float h, sf::Color col);
     void addCoin(float cx, float cy);
     void addSection(float worldY, const std::string& name);
     void sortSections();
@@ -54,4 +56,5 @@ class LevelData {
     ClimbableManager m_climbables;
     TrapdoorManager m_trapdoors;
     TeleportBlockManager m_teleports;
+    SinkingPlatformManager m_sinking;
 };

@@ -5,3 +5,4 @@ out
 .vscode
 build/
 save.dat
+save.dat.tmp
