@@ -12,7 +12,7 @@
 
 MovingPlatform::MovingPlatform(float x, float y, float w, float h, sf::Vector2f a, sf::Vector2f b,
                                float spd, sf::Color col)
-    : pointA(a), pointB(b), speed(spd) {
+    : pointA(a), pointB(b), startPos(x, y), speed(spd) {
     shape.setSize({w, h});
     shape.setPosition({x, y});
     shape.setFillColor(col);
@@ -69,7 +69,8 @@ void MovingPlatformManager::draw(sf::RenderWindow& window) const {
 }
 
 bool MovingPlatformManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel,
-                                          sf::FloatRect playerRect, bool& onGround, float dt) {
+                                          sf::FloatRect playerRect, bool& onGround,
+                                          bool& dashAvail, int& jumpsLeft) {
     bool carried = false;
 
     for (auto& mp : m_platforms) {
@@ -114,7 +115,11 @@ bool MovingPlatformManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f&
             playerPos.y = platTop - playerRect.size.y / 2.f;
             playerVel.y = 0.f;
             onGround = true;
+            dashAvail = true;
+            jumpsLeft = 1;
             carried = true;
+            g_discovery.discover(std::abs(mp.m_dir.x) >= std::abs(mp.m_dir.y) ? PlatType::MoveH
+                                                                              : PlatType::MoveV);
 
             // Carry: match platform displacement exactly (both X and Y)
             sf::Vector2f delta = mp.shape.getPosition() - mp.prevPos;
@@ -144,13 +149,15 @@ bool MovingPlatformManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f&
 }
 
 void MovingPlatformManager::reset() {
+    // Restore the exact state the platform had at load: authored spawn position,
+    // travelling toward B. (Snapping to pointA made later runs differ from the first.)
     for (auto& p : m_platforms) {
-        p.shape.setPosition(p.pointA);
+        p.shape.setPosition(p.startPos);
         p.m_dir = p.pointB - p.pointA;
         float len = std::sqrt(p.m_dir.x * p.m_dir.x + p.m_dir.y * p.m_dir.y);
         if (len > 0.f) p.m_dir /= len;
         p.m_towardB = true;
         p.velocity = p.m_dir * p.speed;
-        p.prevPos = p.pointA;
+        p.prevPos = p.startPos;
     }
 }

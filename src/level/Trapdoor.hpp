@@ -58,9 +58,14 @@ class TrapdoorManager {
     void draw(sf::RenderWindow& window) const;
     void reset();  // close all hatches: only blocks player falling downward.
     // Returns true if player landed on something this frame.
+    // dropping: the player pressed Down+Space — one-way platforms are ignored this frame.
     bool resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel, sf::FloatRect playerRect,
-                       bool& onGround, bool& dashAvail, int& jumpsLeft);
+                       bool& onGround, bool& dashAvail, int& jumpsLeft, bool dropping);
+
+    // True if the player landed on a one-way platform during the last resolvePlayer call.
+    bool standingOnOneWay() const { return m_standingOnOneWay; }
 
    private:
     std::vector<Trapdoor> m_trapdoors;
+    bool m_standingOnOneWay = false;
 };

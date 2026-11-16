@@ -36,12 +36,15 @@ add_executable(ArcaneJourney
     src/level/Climbable.cpp
     src/level/CrumblingPlatform.cpp
     src/level/DisappearingPlatform.cpp
+    src/level/FanPlatform.cpp
+    src/level/KeyDoor.cpp
     src/level/LevelData.cpp
     src/level/MovingPlatform.cpp
     src/level/SinkingPlatform.cpp
     src/level/TeleportBlock.cpp
     src/level/TileLoader.cpp
     src/level/Trapdoor.cpp
+    src/level/WindPlatform.cpp
 
     # systems/
     src/systems/ArtifactManager.cpp
@@ -100,3 +103,37 @@ add_custom_command(TARGET ArcaneJourney POST_BUILD
         "$<TARGET_FILE_DIR:ArcaneJourney>/assets"
     COMMENT "Copying assets..."
 )
+
+# ---------------------------------------------------------------------------
+# Tests (optional — enable with -DBUILD_TESTS=ON)
+# ---------------------------------------------------------------------------
+option(BUILD_TESTS "Build platform unit tests" OFF)
+if(BUILD_TESTS)
+    add_executable(ArcaneJourneyTests
+        tests/TestMain.cpp
+        tests/PlatformTests_MovingPlatform.cpp
+        tests/PlatformTests_CrumblingPlatform.cpp
+        tests/PlatformTests_BouncePad.cpp
+        tests/PlatformTests_DisappearingPlatform.cpp
+        tests/PlatformTests_Climbable.cpp
+        tests/PlatformTests_TeleportBlock.cpp
+        tests/PlatformTests_Trapdoor.cpp
+        tests/PlatformTests_SinkingPlatform.cpp
+        tests/PlatformTests_Integration.cpp
+    )
+
+    target_include_directories(ArcaneJourneyTests PRIVATE
+        src/
+        tests/
+    )
+
+    # No SFML needed for tests — they mock SFML types
+    if(MSVC)
+        target_compile_options(ArcaneJourneyTests PRIVATE /W3)
+    else()
+        target_compile_options(ArcaneJourneyTests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+
+    # Add test target for CTest
+    add_test(NAME ArcaneJourneyTests COMMAND ArcaneJourneyTests)
+endif()

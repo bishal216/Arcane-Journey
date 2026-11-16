@@ -42,6 +42,10 @@ class Player {
     void setDashAvail(bool v) { m_dashAvail = v; }
     void setJumpsLeft(int v) { m_jumpsLeft = v; }
     void setClimbing(bool v) { m_isClimbing = v; }
+    void setOnRope(bool v) { m_onRope = v; }
+    void setOnOneWay(bool v) { m_onOneWay = v; }
+    bool isDropping() const { return m_dropTimer > 0.f; }  // ignoring one-way platforms
+    bool climbGrabBlocked() const { return m_grabCooldown > 0.f; }  // just jumped off a climbable
 
    private:
     sf::RectangleShape m_shape;
@@ -72,6 +76,10 @@ class Player {
     bool m_prevShift = false;
     bool m_isClimbing = false;
     float m_climbInput = 0.f;
+    bool m_onRope = false;     // the climbable being climbed is a rope (set by LevelData)
+    bool m_onOneWay = false;   // standing on a one-way platform (set by LevelData)
+    float m_dropTimer = 0.f;   // > 0 while dropping through one-way platforms
+    float m_grabCooldown = 0.f;  // > 0 right after jumping off a rope/ladder
 
     void resolveHorizontal(const std::vector<Platform>& platforms);
     void resolveVertical(const std::vector<Platform>& platforms, GameState& state);

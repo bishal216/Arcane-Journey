@@ -41,6 +41,14 @@ static sf::Color platformColor(char sym) {
             return sf::Color(60, 180, 160);  // sinking — teal
         case 'G':
             return sf::Color(255, 215, 0);
+        case 'W':  // Wind — light blue
+            return sf::Color(100, 180, 255, 180);
+        case 'F':  // Fan — pale cyan
+            return sf::Color(180, 220, 255, 160);
+        case 'K':  // Key Door — reddish
+            return sf::Color(120, 60, 60);
+        case 'U':  // Key Switch — gold
+            return sf::Color(255, 200, 50);
         default:
             return sf::Color(128, 128, 128);
     }
@@ -53,6 +61,10 @@ static constexpr float MOVE_TRAVEL_V = 150.f;
 static constexpr float DISAP_ON = 1.8f;
 static constexpr float DISAP_OFF = 1.4f;
 static constexpr float DISAP_FADE = 0.3f;
+
+// New platform constants
+static constexpr float WIND_STRENGTH = 400.f;    // px/s² horizontal acceleration
+static constexpr float FAN_STRENGTH = 600.f;     // px/s² upward acceleration
 
 struct Span {
     int col, end;
@@ -128,6 +140,7 @@ float TileLoader::load(const std::string& path, LevelData& level, float* worldW)
 
     int tileRow = 0;
     float disappearPhase = 0.f;
+    std::vector<std::string> grid;  // normalised tile rows, used to merge ropes/ladders
 
     for (const auto& raw : rawRows) {
         if (raw.isSection) {
@@ -143,6 +156,7 @@ float TileLoader::load(const std::string& path, LevelData& level, float* worldW)
         else if ((int)row.size() > numCols)
             row.resize(numCols);
 
+        grid.push_back(row);
         float tileTop = tileRow * T;
 
         for (const auto& sp : rowSpans(row)) {
@@ -170,6 +184,17 @@ float TileLoader::load(const std::string& path, LevelData& level, float* worldW)
                 case 'S':
                     level.addSinking(x, y, w, T, col);
                     break;
+                case 'W': {
+                    // Wind: direction based on row position (alternating for variety)
+                    // Even rows = right, odd rows = left, or use a simple pattern
+                    int dir = ((int)(y / T) % 2 == 0) ? 1 : -1;
+                    level.addWind(x, y, w, T, dir, WIND_STRENGTH, col);
+                    break;
+                }
+                case 'F': {
+                    level.addFan(x, y, w, T, FAN_STRENGTH, col);
+                    break;
+                }
 
                 case '*':
                     level.addBounce(x, y, w, T, 920.f, col);
@@ -195,11 +220,8 @@ float TileLoader::load(const std::string& path, LevelData& level, float* worldW)
                 }
 
                 case 'R':
-                    level.addRope(x + T * 0.5f, y, w, col);
-                    break;
-
                 case 'L':
-                    level.addLadder(x + T * 0.5f, y, w, col);
+                    // Handled after this loop: vertical runs are merged into one climbable.
                     break;
 
                 case 'T':
@@ -210,6 +232,18 @@ float TileLoader::load(const std::string& path, LevelData& level, float* worldW)
                     for (int ci = sp.col; ci < sp.end; ++ci)
                         level.addCoin(ci * T + T / 2, y + T / 2);
                     break;
+                case 'K': {  // Key Door — paired with switches by index
+                    static int doorCounter = 0;
+                    level.addKeyDoor(x, y, w, T, std::to_string(doorCounter), doorCounter);
+                    ++doorCounter;
+                    break;
+                }
+                case 'U': {  // Key Switch (Unlocker) — paired with doors by index
+                    static int switchCounter = 0;
+                    level.addKeySwitch(x, y, w, T, std::to_string(switchCounter));
+                    ++switchCounter;
+                    break;
+                }
 
                 default:
                     break;
@@ -217,6 +251,29 @@ float TileLoader::load(const std::string& path, LevelData& level, float* worldW)
         }
 
         ++tileRow;
+    }
+
+    // Ropes and ladders: merge each vertical run of the same symbol in a column into ONE
+    // climbable. Per-row 32px segments can't be climbed past the first seam, because the
+    // climb clamp confines the (32px tall) player to a single segment.
+    for (int c = 0; c < numCols; ++c) {
+        int r = 0;
+        while (r < (int)grid.size()) {
+            char s = grid[r][c];
+            if (s != 'R' && s != 'L') {
+                ++r;
+                continue;
+            }
+            int start = r;
+            while (r < (int)grid.size() && grid[r][c] == s) ++r;
+            float cx = c * T + T * 0.5f;
+            float topY = start * T;
+            float h = (r - start) * T;
+            if (s == 'R')
+                level.addRope(cx, topY, h, platformColor('R'));
+            else
+                level.addLadder(cx, topY, h, platformColor('L'));
+        }
     }
 
     // Guaranteed solid floor at the very bottom

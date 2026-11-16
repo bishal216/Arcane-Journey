@@ -160,17 +160,18 @@ void TrapdoorManager::draw(sf::RenderWindow& window) const {
 
 bool TrapdoorManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel,
                                     sf::FloatRect playerRect, bool& onGround, bool& dashAvail,
-                                    int& jumpsLeft) {
+                                    int& jumpsLeft, bool dropping) {
     bool landed = false;
+    m_standingOnOneWay = false;
 
     for (auto& td : m_trapdoors) {
         if (!td.isSolidFromAbove()) continue;
+        if (dropping && td.style == TrapdoorStyle::OneWay) continue;  // Down+Space drop-through
 
         sf::FloatRect pr = td.bounds();
         if (!playerRect.findIntersection(pr)) continue;
 
         float playerBottom = playerRect.position.y + playerRect.size.y;
-        float playerTop = playerRect.position.y;
         float platTop = pr.position.y;
 
         // ---------------------------------------------------------------
@@ -197,6 +198,9 @@ bool TrapdoorManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playe
         landed = true;
 
         td.onLand();
+        if (td.style == TrapdoorStyle::OneWay) m_standingOnOneWay = true;
+        g_discovery.discover(td.style == TrapdoorStyle::OneWay ? PlatType::OneWay
+                                                               : PlatType::Hatch);
 
         // Re-sync rect for subsequent iterations
         playerRect.position = {playerPos.x - playerRect.size.x / 2.f,

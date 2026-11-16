@@ -209,6 +209,40 @@ void PlatformDemo::buildFrames(PlatType type) {
         };
         break;
 
+    case PlatType::KeyDoor: {
+        // Door + switch demo
+        float doorX = cx - 80.f;
+        float switchX = cx + 60.f;
+        float platY = py;
+
+        // Door
+        sf::RectangleShape door({48.f, 48.f});
+        door.setPosition({doorX - 24.f, platY});
+        door.setFillColor(sf::Color(120, 60, 60));
+        door.setOutlineColor(sf::Color(255, 200, 100));
+        door.setOutlineThickness(2.f);
+        m_extras.push_back(door);
+
+        // Switch
+        sf::RectangleShape sw({24.f, 24.f});
+        sw.setPosition({switchX - 12.f, platY + 12.f});
+        sw.setFillColor(sf::Color(255, 200, 50));
+        sw.setOutlineColor(sf::Color(255, 255, 150));
+        sw.setOutlineThickness(2.f);
+        m_extras.push_back(sw);
+
+        m_frames = {
+            {0.0f, {doorX, platY - 22.f}, {doorX - 24.f, platY}, {48.f, 48.f}, sf::Color(120,60,60), CHAR_DEF, "A locked Key Door [K]."},
+            {0.5f, {doorX, platY - 22.f}, {doorX - 24.f, platY}, {48.f, 48.f}, sf::Color(120,60,60), CHAR_DEF, "Solid while locked."},
+            {0.5f, {switchX, platY - 22.f}, {switchX - 12.f, platY + 12.f}, {24.f, 24.f}, sf::Color(255,200,50), CHAR_DEF, "Find the gold Switch [U]..."},
+            {0.3f, {switchX, platY - 22.f}, {switchX - 12.f, platY + 12.f}, {24.f, 24.f}, sf::Color(255,230,80), sf::Color(255,255,100), "Press E to activate!"},
+            {0.4f, {doorX, platY - 22.f}, {doorX - 24.f, platY}, {48.f, 16.f}, sf::Color(60,160,80), CHAR_LAND, "Door opens upward!"},
+            {0.6f, {doorX, platY - 50.f}, {doorX - 24.f, platY}, {48.f, 8.f}, sf::Color(60,160,80), sf::Color(100,220,120), "Pass through freely."},
+            {0.5f, {doorX, platY - 22.f}, {doorX - 24.f, platY}, {48.f, 48.f}, sf::Color(120,60,60), CHAR_DEF, "Switch off = door locks again."},
+        };
+        break;
+    }
+
     default:
         m_frames = {
             {0.5f, {cx, cy}, {cx - 48.f, cy + 30.f}, {96.f, 16.f}, PLAT_DEF, CHAR_DEF, "???"},

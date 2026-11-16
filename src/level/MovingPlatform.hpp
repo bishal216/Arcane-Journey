@@ -7,6 +7,7 @@ struct MovingPlatform {
 
     sf::Vector2f pointA;  // one end of travel
     sf::Vector2f pointB;  // other end of travel
+    sf::Vector2f startPos;  // authored spawn position (reset target)
     float speed;
     sf::Vector2f velocity;  // current velocity (derived, used by player carry)
     sf::Vector2f prevPos;   // position before this frame's move — used by carry fix
@@ -35,7 +36,7 @@ class MovingPlatformManager {
     // Resolve player collision. Carries player if standing on top.
     // Returns true if player is on any moving platform this frame.
     bool resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel, sf::FloatRect playerRect,
-                       bool& onGround, float dt);
+                       bool& onGround, bool& dashAvail, int& jumpsLeft);
 
     const std::vector<MovingPlatform>& platforms() const { return m_platforms; }
 

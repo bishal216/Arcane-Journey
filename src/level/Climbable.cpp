@@ -101,45 +101,91 @@ void ClimbableManager::draw(sf::RenderWindow& window) const {
     for (const auto& c : m_climbables) c.draw(window);
 }
 
+bool ClimbableManager::hasPieceAbove(const Climbable& c, float x) const {
+    for (const auto& d : m_climbables) {
+        if (&d == &c) continue;
+        if (x < d.grabZone.position.x || x > d.grabZone.position.x + d.grabZone.size.x) continue;
+        float gap = c.topY() - d.bottomY();
+        if (gap >= -1.f && gap <= MAX_HOP_GAP) return true;
+    }
+    return false;
+}
+
 bool ClimbableManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel,
                                      sf::FloatRect playerRect, bool& onGround, bool& isClimbing,
-                                     float climbInput, float dt) {
-    for (const auto& c : m_climbables) {
+                                     float climbInput, bool grabBlocked, float dt) {
+    if (m_regrabTimer > 0.f) m_regrabTimer -= dt;
+
+    // Try the nearest piece first, so side-by-side ropes/ladders grab the one the player is
+    // actually at instead of whichever comes first in the level file.
+    std::vector<const Climbable*> order;
+    order.reserve(m_climbables.size());
+    for (const auto& c : m_climbables) order.push_back(&c);
+    std::sort(order.begin(), order.end(), [&](const Climbable* a, const Climbable* b) {
+        return std::abs(a->centerX() - playerPos.x) < std::abs(b->centerX() - playerPos.x);
+    });
+
+    for (const Climbable* cp : order) {
+        const Climbable& c = *cp;
         if (!playerRect.findIntersection(c.bounds())) continue;
 
-        // If the player is NOT already climbing and is moving upward faster than the
-        // maximum climb speed, they just jumped (or were launched) — don't re-grab this
-        // frame so the jump carries through. (A fixed -100 threshold would also trip on
-        // normal climbing, since CLIMB_SPEED is 160.)
-        if (!isClimbing && playerVel.y < -CLIMB_SPEED * g_artifacts.mods().climbSpeedMult) {
-            continue;
-        }
+        // Just jumped off a rope/ladder: don't re-grab it for a moment so the jump carries
+        // through. (A velocity check can't tell this apart from pressing Up at the foot of
+        // a ladder, which is also a ground jump — that must still grab immediately.)
+        if (!isClimbing && (grabBlocked || m_regrabTimer > 0.f)) continue;
 
         // Only engage climbing if they press up/down (or are already climbing).
         bool wantsClimb = (climbInput != 0.f) || isClimbing;
         if (!wantsClimb) continue;
+
+        // Don't start climbing in a direction that leads away from the piece: pressing Down
+        // while the player's centre is already below it (e.g. standing on the floor under its
+        // end), or Up while it is already above it. Uses the centre so pieces shorter than
+        // the player can still be grabbed.
+        if (!isClimbing) {
+            if (climbInput > 0.f && playerPos.y > c.bottomY()) continue;
+            if (climbInput < 0.f && playerPos.y < c.topY()) continue;
+        }
 
         // Snap player X to centre of climbable
         playerPos.x = c.centerX();
 
         // Suspend gravity, drive vertical by input
         playerVel.x = 0.f;
-        playerVel.y = climbInput * CLIMB_SPEED * g_artifacts.mods().climbSpeedMult;
+        playerVel.y = climbInput * CLIMB_SPEED * c.speedMult() * g_artifacts.mods().climbSpeedMult;
         onGround = false;
         isClimbing = true;
+        m_lastWasRope = (c.type == ClimbableType::Rope);
+        g_discovery.discover(c.type == ClimbableType::Rope ? PlatType::Rope : PlatType::Ladder);
 
-        // Clamp within rope/ladder vertical bounds
+        // Ends of the piece. (Letting go and re-grabbing every frame made the player flicker
+        // at the top and made chains of pieces impossible to climb.)
         float halfH = playerRect.size.y * 0.5f;
         if (playerPos.y - halfH < c.topY()) {
-            playerPos.y = c.topY() + halfH;
-            playerVel.y = 0.f;
-            isClimbing = false;
-            onGround = true;
-        }
-        if (playerPos.y + halfH > c.bottomY()) {
-            playerPos.y = c.bottomY() - halfH;
-            playerVel.y = 0.f;
-            isClimbing = false;
+            // Head is above the top. Sliding in from above (Down held) is fine; otherwise stop.
+            if (climbInput <= 0.f) {
+                playerPos.y = c.topY() + halfH;
+                playerVel.y = 0.f;
+                if (climbInput < 0.f && hasPieceAbove(c, playerPos.x)) {
+                    // Hop the gap to the next piece of the chain.
+                    isClimbing = false;
+                    playerVel.y = -HOP_SPEED;
+                    m_regrabTimer = HOP_REGRAB_DELAY;
+                }
+                // else: end of the chain — cling to the top.
+            }
+        } else if (playerPos.y + halfH > c.bottomY()) {
+            // Feet are below the bottom.
+            if (climbInput > 0.f) {
+                // Climbed off the bottom: let go and fall.
+                isClimbing = false;
+                playerVel.y = 0.f;
+                m_regrabTimer = DROP_REGRAB_DELAY;
+            } else if (climbInput == 0.f) {
+                playerPos.y = c.bottomY() - halfH;  // idle: tuck back onto the piece
+                playerVel.y = 0.f;
+            }
+            // Moving up from below: let the body slide into the piece.
         }
 
         return true;

@@ -43,7 +43,7 @@ class CrumblingPlatformManager {
 
     // Returns true if player is on a crumbling platform this frame.
     bool resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel, sf::FloatRect playerRect,
-                       bool& onGround, bool& dashAvail, int& jumpsLeft, GameState& state);
+                       bool& onGround, bool& dashAvail, int& jumpsLeft);
 
    private:
     std::vector<CrumblingPlatform> m_platforms;

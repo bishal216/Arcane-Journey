@@ -28,6 +28,9 @@ constexpr float JUMP_VEL = -680.f;
 constexpr float JUMP_HOLD_GRAV = 800.f;
 constexpr float WALL_JUMP_X = 380.f;
 constexpr float WALL_JUMP_Y = -620.f;
+constexpr float ROPE_LAUNCH_X = 300.f;      // sideways launch when jumping off a rope holding a direction
+constexpr float GRAB_COOLDOWN = 0.2f;       // seconds a rope/ladder can't be re-grabbed after jumping off it
+constexpr float DROP_THROUGH_TIME = 0.25f;  // seconds one-way platforms are ignored after Down+Space
 
 // ── Dash ─────────────────────────────────────────────────────────────────────
 constexpr float DASH_SPEED = 780.f;

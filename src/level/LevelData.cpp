@@ -1,5 +1,7 @@
 #include "level/LevelData.hpp"
 
+#include <iostream>
+
 void LevelData::addStatic(float x, float y, float w, float h, sf::Color col) {
     m_world.addPlat(x, y, w, h, col, false);
 }
@@ -36,12 +38,34 @@ void LevelData::addTeleport(float x, float y, float w, float h) { m_teleports.ad
 void LevelData::addSinking(float x, float y, float w, float h, sf::Color col) {
     m_sinking.add(x, y, w, h, col);
 }
+void LevelData::addWind(float x, float y, float w, float h, int dir, float strength,
+                        sf::Color col) {
+    m_wind.add(x, y, w, h, dir, strength, col);
+}
+void LevelData::addFan(float x, float y, float w, float h, float strength,
+                       sf::Color col) {
+    m_fan.add(x, y, w, h, strength, col);
+}
+void LevelData::addKeyDoor(float x, float y, float w, float h, const std::string& switchId, int doorId,
+                           sf::Color lockedCol, sf::Color unlockedCol) {
+    m_keyDoors.addDoor(x, y, w, h, switchId, doorId, lockedCol, unlockedCol);
+}
+void LevelData::addKeySwitch(float x, float y, float w, float h, const std::string& switchId,
+                             sf::Color col) {
+    m_keyDoors.addSwitch(x, y, w, h, switchId, col);
+}
 void LevelData::addCoin(float cx, float cy) { m_world.addCoin(cx, cy); }
 void LevelData::addSection(float worldY, const std::string& name) {
     m_world.addSection(worldY, name);
 }
 void LevelData::sortSections() { m_world.sortSections(); }
-void LevelData::finalize() { m_teleports.pairAll(); }
+void LevelData::finalize() {
+    int unpaired = m_teleports.pairAll();
+    if (unpaired > 0)
+        std::cerr << "Warning: " << unpaired
+                  << " teleport block(s) have no partner (odd number of 'T' spans in level.txt); "
+                     "they are drawn with a red outline and will not teleport.\n";
+}
 
 // --- Runtime ---
 
@@ -53,6 +77,9 @@ void LevelData::update(float dt) {
     m_climbables.update(dt);
     m_trapdoors.update(dt);
     m_sinking.update(dt);
+    m_wind.update(dt);
+    m_fan.update(dt);
+    m_keyDoors.update(dt);
     // Teleport update called separately in resolvePlayer (needs playerPos)
 }
 
@@ -66,9 +93,12 @@ void LevelData::draw(sf::RenderWindow& window) const {
     m_bounce.draw(window);
     m_disappearing.draw(window);
     m_sinking.draw(window);
+    m_wind.draw(window);
+    m_fan.draw(window);
+    m_keyDoors.draw(window);
 }
 
-void LevelData::resolvePlayer(Player& player, float dt, GameState& state) {
+void LevelData::resolvePlayer(Player& player, float dt) {
     sf::Vector2f pos = player.position();
     sf::Vector2f vel = player.velocity();
     sf::FloatRect bounds = player.globalBounds();
@@ -78,14 +108,22 @@ void LevelData::resolvePlayer(Player& player, float dt, GameState& state) {
     bool climbing = player.isClimbing();
     float climbIn = player.climbInput();
 
-    m_moving.resolvePlayer(pos, vel, bounds, onGround, dt);
-    m_crumbling.resolvePlayer(pos, vel, bounds, onGround, dash, jumps, state);
-    m_bounce.resolvePlayer(pos, vel, bounds, onGround);
+    // Solid collision platforms
+    m_moving.resolvePlayer(pos, vel, bounds, onGround, dash, jumps);
+    m_crumbling.resolvePlayer(pos, vel, bounds, onGround, dash, jumps);
     m_disappearing.resolvePlayer(pos, vel, bounds, onGround, dash, jumps);
-    m_trapdoors.resolvePlayer(pos, vel, bounds, onGround, dash, jumps);
-    m_teleports.resolvePlayer(pos, vel, bounds, onGround);
+    m_trapdoors.resolvePlayer(pos, vel, bounds, onGround, dash, jumps, player.isDropping());
+    m_teleports.resolvePlayer(pos, vel, bounds, onGround, dash, jumps);
     m_sinking.resolvePlayer(pos, vel, bounds, onGround, dash, jumps, dt);
-    m_climbables.resolvePlayer(pos, vel, bounds, onGround, climbing, climbIn, dt);
+    m_keyDoors.resolvePlayer(pos, vel, bounds, onGround, dash, jumps);
+
+    // Special platforms (bounce, forces)
+    m_bounce.resolvePlayer(pos, vel, bounds, onGround);
+    m_wind.applyWind(vel, bounds, dt);
+    m_fan.applyFan(vel, bounds, dt);
+
+    m_climbables.resolvePlayer(pos, vel, bounds, onGround, climbing, climbIn,
+                               player.climbGrabBlocked(), dt);
 
     // Teleport update needs current onGround state and can modify pos
     m_teleports.update(dt, pos, onGround);
@@ -96,6 +134,8 @@ void LevelData::resolvePlayer(Player& player, float dt, GameState& state) {
     player.setDashAvail(dash);
     player.setJumpsLeft(jumps);
     player.setClimbing(climbing);
+    player.setOnRope(m_climbables.lastGrabWasRope());
+    player.setOnOneWay(m_trapdoors.standingOnOneWay());
 }
 
 void LevelData::resetDynamic() {
@@ -105,6 +145,9 @@ void LevelData::resetDynamic() {
     m_trapdoors.reset();
     m_teleports.reset();
     m_sinking.reset();
+    m_wind.reset();
+    m_fan.reset();
+    m_keyDoors.reset();
 }
 
 const std::vector<Platform>& LevelData::platforms() const { return m_world.platforms(); }

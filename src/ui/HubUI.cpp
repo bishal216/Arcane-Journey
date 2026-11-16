@@ -57,6 +57,8 @@ const std::vector<std::pair<std::string, std::string>> HubUI::WISDOM = {
     {"Goal             [G]", "The golden platform at the very top. Reach it to win the run."},
     {"Sinking          [S]",
      "Sinks under your weight, then slowly rises back. Don't ride it down."},
+    {"Key Door         [K]",
+     "Locked door that opens when its switch is activated. Find the gold switch [U] nearby."},
 };
 
 // ---------------------------------------------------------------------------

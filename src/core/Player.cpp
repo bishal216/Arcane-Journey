@@ -39,6 +39,10 @@ void Player::reset() {
     m_prevShift = false;
     m_isClimbing = false;
     m_climbInput = 0.f;
+    m_onRope = false;
+    m_onOneWay = false;
+    m_dropTimer = 0.f;
+    m_grabCooldown = 0.f;
     m_prevOnGround = false;
 }
 
@@ -57,6 +61,16 @@ void Player::update(float dt, const std::vector<Platform>& platforms, GameState&
     if (qm.inputMirrored) std::swap(left, right);
 
     bool jumpPressed = (space && !m_prevSpace) || (up && !m_prevUp);
+
+    // Drop through a one-way platform: Down + Space while standing on one.
+    if (m_dropTimer > 0.f) m_dropTimer -= dt;
+    if (m_grabCooldown > 0.f) m_grabCooldown -= dt;
+    if (down && space && !m_prevSpace && m_onGround && m_onOneWay) {
+        m_dropTimer = DROP_THROUGH_TIME;
+        m_onGround = false;
+        m_onOneWay = false;
+        jumpPressed = false;  // this press is the drop, not a jump
+    }
     bool shiftPressed = shift && !m_prevShift;
     m_jumpHeld = space || up;
     m_prevSpace = space;
@@ -69,7 +83,13 @@ void Player::update(float dt, const std::vector<Platform>& platforms, GameState&
 
     if (jumpPressed && m_isClimbing) {
         m_isClimbing = false;
+        m_grabCooldown = GRAB_COOLDOWN;  // let the jump carry you off before re-grabbing
         m_vel.y = JUMP_VEL * qm.jumpMult;
+        // Ropes swing: jumping off while holding a direction launches you sideways.
+        if (m_onRope) {
+            float dir = right ? 1.f : (left ? -1.f : 0.f);
+            m_vel.x = dir * ROPE_LAUNCH_X * qm.speedMult;
+        }
         g_juice.onJump(m_shape.getPosition());
     }
 

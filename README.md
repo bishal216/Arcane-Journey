@@ -9,7 +9,8 @@ A vertical platformer built with C++ and SFML 3. Climb through 22 tarot-themed s
 | Arrow keys / WASD | Move |
 | Space / W / Up | Jump (double jump available) |
 | Shift | Dash |
-| Up / Down near rope or ladder | Climb |
+| Up / Down near rope or ladder | Climb (ladders are fast; ropes are slower but launch you sideways if you jump off holding a direction) |
+| Down + Space on a one-way platform | Drop through it |
 | E | Interact with NPC |
 | Escape | Close panel |
 | R | Restart run |
@@ -24,10 +25,10 @@ A vertical platformer built with C++ and SFML 3. Climb through 22 tarot-themed s
 | `@` | Crumbling | Shakes then breaks on contact, respawns |
 | `*` | Bounce pad | Launches player upward on contact |
 | `?` | Disappearing | Fades in and out on a timer |
-| `-` | One-way | Passable from below, solid from above |
+| `-` | One-way | Passable from below, solid from above (Down + Space to drop through) |
 | `H` | Hatch | Swings open on landing, snaps shut |
-| `R` | Rope | Climbable vertical rope |
-| `L` | Ladder | Climbable vertical ladder |
+| `R` | Rope | Climbable vertical rope — slower, sideways launch when jumping off |
+| `L` | Ladder | Climbable vertical ladder — fast. Vertical runs of `R`/`L` form one rope/ladder |
 | `T` | Teleport | Stand still for 0.5s to teleport to paired block |
 | `C` | Coin | Collectible — spend at the Merchant |
 | `G` | Goal | Reach this to win the run |
@@ -60,7 +61,7 @@ Edit and save — no recompile needed. The build copies `assets/` automatically.
 
 ### Teleport pairing
 
-Teleport blocks (`T`) are paired sequentially by order of appearance in the file: first `T` ↔ second `T`, third ↔ fourth, and so on.
+Teleport blocks (`T`) are paired sequentially by order of appearance in the file: first `T` ↔ second `T`, third ↔ fourth, and so on. If the number of `T` spans is odd, the last one has no partner: it is drawn with a red outline and a warning is printed to the console at startup.
 
 ## Project Structure
 

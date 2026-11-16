@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arcane Journey — Project Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridjs@5.0.2/dist/theme/mermaid.min.css" integrity="sha384-jZvDSsmGB9oGGT/4l9bHXGoAv1OxvG/cFmSo0dZaSqmBgvQTKDBFAMftlXTmMbNW" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/gridjs@5.0.2/dist/gridjs.umd.js" integrity="sha384-/XXDzxe4FsGiAe50i/u9pY/Vy/uX654MHB1xoc1BJNnH1WXHhqHga9g3q5tF4gj7" crossorigin="anonymous"></script>
+<style>
+:root {
+  --bg: #120826;
+  --bg-elev: #1a0d3a;
+  --fg: #d2d2d2;
+  --fg-dim: #9a9aa0;
+  --accent: #ffd700;
+  --accent-dim: #c9a800;
+  --purple: #8b5cf6;
+  --purple-dim: #6d48d1;
+  --card: #1e0f42;
+  --border: #3a256b;
+  --success: #4ade80;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+.background {
+  position: fixed; inset: 0; z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139,92,246,0.15), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255,215,0,0.08), transparent),
+    var(--bg);
+}
+header {
+  padding: 3rem 2rem 2rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+.tagline {
+  color: var(--fg-dim);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+.section { margin-bottom: 3rem; }
+.section h2 {
+  display: flex; align-items: center; gap: 0.75rem;
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border);
+}
+.section h2::before {
+  content: ""; width: 8px; height: 8px; border-radius: 2px;
+  background: var(--accent);
+}
+.grid { display: grid; gap: 1.5rem; }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--purple);
+  box-shadow: 0 8px 24px rgba(139,92,246,0.15);
+}
+.card h3 {
+  font-size: 1.1rem; font-weight: 700;
+  color: var(--accent); margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.card h3::before { content: "▸"; font-size: 0.8rem; }
+.card p { color: var(--fg-dim); font-size: 0.95rem; }
+.badge {
+  display: inline-block; padding: 0.2rem 0.6rem;
+  border-radius: 999px; font-size: 0.75rem;
+  font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.badge-core { background: rgba(139,92,246,0.2); color: var(--purple); }
+.badge-level { background: rgba(255,215,0,0.2); color: var(--accent); }
+.badge-ui { background: rgba(74,222,128,0.2); color: var(--success); }
+.badge-sys { background: rgba(248,113,113,0.2); color: var(--danger); }
+.badge-asset { background: rgba(251,191,36,0.2); color: var(--warn); }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--accent); font-weight: 700; background: var(--bg-elev); }
+td { color: var(--fg-dim); }
+tr:hover td { color: var(--fg); background: rgba(139,92,246,0.05); }
+code { font-family: var(--font-mono); background: var(--bg-elev); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.85em; color: var(--accent); }
+pre { background: #0a0418; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.5; color: #c0c0d0; }
+pre code { background: none; padding: 0; color: inherit; }
+.kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 2.5rem; height: 2rem; padding: 0 0.5rem;
+  background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: 6px; font-family: var(--font-mono);
+  font-size: 0.8rem; color: var(--accent);
+}
+.keys { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.5rem 0; }
+.ascii-art { font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.3; color: var(--fg-dim); white-space: pre; overflow-x: auto; }
+.stat-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed var(--border); }
+.stat-row:last-child { border-bottom: none; }
+.stat-label { color: var(--fg-dim); }
+.stat-value { color: var(--accent); font-weight: 700; font-family: var(--font-mono); }
+.tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.tab {
+  padding: 0.75rem 1.25rem; background: none; border: none;
+  color: var(--fg-dim); font-weight: 600; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tab:hover { color: var(--fg); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.section-map { font-family: var(--font-mono); font-size: 0.7rem; line-height: 1.1; color: var(--fg-dim); white-space: pre; overflow-x: auto; background: var(--bg-elev); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); max-height: 400px; }
+.section-name { color: var(--accent); font-weight: 700; }
+.platform-legend { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+.legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--fg-dim); }
+.legend-sym { font-family: var(--font-mono); font-weight: 700; color: var(--accent); }
+footer { text-align: center; padding: 2rem; color: var(--fg-dim); font-size: 0.9rem; border-top: 1px solid var(--border); }
+@media (max-width: 600px) { main { padding: 1rem; } .card { padding: 1rem; } }
+</style>
+</head>
+<body>
+<div class="background"></div>
+<header>
+  <h1>Arcane Journey</h1>
+  <p class="tagline">A vertical platformer climbing through 22 tarot-themed sections — built with C++17 & SFML 3</p>
+</header>
+<main>
+  <!-- Overview Stats -->
+  <section class="section">
+    <h2>Project Pulse</h2>
+    <div class="grid grid-3">
+      <div class="card">
+        <h3>Source Files</h3>
+        <div class="stat-row"><span class="stat-label">.cpp / .hpp</span><span class="stat-value">54</span></div>
+        <div class="stat-row"><span class="stat-label">Lines of code</span><span class="stat-value">~6,200</span></div>
+        <div class="stat-row"><span class="stat-label">Directories</span><span class="stat-value">5 (core, level, ui, systems, panels)</span></div>
+      </div>
+      <div class="card">
+        <h3>Gameplay</h3>
+        <div class="stat-row"><span class="stat-label">Sections</span><span class="stat-value">23</span></div>
+        <div class="stat-row"><span class="stat-label">Platform types</span><span class="stat-value">17</span></div>
+        <div class="stat-row"><span class="stat-label">Hub NPCs</span><span class="stat-value">5</span></div>
+        <div class="stat-row"><span class="stat-label">Tile rows</span><span class="stat-value">495</span></div>
+        <div class="stat-row"><span class="stat-label">World size</span><span class="stat-value">3200×15840 px</span></div>
+      </div>
+      <div class="card">
+        <h3>Systems</h3>
+        <div class="stat-row"><span class="stat-label">Artifacts</span><span class="stat-value">20+</span></div>
+        <div class="stat-row"><span class="stat-label">Achievements</span><span class="stat-value">20+</span></div>
+        <div class="stat-row"><span class="stat-label">Cosmetic slots</span><span class="stat-value">6</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section class="section">
+    <h2>Architecture</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Core Loop</h3>
+        <p><code>main.cpp</code> owns the game loop: splash → input → update (player, level, run manager, juice, artifacts, NPCs, camera) → draw (world space → screen space) → HUD → display. Fixed 60 FPS with dt clamping.</p>
+        <p><strong>State machine:</strong> <code>GameState::Playing</code> | <code>GameState::Won</code> + hub open/closed flag.</p>
+      </div>
+      <div class="card">
+        <h3>Level Pipeline</h3>
+        <p><code>TileLoader</code> parses <code>assets/levels/level.txt</code> → populates <code>LevelData</code> which owns 8 platform managers. Each manager handles its own update/draw/resolve. World height derived from file — no hardcoded <code>WORLD_H</code>.</p>
+      </div>
+      <div class="card">
+        <h3>Artifact System</h3>
+        <p>Up to <strong>3 equipped artifacts</strong> merge into <code>ActiveMods</code>: multipliers take highest (furthest from 1.0), bools OR together. Cosmetic slots (hat, boots, cape, aura, eyes, wings) rendered separately via <code>drawCosmetics()</code>.</p>
+      </div>
+      <div class="card">
+        <h3>Save & Progression</h3>
+        <p>Binary <code>save.dat</code> via <code>SaveData</code> struct: coins, best time, artifact owned/equipped bitmasks, discovery bitmask (<code>uint16_t</code>), achievement completed/claimed bitmasks, eye cosmetics. Loaded once at startup, saved on hub interactions & run end.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Source Tree -->
+  <section class="section">
+    <h2>Source Tree</h2>
+    <div class="tabs" role="tablist">
+      <button class="tab active" role="tab" data-tab="tree">File Tree</button>
+      <button class="tab" role="tab" data-tab="modules">By Module</button>
+      <button class="tab" role="tab" data-tab="deps">Dependencies</button>
+    </div>
+    <div class="tab-panel active" id="panel-tree">
+      <pre class="ascii-art"><code>ArcaneJourney/
+├── assets/
+│   ├── fonts/DejaVuSans.ttf
+│   └── levels/level.txt          ← edit to design levels (no recompile)
+├── src/
+│   ├── main.cpp                  ← entry, game loop, render, input
+│   ├── Constants.hpp             ← WIN_W/H, TILE, physics constants
+│   ├── RunManager.hpp/cpp        ← hub/run transitions, timer, win/lose
+│   ├── core/
+│   │   ├── Player.hpp/cpp        ← movement, dash, climb, wall jump
+│   │   ├── Camera.hpp/cpp        ← world-clamped scrolling camera
+│   │   └── World.hpp/cpp         ← static platforms, sections, coins
+│   ├── level/
+│   │   ├── LevelData.hpp/cpp     ← manager hub (owns 11 platform mgrs)
+│   │   ├── TileLoader.hpp/cpp    ← .txt → LevelData parser
+│   │   ├── MovingPlatform.hpp/cpp
+│   │   ├── CrumblingPlatform.hpp/cpp
+│   │   ├── BouncePad.hpp/cpp
+│   │   ├── DisappearingPlatform.hpp/cpp
+│   │   ├── TeleportBlock.hpp/cpp
+│   │   ├── Climbable.hpp/cpp     ← ropes & ladders
+│   │   ├── Trapdoor.hpp/cpp      ← one-way & hatch
+│   │   ├── SinkingPlatform.hpp/cpp
+│   │   ├── WindPlatform.hpp/cpp  ← horizontal force field
+│   │   ├── FanPlatform.hpp/cpp   ← upward force field
+│   │   └── KeyDoor.hpp/cpp       ← locked door + switch
+│   ├── ui/
+│   │   ├── HubUI.hpp/cpp         ← all 5 NPC panels
+│   │   ├── PlatformDemo.hpp/cpp  ← animated previews (Sage)
+│   │   ├── Npc.hpp/cpp           ← rendering + proximity
+│   │   ├── CoinManager.hpp/cpp
+│   │   ├── Coin.hpp
+│   │   ├── SectionAnnouncer.hpp/cpp
+│   │   └── SplashScreen.hpp/cpp
+│   ├── systems/
+│   │   ├── Artifact.hpp/cpp      ← artifact definitions
+│   │   ├── ArtifactManager.hpp/cpp ← shop, equip, mods, cosmetics
+│   │   ├── DiscoveryTracker.hpp/cpp ← platform type bitmask
+│   │   ├── AchievementManager.hpp/cpp ← 20+ achievements
+│   │   ├── SaveData.hpp/cpp      ← binary serialization
+│   │   └── Juice.hpp/cpp         ← shake, flash, afterimages
+│   └── panels/                   ← reserved for future split-out
+├── CMakeLists.txt                ← FetchContent SFML 3.0.1
+├── rebuild.sh                    ← clean configure + build
+└── README.md</code></pre>
+    </div>
+    <div class="tab-panel" id="panel-modules">
+      <div class="grid grid-2">
+        <div class="card"><h3><span class="badge badge-core">core</span> Core</h3>
+          <ul style="color:var(--fg-dim);font-size:0.9rem;line-height:1.8;padding-left:1.2rem;">
+            <li>Player — movement physics, dash, climb, wall jump, double jump, input buffering</li>
+            <li>Camera — smooth follow, world bounds clamping, shake offset</li>
+            <li>World — data container for static platforms, sections, coin spawns</li>
+          </ul></div>
+        <div class="card"><h3><span class="badge badge-level">level</span> Level</h3>
+          <ul style="color:var(--fg-dim);font-size:0.9rem;line-height:1.8;padding-left:1.2rem;">
+            <li>LevelData — facade owning 11 platform managers</li>
+            <li>TileLoader — parses level.txt, pairs teleports, auto-floor</li>
+            <li>11 Platform Managers — each handles update/draw/resolvePlayer</li>
+          </ul></div>
+        <div class="card"><h3><span class="badge badge-ui">ui</span> UI</h3>
+          <ul style="color:var(--fg-dim);font-size:0.9rem;line-height:1.8;padding-left:1.2rem;">
+            <li>HubUI — 5 panels (Shop, Cosmetics, Time, Lore, Sage)</li>
+            <li>PlatformDemo — animated platform previews</li>
+            <li>NpcManager — proximity detection, rendering</li>
+            <li>CoinManager — spawn, collect, magnet, fraction tracking</li>
+            <li>SectionAnnouncer — section name popups</li>
+            <li>SplashScreen — animated intro</li>
+          </ul></div>
+        <div class="card"><h3><span class="badge badge-sys">systems</span> Systems</h3>
+          <ul style="color:var(--fg-dim);font-size:0.9rem;line-height:1.8;padding-left:1.2rem;">
+            <li>ArtifactManager — shop, equip, mod merging, cosmetics, ghost</li>
+            <li>DiscoveryTracker — bitset<23> for platform types</li>
+            <li>AchievementManager — 20+ achievements, rewards, Chronicler UI</li>
+            <li>SaveData — binary save/load, bitmask serialization</li>
+            <li>Juice — screen shake, white flash, dash afterimages</li>
+          </ul></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="panel-deps">
+      <div class="card">
+        <h3>External Dependencies</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Library</th><th>Version</th><th>Purpose</th><th>How</th></tr></thead>
+            <tbody>
+              <tr><td>SFML</td><td>3.0.1</td><td>Graphics, Window, System</td><td>FetchContent (GitHub)</td></tr>
+              <tr><td>FreeType</td><td>bundled</td><td>Font rendering (via SFML)</td><td>Transitive via SFML</td></tr>
+              <tr><td>CMake</td><td>&ge; 3.16</td><td>Build system</td><td>System package</td></tr>
+              <tr><td>MinGW-w64</td><td>UCRT64</td><td>Compiler toolchain</td><td>MSYS2</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1rem;">
+        <h3>Internal Coupling</h3>
+        <pre class="ascii-art"><code>main.cpp
+├── LevelData ← TileLoader
+│   ├── World (static)
+│   ├── MovingPlatformManager
+│   ├── CrumblingPlatformManager
+│   ├── BouncePadManager
+│   ├── DisappearingPlatformManager
+│   ├── ClimbableManager
+│   ├── TrapdoorManager
+│   ├── TeleportBlockManager
+│   ├── SinkingPlatformManager
+│   ├── WindPlatformManager
+│   ├── FanPlatformManager
+│   └── KeyDoorManager
+├── Player ← LevelData::platforms()
+├── Camera ← Player::position()
+├── RunManager ← Player, LevelData, CoinManager, HubUI, SaveData
+├── CoinManager ← LevelData::coinSpawns()
+├── HubUI ← CoinManager, ArtifactManager, AchievementManager
+├── ArtifactManager (g_artifacts) ← globals
+├── DiscoveryTracker (g_discovery) ← globals
+├── AchievementManager (g_achievements) ← globals
+├── Juice (g_juice) ← globals
+├── SaveData ← all of above (serialization)
+└── NpcManager ← Player::position()</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Platform Types -->
+  <section class="section">
+    <h2>Platform Types (17)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Sym</th><th>Type</th><th>Behavior</th><th>Key Mechanics</th></tr></thead>
+        <tbody>
+          <tr><td><code>=</code></td><td>Static</td><td>Solid, immovable</td><td>Floor, walls, ceilings</td></tr>
+          <tr><td><code>~</code></td><td>Moving H</td><td>Rides left/right, carries player</td><td>Sinusoidal, configurable amplitude/speed</td></tr>
+          <tr><td><code>^</code></td><td>Moving V</td><td>Rises/falls, carries player</td><td>Sinusoidal, configurable amplitude/speed</td></tr>
+          <tr><td><code>@</code></td><td>Crumbling</td><td>Shakes → breaks on contact → respawns</td><td>Shake timer, break delay, respawn timer</td></tr>
+          <tr><td><code>*</code></td><td>Bounce Pad</td><td>Launches player upward</td><td>Configurable force, scales with bounceMult</td></tr>
+          <tr><td><code>?</code></td><td>Disappearing</td><td>Fades in/out on timer</td><td>On/off/fade/phase timing, solid only when visible</td></tr>
+          <tr><td><code>-</code></td><td>One-Way</td><td>Passable from below, solid from above</td><td>Down+Space drops through (0.25s ignore)</td></tr>
+          <tr><td><code>H</code></td><td>Hatch</td><td>Swings open on landing, snaps shut</td><td>Angle physics, auto-close timer</td></tr>
+          <tr><td><code>R</code></td><td>Rope</td><td>Climbable — slower, sideways launch</td><td>Jump off holding dir → ROPE_LAUNCH_X</td></tr>
+          <tr><td><code>L</code></td><td>Ladder</td><td>Climbable — fast</td><td>Vertical runs merge into one climbable</td></tr>
+          <tr><td><code>T</code></td><td>Teleport</td><td>Stand 0.5s → teleport to pair</td><td>Sequential pairing, red outline if odd</td></tr>
+          <tr><td><code>S</code></td><td>Sinking</td><td>Sinks when stood on, respawns</td><td>Sink speed, respawn timer</td></tr>
+          <tr><td><code>C</code></td><td>Coin</td><td>Collectible — spend at Merchant</td><td>Magnet radius artifact, coinMult artifact</td></tr>
+          <tr><td><code>G</code></td><td>Goal</td><td>Reach to win the run</td><td>Triggers win state, achievement check</td></tr>
+          <tr><td><code>W</code></td><td>Wind</td><td>Constant horizontal force (pushes left/right)</td><td>Strength 400 px/s², alternates direction per row</td></tr>
+          <tr><td><code>F</code></td><td>Fan</td><td>Constant upward force (updraft)</td><td>Strength 600 px/s², lets player hover/gain height</td></tr>
+          <tr><td><code>K</code></td><td>Key Door</td><td>Locked door opened by paired switch</td><td>Pair with U switch; slides up when unlocked</td></tr>
+          <tr><td><code>U</code></td><td>Key Switch</td><td>Activates paired Key Door (E to toggle)</td><td>Gold color; toggles door state on press</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="platform-legend">
+      <span class="legend-item"><span class="legend-sym">.</span> Air</span>
+      <span class="legend-item"><span class="legend-sym">=</span> Static</span>
+      <span class="legend-item"><span class="legend-sym">~</span> Move H</span>
+      <span class="legend-item"><span class="legend-sym">^</span> Move V</span>
+      <span class="legend-item"><span class="legend-sym">@</span> Crumble</span>
+      <span class="legend-item"><span class="legend-sym">*</span> Bounce</span>
+      <span class="legend-item"><span class="legend-sym">?</span> Disappear</span>
+      <span class="legend-item"><span class="legend-sym">-</span> One-Way</span>
+      <span class="legend-item"><span class="legend-sym">H</span> Hatch</span>
+      <span class="legend-item"><span class="legend-sym">R</span> Rope</span>
+      <span class="legend-item"><span class="legend-sym">L</span> Ladder</span>
+      <span class="legend-item"><span class="legend-sym">T</span> Teleport</span>
+      <span class="legend-item"><span class="legend-sym">S</span> Sink</span>
+      <span class="legend-item"><span class="legend-sym">C</span> Coin</span>
+      <span class="legend-item"><span class="legend-sym">G</span> Goal</span>
+      <span class="legend-item"><span class="legend-sym">W</span> Wind</span>
+      <span class="legend-item"><span class="legend-sym">F</span> Fan</span>
+      <span class="legend-item"><span class="legend-sym">K</span> Key Door</span>
+      <span class="legend-item"><span class="legend-sym">U</span> Key Switch</span>
+    </div>
+  </section>
+
+  <!-- Sections -->
+  <section class="section">
+    <h2>The 22 Sections (Bottom → Top)</h2>
+    <div class="section-map" id="section-map">Loading...</div>
+  </section>
+
+  <!-- Controls -->
+  <section class="section">
+    <h2>Controls</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Movement</h3>
+        <div class="keys">
+          <kbd>←</kbd><kbd>→</kbd><kbd>A</kbd><kbd>D</kbd> Move
+        </div>
+        <div class="keys">
+          <kbd>Space</kbd><kbd>W</kbd><kbd>↑</kbd> Jump (double jump)
+        </div>
+        <div class="keys">
+          <kbd>Shift</kbd> Dash
+        </div>
+        <div class="keys">
+          <kbd>↑</kbd><kbd>↓</kbd> near rope/ladder Climb
+        </div>
+        <div class="keys">
+          <kbd>↓</kbd>+<kbd>Space</kbd> on one-way Drop through
+        </div>
+      </div>
+      <div class="card">
+        <h3>Hub & Meta</h3>
+        <div class="keys">
+          <kbd>E</kbd> Interact with NPC
+        </div>
+        <div class="keys">
+          <kbd>Escape</kbd> Close panel
+        </div>
+        <div class="keys">
+          <kbd>R</kbd> Restart run
+        </div>
+        <p style="margin-top:1rem;color:var(--fg-dim);font-size:0.9rem;">
+          <strong>Rope vs Ladder:</strong> Ropes are slower but launch you sideways if you jump off holding a direction. Ladders are fast and purely vertical.
+        </p>
+        <p style="margin-top:0.5rem;color:var(--fg-dim);font-size:0.9rem;">
+          <strong>Dash:</strong> 0.13s duration, 0.22s cooldown. Glass Dash artifact = 1 dash per run. Dash cooldown/duration affected by artifacts.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hub NPCs -->
+  <section class="section">
+    <h2>Hub NPCs (5)</h2>
+    <div class="grid grid-2">
+      <div class="card"><h3>Merchant <span class="badge badge-ui">Shop</span></h3><p>Buy cosmetic artifacts with coins. Grid layout, cursor navigation, price display, affordability check.</p></div>
+      <div class="card"><h3>Tailor <span class="badge badge-ui">Cosmetics</span></h3><p>Equip/unequip owned cosmetics across 6 slots (hat, boots, cape, aura, eyes, wings). Shows equipped loadout + collection.</p></div>
+      <div class="card"><h3>Chronicler <span class="badge badge-ui">Time Keeper</span></h3><p>Displays best run time (pure, no artifacts). Achievement claim button (★ New! indicator).</p></div>
+      <div class="card"><h3>Seer <span class="badge badge-ui">Lore</span></h3><p>Tarot card lore for each of the 22 sections. Scrollable, section-by-section.</p></div>
+      <div class="card"><h3>Sage <span class="badge badge-ui">Wise Man</span></h3><p>Animated platform encyclopedia. Unlocks entries as you discover platform types (via DiscoveryTracker). PlatformDemo renders live previews.</p></div>
+    </div>
+  </section>
+
+  <!-- Build -->
+  <section class="section">
+    <h2>Build & Run</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Quick Start</h3>
+        <pre><code>./rebuild.sh</code></pre>
+        <p style="color:var(--fg-dim);font-size:0.9rem;">Cleans build, configures with CMake, builds in parallel, clears save data.</p>
+      </div>
+      <div class="card">
+        <h3>Manual</h3>
+        <pre><code>cmake -B build -G "MinGW Makefiles"
+cmake --build build --parallel</code></pre>
+        <p style="color:var(--fg-dim);font-size:0.9rem;">Executable at <code>build/ArcaneJourney.exe</code>. Assets auto-copied via POST_BUILD.</p>
+      </div>
+      <div class="card">
+        <h3>Requirements</h3>
+        <ul style="color:var(--fg-dim);font-size:0.9rem;line-height:1.8;padding-left:1.2rem;">
+          <li>MSYS2 UCRT64 with <code>mingw-w64-x86_64-cmake</code>, <code>mingw-w64-x86_64-gcc</code></li>
+          <li>CMake ≥ 3.16</li>
+          <li>Git (for FetchContent)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Level Editing</h3>
+        <pre><code># Edit this file — no recompile needed
+notepad assets/levels/level.txt</code></pre>
+        <p style="color:var(--fg-dim);font-size:0.9rem;">Each char = 32×32 tile. <code>[Section Name]</code> markers. <code>#</code> comments. Solid floor auto-generated.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Physics Constants -->
+  <section class="section">
+    <h2>Physics Constants (Constants.hpp)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Constant</th><th>Value</th><th>Unit</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>GRAVITY</td><td>2000</td><td>px/s²</td><td>Base gravity</td></tr>
+          <tr><td>MAX_FALL</td><td>1200</td><td>px/s</td><td>Terminal velocity</td></tr>
+          <tr><td>RUN_ACCEL</td><td>2200</td><td>px/s²</td><td>Ground acceleration</td></tr>
+          <tr><td>AIR_ACCEL</td><td>1600</td><td>px/s²</td><td>Air acceleration</td></tr>
+          <tr><td>MAX_SPEED</td><td>320</td><td>px/s</td><td>Horizontal cap</td></tr>
+          <tr><td>FRICTION</td><td>1800</td><td>px/s²</td><td>Ground deceleration</td></tr>
+          <tr><td>AIR_FRIC</td><td>400</td><td>px/s²</td><td>Air deceleration</td></tr>
+          <tr><td>JUMP_VEL</td><td>-680</td><td>px/s</td><td>Initial jump velocity</td></tr>
+          <tr><td>JUMP_HOLD_GRAV</td><td>800</td><td>px/s²</td><td>Gravity while holding jump</td></tr>
+          <tr><td>WALL_JUMP_X</td><td>380</td><td>px/s</td><td>Wall jump horizontal</td></tr>
+          <tr><td>WALL_JUMP_Y</td><td>-620</td><td>px/s</td><td>Wall jump vertical</td></tr>
+          <tr><td>ROPE_LAUNCH_X</td><td>300</td><td>px/s</td><td>Rope sideways launch</td></tr>
+          <tr><td>DASH_SPEED</td><td>780</td><td>px/s</td><td>Dash velocity</td></tr>
+          <tr><td>DASH_DURATION</td><td>0.13</td><td>s</td><td>Dash active time</td></tr>
+          <tr><td>DASH_COOLDOWN</td><td>0.22</td><td>s</td><td>Between dashes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Artifacts Sample -->
+  <section class="section">
+    <h2>Artifact System (Sample)</h2>
+    <div class="card">
+      <h3>Mod Categories</h3>
+      <div class="grid grid-3">
+        <div><strong>Movement</strong><br>jumpMult, fallMult, speedMult, dashSpeedMult, gravityMult, frictionMult, climbSpeedMult, dashCooldownMult, dashDurationMult, wallJumpMult, bounceMult</div>
+        <div><strong>Abilities (bool)</strong><br>dashEnabled, doubleJump, wallJump, inputMirrored, glassCannon, bouncy, haunted, coinsSpawn, loseCoinsOnFail, countdownTimer</div>
+        <div><strong>Economy</strong><br>coinMult, coinMagnetRadius, sizeScale, countdownSeconds</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem;">
+      <h3>Cosmetic Slots (6)</h3>
+      <div class="grid grid-3">
+        <div><kbd>Hat</kbd></div>
+        <div><kbd>Boots</kbd></div>
+        <div><kbd>Cape</kbd></div>
+        <div><kbd>Aura</kbd></div>
+        <div><kbd>Eyes</kbd></div>
+        <div><kbd>Wings</kbd></div>
+      </div>
+      <p style="margin-top:0.5rem;color:var(--fg-dim);font-size:0.9rem;">Rendered in <code>ArtifactManager::drawCosmetics()</code> — positioned relative to player, scaled, flipped with facing direction.</p>
+    </div>
+  </section>
+
+  <!-- Roadmap / Future Features -->
+  <section class="section">
+    <h2>Roadmap — Gameplay Ideas</h2>
+
+    <h3 style="color:var(--success);margin:1.5rem 0 1rem;">Quick Wins (1-2 hrs each)</h3>
+    <div class="grid grid-2">
+      <div class="card"><h3><span class="badge badge-sys">Artifacts</span> New Artifacts</h3><p>5-10 unique artifacts with distinct mods:<br>
+      <code>Feather Fall</code> — gravityMult 0.5<br>
+      <code>Spring Heels</code> — auto-bounce on land<br>
+      <code>Phase Shift</code> — dash through platforms<br>
+      <code>Vampire Kiss</code> — heal on enemy hit<br>
+      <code>Time Dilation</code> — slow platforms while dashing</p></div>
+      <div class="card"><h3><span class="badge badge-sys">Achievements</span> New Achievements</h3><p>Add achievement tiers & unique challenges:<br>
+      Speedrun (Sub-5/3/2 min)<br>
+      No-Dash / No-Double-Jump / No-Wall-Jump<br>
+      Pacifist (no bounce pads)<br>
+      Hoarder (max coins in one run)<br>
+      Glass Cannon Win</p></div>
+      <div class="card"><h3><span class="badge badge-level">Run Modifiers</span> Challenge Modes</h3><p>Toggleable run modifiers (via artifact or menu):<br>
+      <code>Low Gravity</code> — 50% gravity<br>
+      <code>Fast Platforms</code> — 2x platformSpeedMult<br>
+      <code>One Life</code> — instant hub return on fail<br>
+      <code>No Coins</code> — coinsSpawn = false<br>
+      <code>Mirror World</code> — inputMirrored = true</p></div>
+      <div class="card"><h3><span class="badge badge-level">Level Design</span> Secret Rooms</h3><p>Hidden areas in <code>level.txt</code> using special tiles:<br>
+      <code>W</code> — False wall (passable, reveals on touch)<br>
+      <code>K</code> — Key door (opens after switch)<br>
+      <code>V</code> — Void portal (teleport to secret section)<br>
+      Accessed via specific platform combos</p></div>
+    </div>
+
+    <h3 style="color:var(--warn);margin:1.5rem 0 1rem;">Medium Features (Half-Day Each)</h3>
+    <div class="grid grid-2">
+      <div class="card"><h3><span class="badge badge-level">Boss</span> Section XXII Boss</h3><p>The World (final section) gets a climbing boss chase:<br>
+      Rising kill-floor (lava/void)<br>
+      Projectile patterns (tarot card attacks)<br>
+      Platform destruction phases<br>
+      Unique win condition (reach top before floor catches you)</p></div>
+      <div class="card"><h3><span class="badge badge-sys">Progression</span> New Game+</h3><p>After first win, restart with:<br>
+      All cosmetics unlocked<br>
+      Artifact mods scaled up (1.5x)<br>
+      New <code>Prestige</code> currency<br>
+      Prestige shop: permanent upgrades<br>
+      Cosmetic: golden variants, particle trails</p></div>
+      <div class="card"><h3><span class="badge badge-ui">Daily Run</span> Daily/Weekly Seeded Runs</h3><p>Fixed seed + fixed artifact loadout:<br>
+      Deterministic level (seeded TileLoader)<br>
+      3 pre-equipped artifacts<br>
+      Local leaderboard (JSON in save dir)<br>
+      Weekly: longer, harder, unique modifiers<br>
+      Shareable run codes</p></div>
+      <div class="card"><h3><span class="badge badge-sys">Movement</span> Dash Variants</h3><p>New dash types as artifacts:<br>
+      <code>Air Dash</code> — only usable mid-air<br>
+      <code>Wall Dash</code> — dash off wall contact<br>
+      <code>Blink</code> — short teleport, ignores collisions<br>
+      <code>Slam</code> — downward dash, shockwave on land</p></div>
+    </div>
+
+    <h3 style="color:var(--purple);margin:1.5rem 0 1rem;">Juice & Polish</h3>
+    <div class="grid grid-2">
+      <div class="card"><h3><span class="badge badge-ui">Particles</span> Particle System</h3><p>Dust on land (scales with fall speed)<br>
+      Wall-slide sparks (directional)<br>
+      Coin burst (gold particles, magnet trail)<br>
+      Dash trail (afterimage streaks)<br>
+      Platform break debris</p></div>
+      <div class="card"><h3><span class="badge badge-ui">Screen Shake</span> Shake Presets</h3><p><code>Light</code> — 2px, 0.1s (coin collect)<br>
+      <code>Medium</code> — 6px, 0.2s (land, dash)<br>
+      <code>Heavy</code> — 12px, 0.4s (crumble, boss hit)<br>
+      Directional bias (horizontal for wall hit, vertical for land)<br>
+      Configurable intensity in settings</p></div>
+      <div class="card"><h3><span class="badge badge-ui">Pause</span> Pause Menu</h3><p>Animated overlay (slide/fade):<br>
+      Resume / Restart Run / Settings / Quit<br>
+      Shows current run stats (time, coins, height)<br>
+      Settings accessible mid-run<br>
+      Gamepad + keyboard navigation</p></div>
+      <div class="card"><h3><span class="badge badge-ui">Settings</span> Settings Panel</h3><p>Master / SFX / Music volume (when audio enabled)<br>
+      Screen shake intensity (0-100%)<br>
+      Colorblind modes (protanopia, deuteranopia, tritanopia)<br>
+      Key rebind (full keyboard + gamepad)<br>
+      VSync / FPS cap toggle</p></div>
+    </div>
+
+  </section>
+
+</main>
+<footer>
+  <p>Arcane Journey — C++17 + SFML 3 • Vertical tarot platformer • <code>assets/levels/level.txt</code> is your level editor</p>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Section map rendering - 23 sections (Training Grounds + 22 Major Arcana), 495 rows total
+const sectionData = [
+  {name: "Training Grounds", start: 475, end: 530, rows: 55, color: "#120826", theme: "Fundamentals"},
+  {name: "I - The Fool", start: 455, end: 475, rows: 20, color: "#1e1241", theme: "Leap of Faith"},
+  {name: "II - The Magician", start: 435, end: 455, rows: 20, color: "#0c2341", theme: "Toolkit"},
+  {name: "III - The High Priestess", start: 415, end: 435, rows: 20, color: "#0f0f4b", theme: "Hidden Paths"},
+  {name: "IV - The Empress", start: 395, end: 415, rows: 20, color: "#123212", theme: "Abundance"},
+  {name: "V - The Emperor", start: 375, end: 395, rows: 20, color: "#3c0c0c", theme: "Precision"},
+  {name: "VI - The Hierophant", start: 355, end: 375, rows: 20, color: "#23163c", theme: "Ritual"},
+  {name: "VII - The Lovers", start: 335, end: 355, rows: 20, color: "#410f2d", theme: "Dual Paths"},
+  {name: "VIII - The Chariot", start: 315, end: 335, rows: 20, color: "#0c1241", theme: "Momentum"},
+  {name: "IX - Strength", start: 295, end: 315, rows: 20, color: "#412308", theme: "Endurance"},
+  {name: "X - The Hermit", start: 275, end: 295, rows: 20, color: "#161628", theme: "Solitude"},
+  {name: "XI - Wheel of Fortune", start: 255, end: 275, rows: 20, color: "#32163c", theme: "Cycles"},
+  {name: "XII - Justice", start: 235, end: 255, rows: 20, color: "#0f283c", theme: "Balance"},
+  {name: "XIII - The Hanged Man", start: 215, end: 235, rows: 20, color: "#082d32", theme: "Surrender"},
+  {name: "XIV - Death", start: 195, end: 215, rows: 20, color: "#08080f", theme: "Brutal"},
+  {name: "XV - Temperance", start: 175, end: 195, rows: 20, color: "#0f3241", theme: "Alchemy"},
+  {name: "XVI - The Devil", start: 155, end: 175, rows: 20, color: "#3c0808", theme: "Traps"},
+  {name: "XVII - The Tower", start: 135, end: 155, rows: 20, color: "#371c08", theme: "Upheaval"},
+  {name: "XVIII - The Star", start: 115, end: 135, rows: 20, color: "#081246", theme: "Hope"},
+  {name: "XIX - The Moon", start: 95, end: 115, rows: 20, color: "#0c0c37", theme: "Illusion"},
+  {name: "XX - The Sun", start: 75, end: 95, rows: 20, color: "#463708", theme: "Joy"},
+  {name: "XXI - Judgement", start: 55, end: 75, rows: 20, color: "#370f37", theme: "Final Exam"},
+  {name: "XXII - The World", start: 35, end: 55, rows: 20, color: "#0f3c28", theme: "Summit/Boss"},
+];
+
+// Build HTML with theme info
+let html = "";
+for (const s of sectionData) {
+  html += `<span class="section-name">${s.name}</span> <span style="color:var(--fg-dim)">(${s.theme})</span>\n`;
+  html += `  Rows: ${s.rows}  |  Y: ${s.start} → ${s.end}  |  `;
+  html += `<span style="color:${s.color}">████</span> background\n\n`;
+}
+document.getElementById('section-map').textContent = html;
+
+let html = "";
+for (const s of sectionData) {
+  html += `<span class="section-name">${s.name}</span>\n`;
+  html += `  Rows: ${s.rows}  |  Y: ${s.start} → ${s.end}  |  `;
+  html += `<span style="color:${s.color}">████</span> background\n\n`;
+}
+document.getElementById('section-map').textContent = html;
+</script>
+</body>
+</html>

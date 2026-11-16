@@ -113,7 +113,7 @@ void CrumblingPlatformManager::reset() {
 
 bool CrumblingPlatformManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector2f& playerVel,
                                              sf::FloatRect playerRect, bool& onGround,
-                                             bool& dashAvail, int& jumpsLeft, GameState& state) {
+                                             bool& dashAvail, int& jumpsLeft) {
     bool onCrumble = false;
 
     for (auto& cp : m_platforms) {
@@ -146,6 +146,7 @@ bool CrumblingPlatformManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vector
             jumpsLeft = 1;
             onCrumble = true;
             cp.onLand();  // trigger crumble
+            g_discovery.discover(PlatType::Crumbling);
         } else if (minOverlap == overlapBottom && playerVel.y < 0.f) {
             playerPos.y = platBottom + playerRect.size.y / 2.f;
             playerVel.y = 0.f;

@@ -142,6 +142,7 @@ void DisappearingPlatformManager::resolvePlayer(sf::Vector2f& playerPos, sf::Vec
             onGround = true;
             dashAvail = true;
             jumpsLeft = 1;
+            g_discovery.discover(PlatType::Disappearing);
         } else if (minOverlap == overlapBottom && playerVel.y < 0.f) {
             playerPos.y = platBottom + playerRect.size.y / 2.f;
             playerVel.y = 0.f;

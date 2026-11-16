@@ -20,6 +20,7 @@ enum class PlatType : int {
     Coin,
     Goal,
     Sinking,
+    KeyDoor,
     COUNT
 };
 

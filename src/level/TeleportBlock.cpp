@@ -8,30 +8,39 @@
 
 void TeleportBlockManager::add(float x, float y, float w, float h) {
     TeleportBlock tb;
-    tb.bounds = sf::FloatRect({x, y}, {w, (float)TILE});
+    tb.bounds = sf::FloatRect({x, y}, {w, h});
     tb.spawnPos = {x + w * 0.5f, y - TILEF};  // land one tile above the block
     tb.pairIndex = -1;
 
-    tb.body.setSize({w, (float)TILE});
+    tb.body.setSize({w, h});
     tb.body.setPosition({x, y});
     tb.body.setFillColor(sf::Color(60, 40, 120));
     tb.body.setOutlineColor(sf::Color(160, 100, 255));
     tb.body.setOutlineThickness(2.f);
 
     tb.fill.setSize({0.f, 4.f});
-    tb.fill.setPosition({x, y + TILE - 4.f});
+    tb.fill.setPosition({x, y + h - 4.f});
     tb.fill.setFillColor(sf::Color(180, 120, 255));
 
     m_blocks.push_back(tb);
 }
 
-void TeleportBlockManager::pairAll() {
+int TeleportBlockManager::pairAll() {
     // Sequential pairing: 0↔1, 2↔3, 4↔5 ...
     for (int i = 0; i + 1 < (int)m_blocks.size(); i += 2) {
         m_blocks[i].pairIndex = i + 1;
         m_blocks[i + 1].pairIndex = i;
     }
-    // Odd one out — no pair, just acts as a platform
+    // Odd one out — no partner: it only acts as a plain platform. Draw it in red so the
+    // mistake is visible in-game, and let the caller report it.
+    int unpaired = 0;
+    for (auto& b : m_blocks) {
+        if (b.pairIndex < 0) {
+            b.body.setOutlineColor(sf::Color(255, 80, 80));
+            ++unpaired;
+        }
+    }
+    return unpaired;
 }
 
 void TeleportBlockManager::update(float dt, sf::Vector2f& playerPos, bool playerOnGround) {
@@ -81,7 +90,7 @@ void TeleportBlockManager::update(float dt, sf::Vector2f& playerPos, bool player
 }
 
 void TeleportBlockManager::resolvePlayer(sf::Vector2f& pos, sf::Vector2f& vel, sf::FloatRect pb,
-                                         bool& onGround) {
+                                         bool& onGround, bool& dashAvail, int& jumpsLeft) {
     for (auto& tb : m_blocks) {
         if (!pb.findIntersection(tb.bounds)) continue;
 
@@ -93,6 +102,8 @@ void TeleportBlockManager::resolvePlayer(sf::Vector2f& pos, sf::Vector2f& vel, s
             pos.y = tbTop - pb.size.y / 2.f;
             vel.y = 0.f;
             onGround = true;
+            dashAvail = true;
+            jumpsLeft = 1;
             tb.playerOn = true;
         }
     }

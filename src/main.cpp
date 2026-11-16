@@ -225,7 +225,7 @@ int main() {
         if (!hubUI.isOpen() && state == GameState::Playing) {
             player.update(dt, level.platforms(), state);
             level.update(dt);
-            level.resolvePlayer(player, dt, state);
+            level.resolvePlayer(player, dt);
             coins.update(player.position());
             g_artifacts.updateGhost(dt, player.position());
 

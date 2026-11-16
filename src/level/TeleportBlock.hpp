@@ -19,7 +19,7 @@ class TeleportBlockManager {
    public:
     // Add a block at tile position — pairing is done after all blocks added
     void add(float x, float y, float w, float h);
-    void pairAll();  // call once after all blocks added
+    int pairAll();  // call once after all blocks added; returns how many blocks are unpaired
 
     void update(float dt, sf::Vector2f& playerPos, bool playerOnGround);
     void draw(sf::RenderWindow& window) const;
@@ -27,7 +27,7 @@ class TeleportBlockManager {
 
     // Solid collision — returns true and resolves if player lands on top
     void resolvePlayer(sf::Vector2f& pos, sf::Vector2f& vel, sf::FloatRect playerBounds,
-                       bool& onGround);
+                       bool& onGround, bool& dashAvail, int& jumpsLeft);
 
    private:
     std::vector<TeleportBlock> m_blocks;
