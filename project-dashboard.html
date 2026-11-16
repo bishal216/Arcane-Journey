@@ -153,7 +153,7 @@ footer { text-align: center; padding: 2rem; color: var(--fg-dim); font-size: 0.9
 <div class="background"></div>
 <header>
   <h1>Arcane Journey</h1>
-  <p class="tagline">A vertical platformer climbing through 22 tarot-themed sections — built with C++17 & SFML 3</p>
+  <p class="tagline">A vertical platformer climbing through 23 tarot-themed sections (2,501 rows, 139 screen heights) — built with C++17 & SFML 3</p>
 </header>
 <main>
   <!-- Overview Stats -->
@@ -171,8 +171,11 @@ footer { text-align: center; padding: 2rem; color: var(--fg-dim); font-size: 0.9
         <div class="stat-row"><span class="stat-label">Sections</span><span class="stat-value">23</span></div>
         <div class="stat-row"><span class="stat-label">Platform types</span><span class="stat-value">17</span></div>
         <div class="stat-row"><span class="stat-label">Hub NPCs</span><span class="stat-value">5</span></div>
-        <div class="stat-row"><span class="stat-label">Tile rows</span><span class="stat-value">495</span></div>
-        <div class="stat-row"><span class="stat-label">World size</span><span class="stat-value">3200×15840 px</span></div>
+        <div class="stat-row"><span class="stat-label">Tile rows</span><span class="stat-value">2,501</span></div>
+        <div class="stat-row"><span class="stat-label">World size</span><span class="stat-value">3200×80032 px</span></div>
+        <div class="stat-row"><span class="stat-label">Screen heights</span><span class="stat-value">139×</span></div>
+        <div class="stat-row"><span class="stat-label">Est. first run</span><span class="stat-value">40–55 min</span></div>
+        <div class="stat-row"><span class="stat-label">Speedrun</span><span class="stat-value">10–15 min</span></div>
       </div>
       <div class="card">
         <h3>Systems</h3>
@@ -194,7 +197,7 @@ footer { text-align: center; padding: 2rem; color: var(--fg-dim); font-size: 0.9
       </div>
       <div class="card">
         <h3>Level Pipeline</h3>
-        <p><code>TileLoader</code> parses <code>assets/levels/level.txt</code> → populates <code>LevelData</code> which owns 8 platform managers. Each manager handles its own update/draw/resolve. World height derived from file — no hardcoded <code>WORLD_H</code>.</p>
+        <p><code>TileLoader</code> parses <code>assets/levels/level.txt</code> → populates <code>LevelData</code> which owns 11 platform managers. Each manager handles its own update/draw/resolve. World height derived from file — no hardcoded <code>WORLD_H</code>.</p>
       </div>
       <div class="card">
         <h3>Artifact System</h3>
@@ -541,8 +544,9 @@ notepad assets/levels/level.txt</code></pre>
   <section class="section">
     <h2>Roadmap — Gameplay Ideas</h2>
 
-    <h3 style="color:var(--success);margin:1.5rem 0 1rem;">Quick Wins (1-2 hrs each)</h3>
+    <h3 style="color:var(--success);margin:1.5rem 0 1rem;">✅ Completed Quick Wins</h3>
     <div class="grid grid-2">
+      <div class="card" style="border-color:var(--success);"><h3><span class="badge badge-sys">Platforms</span> Wind / Fan / Key Door <span style="color:var(--success)">✓ DONE</span></h3><p>Implemented and integrated: <code>W</code> Wind (horizontal force), <code>F</code> Fan (updraft), <code>K</code> Key Door + <code>U</code> Switch. Fully integrated in LevelData, TileLoader, DiscoveryTracker, HubUI, PlatformDemo, and level.txt.</p></div>
       <div class="card"><h3><span class="badge badge-sys">Artifacts</span> New Artifacts</h3><p>5-10 unique artifacts with distinct mods:<br>
       <code>Feather Fall</code> — gravityMult 0.5<br>
       <code>Spring Heels</code> — auto-bounce on land<br>
@@ -563,7 +567,7 @@ notepad assets/levels/level.txt</code></pre>
       <code>Mirror World</code> — inputMirrored = true</p></div>
       <div class="card"><h3><span class="badge badge-level">Level Design</span> Secret Rooms</h3><p>Hidden areas in <code>level.txt</code> using special tiles:<br>
       <code>W</code> — False wall (passable, reveals on touch)<br>
-      <code>K</code> — Key door (opens after switch)<br>
+      <code>K</code> — Key door (opens after switch) ✓ implemented<br>
       <code>V</code> — Void portal (teleport to secret section)<br>
       Accessed via specific platform combos</p></div>
     </div>
@@ -636,45 +640,37 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// Section map rendering - 23 sections (Training Grounds + 22 Major Arcana), 495 rows total
+// Section map rendering - 23 sections (Training Grounds + 22 Major Arcana), 2501 rows total (Full Scale)
 const sectionData = [
-  {name: "Training Grounds", start: 475, end: 530, rows: 55, color: "#120826", theme: "Fundamentals"},
-  {name: "I - The Fool", start: 455, end: 475, rows: 20, color: "#1e1241", theme: "Leap of Faith"},
-  {name: "II - The Magician", start: 435, end: 455, rows: 20, color: "#0c2341", theme: "Toolkit"},
-  {name: "III - The High Priestess", start: 415, end: 435, rows: 20, color: "#0f0f4b", theme: "Hidden Paths"},
-  {name: "IV - The Empress", start: 395, end: 415, rows: 20, color: "#123212", theme: "Abundance"},
-  {name: "V - The Emperor", start: 375, end: 395, rows: 20, color: "#3c0c0c", theme: "Precision"},
-  {name: "VI - The Hierophant", start: 355, end: 375, rows: 20, color: "#23163c", theme: "Ritual"},
-  {name: "VII - The Lovers", start: 335, end: 355, rows: 20, color: "#410f2d", theme: "Dual Paths"},
-  {name: "VIII - The Chariot", start: 315, end: 335, rows: 20, color: "#0c1241", theme: "Momentum"},
-  {name: "IX - Strength", start: 295, end: 315, rows: 20, color: "#412308", theme: "Endurance"},
-  {name: "X - The Hermit", start: 275, end: 295, rows: 20, color: "#161628", theme: "Solitude"},
-  {name: "XI - Wheel of Fortune", start: 255, end: 275, rows: 20, color: "#32163c", theme: "Cycles"},
-  {name: "XII - Justice", start: 235, end: 255, rows: 20, color: "#0f283c", theme: "Balance"},
-  {name: "XIII - The Hanged Man", start: 215, end: 235, rows: 20, color: "#082d32", theme: "Surrender"},
-  {name: "XIV - Death", start: 195, end: 215, rows: 20, color: "#08080f", theme: "Brutal"},
-  {name: "XV - Temperance", start: 175, end: 195, rows: 20, color: "#0f3241", theme: "Alchemy"},
-  {name: "XVI - The Devil", start: 155, end: 175, rows: 20, color: "#3c0808", theme: "Traps"},
-  {name: "XVII - The Tower", start: 135, end: 155, rows: 20, color: "#371c08", theme: "Upheaval"},
-  {name: "XVIII - The Star", start: 115, end: 135, rows: 20, color: "#081246", theme: "Hope"},
-  {name: "XIX - The Moon", start: 95, end: 115, rows: 20, color: "#0c0c37", theme: "Illusion"},
-  {name: "XX - The Sun", start: 75, end: 95, rows: 20, color: "#463708", theme: "Joy"},
-  {name: "XXI - Judgement", start: 55, end: 75, rows: 20, color: "#370f37", theme: "Final Exam"},
-  {name: "XXII - The World", start: 35, end: 55, rows: 20, color: "#0f3c28", theme: "Summit/Boss"},
+  {name: "Training Grounds", start: 2501, end: 2621, rows: 120, color: "#120826", theme: "Fundamentals"},
+  {name: "I - The Fool", start: 2401, end: 2501, rows: 100, color: "#1e1241", theme: "Leap of Faith"},
+  {name: "II - The Magician", start: 2301, end: 2401, rows: 100, color: "#0c2341", theme: "Toolkit"},
+  {name: "III - The High Priestess", start: 2201, end: 2301, rows: 100, color: "#0f0f4b", theme: "Hidden Paths"},
+  {name: "IV - The Empress", start: 2101, end: 2201, rows: 100, color: "#123212", theme: "Abundance"},
+  {name: "V - The Emperor", start: 2001, end: 2101, rows: 100, color: "#3c0c0c", theme: "Precision"},
+  {name: "VI - The Hierophant", start: 1901, end: 2001, rows: 100, color: "#23163c", theme: "Ritual"},
+  {name: "VII - The Lovers", start: 1801, end: 1901, rows: 100, color: "#410f2d", theme: "Dual Paths"},
+  {name: "VIII - The Chariot", start: 1701, end: 1801, rows: 100, color: "#0c1241", theme: "Momentum"},
+  {name: "IX - Strength", start: 1591, end: 1701, rows: 110, color: "#412308", theme: "Endurance"},
+  {name: "X - The Hermit", start: 1481, end: 1591, rows: 110, color: "#161628", theme: "Solitude"},
+  {name: "XI - Wheel of Fortune", start: 1371, end: 1481, rows: 110, color: "#32163c", theme: "Cycles"},
+  {name: "XII - Justice", start: 1261, end: 1371, rows: 110, color: "#0f283c", theme: "Balance"},
+  {name: "XIII - The Hanged Man", start: 1151, end: 1261, rows: 110, color: "#082d32", theme: "Surrender"},
+  {name: "XIV - Death", start: 1041, end: 1151, rows: 110, color: "#08080f", theme: "Brutal"},
+  {name: "XV - Temperance", start: 921, end: 1041, rows: 120, color: "#0f3241", theme: "Alchemy"},
+  {name: "XVI - The Devil", start: 801, end: 921, rows: 120, color: "#3c0808", theme: "Traps"},
+  {name: "XVII - The Tower", start: 681, end: 801, rows: 120, color: "#371c08", theme: "Upheaval"},
+  {name: "XVIII - The Star", start: 561, end: 681, rows: 120, color: "#081246", theme: "Hope"},
+  {name: "XIX - The Moon", start: 441, end: 561, rows: 120, color: "#0c0c37", theme: "Illusion"},
+  {name: "XX - The Sun", start: 321, end: 441, rows: 120, color: "#463708", theme: "Joy"},
+  {name: "XXI - Judgement", start: 201, end: 321, rows: 120, color: "#370f37", theme: "Final Exam"},
+  {name: "XXII - The World", start: 121, end: 201, rows: 80, color: "#0f3c28", theme: "Summit/Boss"},
 ];
 
 // Build HTML with theme info
 let html = "";
 for (const s of sectionData) {
   html += `<span class="section-name">${s.name}</span> <span style="color:var(--fg-dim)">(${s.theme})</span>\n`;
-  html += `  Rows: ${s.rows}  |  Y: ${s.start} → ${s.end}  |  `;
-  html += `<span style="color:${s.color}">████</span> background\n\n`;
-}
-document.getElementById('section-map').textContent = html;
-
-let html = "";
-for (const s of sectionData) {
-  html += `<span class="section-name">${s.name}</span>\n`;
   html += `  Rows: ${s.rows}  |  Y: ${s.start} → ${s.end}  |  `;
   html += `<span style="color:${s.color}">████</span> background\n\n`;
 }
