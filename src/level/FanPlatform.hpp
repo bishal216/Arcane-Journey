@@ -20,12 +20,12 @@ struct FanPlatform {
     static constexpr float MAX_STRENGTH = 1200.f;
 
     FanPlatform(float x, float y, float w, float h, float str = 600.f,
-                sf::Color col = sf::Color(180, 220, 255, 160))
+                sf::Color col = sf::Color(SKY.r, SKY.g, SKY.b, 160))
         : origin({x, y}), baseColor(col), strength(std::clamp(str, 0.f, MAX_STRENGTH)) {
         shape.setSize({w, h});
         shape.setPosition({x, y});
         shape.setFillColor(col);
-        shape.setOutlineColor(sf::Color(200, 240, 255, 100));
+        shape.setOutlineColor(sf::Color(SKY.r, SKY.g, SKY.b, 100));
         shape.setOutlineThickness(1.f);
     }
 
@@ -50,7 +50,7 @@ struct FanPlatform {
 class FanPlatformManager {
 public:
     void add(float x, float y, float w, float h, float strength = 600.f,
-             sf::Color col = sf::Color(180, 220, 255, 160));
+             sf::Color col = sf::Color(SKY.r, SKY.g, SKY.b, 160));
 
     void update(float dt);
     void draw(sf::RenderWindow& window) const;

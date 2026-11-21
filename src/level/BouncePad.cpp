@@ -14,7 +14,7 @@ BouncePad::BouncePad(float x, float y, float w, float h, float force, sf::Color 
     shape.setSize({w, h});
     shape.setPosition({x, y});
     shape.setFillColor(col);
-    shape.setOutlineColor(sf::Color(255, 255, 255, 100));
+    shape.setOutlineColor(WHITE_OUTLINE_80);
     shape.setOutlineThickness(1.5f);
 }
 

@@ -14,13 +14,13 @@ void TeleportBlockManager::add(float x, float y, float w, float h) {
 
     tb.body.setSize({w, h});
     tb.body.setPosition({x, y});
-    tb.body.setFillColor(sf::Color(60, 40, 120));
-    tb.body.setOutlineColor(sf::Color(160, 100, 255));
+    tb.body.setFillColor(PLAT_TELEPORT);
+    tb.body.setOutlineColor(ARCANE);
     tb.body.setOutlineThickness(2.f);
 
     tb.fill.setSize({0.f, 4.f});
     tb.fill.setPosition({x, y + h - 4.f});
-    tb.fill.setFillColor(sf::Color(180, 120, 255));
+    tb.fill.setFillColor(sf::Color(180, 120, 255)); // lighter arcane for charge bar
 
     m_blocks.push_back(tb);
 }
@@ -36,7 +36,7 @@ int TeleportBlockManager::pairAll() {
     int unpaired = 0;
     for (auto& b : m_blocks) {
         if (b.pairIndex < 0) {
-            b.body.setOutlineColor(sf::Color(255, 80, 80));
+            b.body.setOutlineColor(ROSE);
             ++unpaired;
         }
     }

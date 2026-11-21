@@ -14,41 +14,41 @@
 static sf::Color platformColor(char sym) {
     switch (sym) {
         case '=':
-            return sf::Color(80, 190, 80);
+            return PLAT_STATIC;
         case '~':
-            return sf::Color(120, 210, 255);
+            return PLAT_MOVE_H;
         case '^':
-            return sf::Color(230, 210, 90);
+            return PLAT_MOVE_V;
         case '@':
-            return sf::Color(160, 100, 50);
+            return PLAT_CRUMBLE;
         case '*':
-            return sf::Color(80, 220, 120);
+            return PLAT_BOUNCE;
         case '?':
-            return sf::Color(140, 80, 200);
+            return PLAT_VANISH;
         case '-':
-            return sf::Color(120, 80, 160);
+            return PLAT_ONEWAY;
         case 'H':
-            return sf::Color(100, 70, 35);
+            return PLAT_HATCH;
         case 'R':
-            return sf::Color(200, 170, 100);
+            return PLAT_ROPE;
         case 'L':
-            return sf::Color(140, 110, 60);
+            return PLAT_LADDER;
         case 'C':
-            return sf::Color(255, 210, 40);
+            return PLAT_COIN;
         case 'T':
-            return sf::Color(80, 40, 180);
+            return PLAT_TELEPORT;
         case 'S':
-            return sf::Color(60, 180, 160);  // sinking — teal
+            return PLAT_SINK;
         case 'G':
-            return sf::Color(255, 215, 0);
-        case 'W':  // Wind — light blue
-            return sf::Color(100, 180, 255, 180);
-        case 'F':  // Fan — pale cyan
-            return sf::Color(180, 220, 255, 160);
-        case 'K':  // Key Door — reddish
-            return sf::Color(120, 60, 60);
-        case 'U':  // Key Switch — gold
-            return sf::Color(255, 200, 50);
+            return PLAT_GOAL;
+        case 'W':  // Wind — SKY with transparency
+            return sf::Color(SKY.r, SKY.g, SKY.b, 180);
+        case 'F':  // Fan — SKY with transparency
+            return sf::Color(SKY.r, SKY.g, SKY.b, 160);
+        case 'K':  // Key Door — ROSE
+            return PLAT_KEY_DOOR;
+        case 'U':  // Key Switch — AMBER
+            return PLAT_KEY_SWITCH;
         default:
             return sf::Color(128, 128, 128);
     }
@@ -278,7 +278,7 @@ float TileLoader::load(const std::string& path, LevelData& level, float* worldW)
 
     // Guaranteed solid floor at the very bottom
     float floorY = (float)(numTileRows - 1) * T;
-    level.addStatic(0.f, floorY, (float)(numCols * T), (float)T, sf::Color(90, 65, 45));
+    level.addStatic(0.f, floorY, (float)(numCols * T), (float)T, PLAT_STATIC);
 
     if (worldW) *worldW = (float)(numCols * T);
     level.sortSections();

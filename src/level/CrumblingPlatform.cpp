@@ -16,7 +16,7 @@ CrumblingPlatform::CrumblingPlatform(float x, float y, float w, float h, sf::Col
     shape.setSize({w, h});
     shape.setPosition({x, y});
     shape.setFillColor(col);
-    shape.setOutlineColor(sf::Color(255, 255, 255, 80));
+    shape.setOutlineColor(WHITE_OUTLINE_80);
     shape.setOutlineThickness(1.f);
 }
 
@@ -68,7 +68,7 @@ void CrumblingPlatform::update(float dt) {
             float t = timer / RESPAWN_TIME;
             uint8_t a = (uint8_t)(t * 255.f);
             shape.setFillColor(sf::Color(baseColor.r, baseColor.g, baseColor.b, a));
-            shape.setOutlineColor(sf::Color(255, 255, 255, (uint8_t)(a * 0.3f)));
+            shape.setOutlineColor(sf::Color(255, 255, 255, (uint8_t)(a * 0.3f))); // WHITE_OUTLINE_80 with fade
 
             if (timer >= RESPAWN_TIME) {
                 state = CrumbleState::Solid;
@@ -107,7 +107,7 @@ void CrumblingPlatformManager::reset() {
         p.timer = 0.f;
         p.shape.setPosition(p.origin);
         p.shape.setFillColor(p.baseColor);
-        p.shape.setOutlineColor(sf::Color(255, 255, 255, 80));
+        p.shape.setOutlineColor(WHITE_OUTLINE_80);
     }
 }
 

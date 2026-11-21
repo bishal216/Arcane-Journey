@@ -37,9 +37,9 @@ void PlatformDemo::buildFrames(PlatType type) {
     m_extras.clear();
 
     // Shorthand colours
-    const sf::Color CHAR_DEF  = sf::Color(100, 180, 255);
-    const sf::Color CHAR_LAND = sf::Color(140, 220, 140);
-    const sf::Color PLAT_DEF  = sf::Color( 80, 190,  80);
+    const sf::Color CHAR_DEF  = P_GROUNDED;
+    const sf::Color CHAR_LAND = P_CLIMBING;
+    const sf::Color PLAT_DEF  = PLAT_STATIC;
 
     // cx/cy = horizontal/vertical centre of preview pane
     float cx = m_size.x * 0.5f;
@@ -63,64 +63,64 @@ void PlatformDemo::buildFrames(PlatType type) {
 
     case PlatType::MoveH:
         m_frames = {
-            {0.0f, {cx - 60.f, py - 22.f}, {cx - pw/2 - 60.f, py}, {pw, ph}, sf::Color(120,210,255), CHAR_DEF, "Moves side to side."},
-            {1.2f, {cx + 60.f, py - 22.f}, {cx - pw/2 + 60.f, py}, {pw, ph}, sf::Color(120,210,255), CHAR_DEF, "Ride it across the gap."},
-            {1.2f, {cx - 60.f, py - 22.f}, {cx - pw/2 - 60.f, py}, {pw, ph}, sf::Color(120,210,255), CHAR_DEF, ""},
+            {0.0f, {cx - 60.f, py - 22.f}, {cx - pw/2 - 60.f, py}, {pw, ph}, PLAT_MOVE_H, CHAR_DEF, "Moves side to side."},
+            {1.2f, {cx + 60.f, py - 22.f}, {cx - pw/2 + 60.f, py}, {pw, ph}, PLAT_MOVE_H, CHAR_DEF, "Ride it across the gap."},
+            {1.2f, {cx - 60.f, py - 22.f}, {cx - pw/2 - 60.f, py}, {pw, ph}, PLAT_MOVE_H, CHAR_DEF, ""},
         };
         break;
 
     case PlatType::MoveV:
         m_frames = {
-            {0.0f, {cx, py - 22.f},        {cx - pw/2, py},        {pw, ph}, sf::Color(230,210,90), CHAR_DEF, "Moves up and down."},
-            {1.2f, {cx, py - 80.f},        {cx - pw/2, py - 58.f}, {pw, ph}, sf::Color(230,210,90), CHAR_DEF, "Time your jump from the top."},
-            {1.2f, {cx, py - 22.f},        {cx - pw/2, py},        {pw, ph}, sf::Color(230,210,90), CHAR_DEF, ""},
+            {0.0f, {cx, py - 22.f},        {cx - pw/2, py},        {pw, ph}, PLAT_MOVE_V, CHAR_DEF, "Moves up and down."},
+            {1.2f, {cx, py - 80.f},        {cx - pw/2, py - 58.f}, {pw, ph}, PLAT_MOVE_V, CHAR_DEF, "Time your jump from the top."},
+            {1.2f, {cx, py - 22.f},        {cx - pw/2, py},        {pw, ph}, PLAT_MOVE_V, CHAR_DEF, ""},
         };
         break;
 
     case PlatType::Crumbling:
         m_frames = {
-            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, sf::Color(160,100,50),  CHAR_DEF,  "Shakes when you land..."},
-            {0.4f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(200,130,60),  CHAR_LAND, ""},
-            {0.5f, {cx, py - 22.f},     {cx - pw/2 - 2.f, py}, {pw, ph}, sf::Color(220,160,80),  CHAR_LAND, ""},
-            {0.2f, {cx, py - 22.f},     {cx - pw/2 + 2.f, py}, {pw, ph}, sf::Color(240,180,80),  CHAR_LAND, "then crumbles! Don't linger."},
-            {0.3f, {cx, py + 40.f},     {cx - pw/2, py + 20.f}, {pw, 2.f}, sf::Color(160,100,50,80), CHAR_DEF, "Jump before it's gone."},
+            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, PLAT_CRUMBLE,  CHAR_DEF,  "Shakes when you land..."},
+            {0.4f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, PLAT_CRUMBLE,  CHAR_LAND, ""},
+            {0.5f, {cx, py - 22.f},     {cx - pw/2 - 2.f, py}, {pw, ph}, PLAT_CRUMBLE,  CHAR_LAND, ""},
+            {0.2f, {cx, py - 22.f},     {cx - pw/2 + 2.f, py}, {pw, ph}, PLAT_CRUMBLE,  CHAR_LAND, "then crumbles! Don't linger."},
+            {0.3f, {cx, py + 40.f},     {cx - pw/2, py + 20.f}, {pw, 2.f}, PLAT_CRUMBLE,  CHAR_DEF, "Jump before it's gone."},
         };
         break;
 
     case PlatType::Bounce:
         m_frames = {
-            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, sf::Color(80,220,120),  CHAR_DEF,  "A bounce pad."},
-            {0.5f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(80,220,120),  CHAR_LAND, ""},
-            {0.1f, {cx, py - 22.f},     {cx - pw/2, py + 4.f}, {pw, ph * 0.5f}, sf::Color(120,255,160), CHAR_LAND, "Squash!"},
-            {0.6f, {cx, floor - 160.f}, {cx - pw/2, py}, {pw, ph}, sf::Color(80,220,120),  sf::Color(255,120,50), "Launched upward!"},
-            {0.6f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(80,220,120),  CHAR_DEF,  "No jump needed."},
+            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, PLAT_BOUNCE,  CHAR_DEF,  "A bounce pad."},
+            {0.5f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, PLAT_BOUNCE,  CHAR_LAND, ""},
+            {0.1f, {cx, py - 22.f},     {cx - pw/2, py + 4.f}, {pw, ph * 0.5f}, PLAT_BOUNCE, CHAR_LAND, "Squash!"},
+            {0.6f, {cx, floor - 160.f}, {cx - pw/2, py}, {pw, ph}, PLAT_BOUNCE,  P_DASHING, "Launched upward!"},
+            {0.6f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, PLAT_BOUNCE,  CHAR_DEF,  "No jump needed."},
         };
         break;
 
     case PlatType::Disappearing:
         m_frames = {
-            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, sf::Color(140,80,200),   CHAR_DEF,  "Fades in and out."},
-            {0.8f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(140,80,200),   CHAR_LAND, "Land while it's solid..."},
-            {0.6f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(140,80,200,80),CHAR_LAND, ""},
-            {0.4f, {cx, py + 60.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(140,80,200,0), CHAR_DEF,  "...then it vanishes. Watch the rhythm!"},
+            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, PLAT_VANISH,   CHAR_DEF,  "Fades in and out."},
+            {0.8f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, PLAT_VANISH,   CHAR_LAND, "Land while it's solid..."},
+            {0.6f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, PLAT_VANISH,   CHAR_LAND, ""},
+            {0.4f, {cx, py + 60.f},     {cx - pw/2, py}, {pw, ph}, PLAT_VANISH,   CHAR_DEF,  "...then it vanishes. Watch the rhythm!"},
         };
         break;
 
     case PlatType::OneWay:
         m_frames = {
-            {0.0f, {cx, py + 40.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(120,80,160),  CHAR_DEF,  "A one-way platform."},
-            {0.6f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(120,80,160),  CHAR_LAND, "Pass through from below..."},
-            {0.6f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(120,80,160),  CHAR_LAND, "...solid from above."},
-            {0.5f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, sf::Color(120,80,160),  CHAR_DEF,  "Jump up through it freely."},
+            {0.0f, {cx, py + 40.f},     {cx - pw/2, py}, {pw, ph}, PLAT_ONEWAY,  CHAR_DEF,  "A one-way platform."},
+            {0.6f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, PLAT_ONEWAY,  CHAR_LAND, "Pass through from below..."},
+            {0.6f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, PLAT_ONEWAY,  CHAR_LAND, "...solid from above."},
+            {0.5f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, PLAT_ONEWAY,  CHAR_DEF,  "Jump up through it freely."},
         };
         break;
 
     case PlatType::Hatch:
         m_frames = {
-            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, sf::Color(100,70,35),   CHAR_DEF,  "A hatch trapdoor."},
-            {0.5f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(100,70,35),   CHAR_LAND, "Land on it..."},
-            {0.4f, {cx, py - 22.f},     {cx - pw/2, py}, {pw * 0.3f, ph}, sf::Color(100,70,35), CHAR_LAND, "...it swings open!"},
-            {0.5f, {cx, py + 50.f},     {cx - pw/2, py}, {pw * 0.1f, ph}, sf::Color(100,70,35,60), CHAR_DEF, "Step off quickly or fall through."},
+            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, PLAT_HATCH,   CHAR_DEF,  "A hatch trapdoor."},
+            {0.5f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, PLAT_HATCH,   CHAR_LAND, "Land on it..."},
+            {0.4f, {cx, py - 22.f},     {cx - pw/2, py}, {pw * 0.3f, ph}, PLAT_HATCH, CHAR_LAND, "...it swings open!"},
+            {0.5f, {cx, py + 50.f},     {cx - pw/2, py}, {pw * 0.1f, ph}, PLAT_HATCH, CHAR_DEF, "Step off quickly or fall through."},
         };
         break;
 
@@ -131,12 +131,12 @@ void PlatformDemo::buildFrames(PlatType type) {
         // Build rope visual as extras
         sf::RectangleShape rope({5.f, ropeBot - ropeTop});
         rope.setPosition({ropeCX - 2.5f, ropeTop});
-        rope.setFillColor(sf::Color(200, 170, 100));
+        rope.setFillColor(PLAT_ROPE);
         m_extras.push_back(rope);
         m_frames = {
             {0.0f, {ropeCX + 40.f, cy},  {ropeCX - 48.f, ropeBot}, {96.f, 8.f}, sf::Color(0,0,0,0), CHAR_DEF, "A rope. Press Up/Down near it."},
-            {0.5f, {ropeCX, cy},          {ropeCX - 48.f, ropeBot}, {96.f, 8.f}, sf::Color(0,0,0,0), sf::Color(180,220,100), "Grab and climb!"},
-            {0.6f, {ropeCX, ropeTop + 20.f},{ropeCX-48.f,ropeBot},  {96.f, 8.f}, sf::Color(0,0,0,0), sf::Color(180,220,100), "Jump to dismount."},
+            {0.5f, {ropeCX, cy},          {ropeCX - 48.f, ropeBot}, {96.f, 8.f}, sf::Color(0,0,0,0), P_CLIMBING, "Grab and climb!"},
+            {0.6f, {ropeCX, ropeTop + 20.f},{ropeCX-48.f,ropeBot},  {96.f, 8.f}, sf::Color(0,0,0,0), P_CLIMBING, "Jump to dismount."},
             {0.4f, {ropeCX + 40.f, ropeTop + 10.f},{ropeCX-48.f,ropeBot},{96.f,8.f},sf::Color(0,0,0,0),CHAR_DEF,""},
         };
         break;
@@ -148,12 +148,12 @@ void PlatformDemo::buildFrames(PlatType type) {
         float ladBot = cy + 60.f;
         sf::RectangleShape lad({24.f, ladBot - ladTop});
         lad.setPosition({ladCX - 12.f, ladTop});
-        lad.setFillColor(sf::Color(140, 110, 60));
+        lad.setFillColor(PLAT_LADDER);
         m_extras.push_back(lad);
         m_frames = {
             {0.0f, {ladCX + 50.f, cy},    {ladCX - 48.f, ladBot}, {96.f,8.f}, sf::Color(0,0,0,0), CHAR_DEF, "A ladder. Same as a rope..."},
-            {0.5f, {ladCX, cy},            {ladCX - 48.f, ladBot}, {96.f,8.f}, sf::Color(0,0,0,0), sf::Color(180,220,100), "...but sturdier."},
-            {0.6f, {ladCX, ladTop + 20.f}, {ladCX - 48.f, ladBot}, {96.f,8.f}, sf::Color(0,0,0,0), sf::Color(180,220,100), "Up/Down to climb, jump to leave."},
+            {0.5f, {ladCX, cy},            {ladCX - 48.f, ladBot}, {96.f,8.f}, sf::Color(0,0,0,0), P_CLIMBING, "...but sturdier."},
+            {0.6f, {ladCX, ladTop + 20.f}, {ladCX - 48.f, ladBot}, {96.f,8.f}, sf::Color(0,0,0,0), P_CLIMBING, "Up/Down to climb, jump to leave."},
             {0.5f, {ladCX + 50.f, ladTop + 10.f},{ladCX-48.f,ladBot},{96.f,8.f},sf::Color(0,0,0,0),CHAR_DEF,""},
         };
         break;
@@ -164,16 +164,16 @@ void PlatformDemo::buildFrames(PlatType type) {
         float t2x = cx + 60.f;
         sf::RectangleShape dest({64.f, 16.f});
         dest.setPosition({t2x - 32.f, py});
-        dest.setFillColor(sf::Color(60, 40, 120));
-        dest.setOutlineColor(sf::Color(160, 100, 255));
+        dest.setFillColor(PLAT_TELEPORT);
+        dest.setOutlineColor(ARCANE);
         dest.setOutlineThickness(2.f);
         m_extras.push_back(dest);
         m_frames = {
-            {0.0f, {t1x, py - 22.f},    {t1x - 32.f, py}, {64.f,16.f}, sf::Color(60,40,120), CHAR_DEF,  "Stand still on a teleport block..."},
-            {0.5f, {t1x, py - 22.f},    {t1x - 32.f, py}, {64.f,16.f}, sf::Color(80,60,180), CHAR_DEF,  "Charging..."},
-            {0.5f, {t1x, py - 22.f},    {t1x - 32.f, py}, {64.f,16.f}, sf::Color(140,80,255),sf::Color(200,160,255), ""},
-            {0.1f, {t2x, py - 22.f},    {t1x - 32.f, py}, {64.f,16.f}, sf::Color(60,40,120), sf::Color(255,255,255), "Teleported!"},
-            {0.6f, {t2x, py - 22.f},    {t1x - 32.f, py}, {64.f,16.f}, sf::Color(60,40,120), CHAR_DEF,  "Step off to avoid bouncing back."},
+            {0.0f, {t1x, py - 22.f},    {t1x - 32.f, py}, {64.f,16.f}, PLAT_TELEPORT, CHAR_DEF,  "Stand still on a teleport block..."},
+            {0.5f, {t1x, py - 22.f},    {t1x - 32.f, py}, {64.f,16.f}, PLAT_TELEPORT, CHAR_DEF,  "Charging..."},
+            {0.5f, {t1x, py - 22.f},    {t1x - 32.f, py}, {64.f,16.f}, ARCANE, CHAR_LAND, ""},
+            {0.1f, {t2x, py - 22.f},    {t1x - 32.f, py}, {64.f,16.f}, PLAT_TELEPORT, INK, "Teleported!"},
+            {0.6f, {t2x, py - 22.f},    {t1x - 32.f, py}, {64.f,16.f}, PLAT_TELEPORT, CHAR_DEF,  "Step off to avoid bouncing back."},
         };
         break;
     }
@@ -181,11 +181,11 @@ void PlatformDemo::buildFrames(PlatType type) {
     case PlatType::Coin: {
         sf::RectangleShape coin({14.f, 14.f});
         coin.setPosition({cx - 7.f, cy - 30.f});
-        coin.setFillColor(sf::Color(255, 210, 40));
+        coin.setFillColor(PLAT_COIN);
         m_extras.push_back(coin);
         m_frames = {
             {0.0f, {cx - 40.f, cy + 10.f}, {cx - 48.f, cy + 32.f}, {96.f,8.f}, PLAT_DEF, CHAR_DEF, "Coins are scattered everywhere."},
-            {0.5f, {cx, cy - 10.f},         {cx - 48.f, cy + 32.f}, {96.f,8.f}, PLAT_DEF, sf::Color(255,210,40), "Walk into one to collect it."},
+            {0.5f, {cx, cy - 10.f},         {cx - 48.f, cy + 32.f}, {96.f,8.f}, PLAT_DEF, PLAT_COIN, "Walk into one to collect it."},
             {0.5f, {cx + 40.f, cy + 10.f},  {cx - 48.f, cy + 32.f}, {96.f,8.f}, PLAT_DEF, CHAR_DEF, "Spend them at the Merchant."},
         };
         break;
@@ -193,19 +193,19 @@ void PlatformDemo::buildFrames(PlatType type) {
 
     case PlatType::Goal:
         m_frames = {
-            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, sf::Color(255,215,0), CHAR_DEF, "The golden platform."},
-            {0.7f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(255,215,0), sf::Color(255,215,0), "Reach it to win the run!"},
-            {0.5f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(255,230,80),sf::Color(255,255,200),"It's at the very top."},
+            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, PLAT_GOAL, CHAR_DEF, "The golden platform."},
+            {0.7f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, PLAT_GOAL, PLAT_GOAL, "Reach it to win the run!"},
+            {0.5f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, GOLD, sf::Color(255,255,200),"It's at the very top."},
         };
         break;
 
     case PlatType::Sinking:
         m_frames = {
-            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, sf::Color(40,180,170), CHAR_DEF,  "Sinks under your weight."},
-            {0.5f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, sf::Color(40,180,170), CHAR_LAND, "Sinking..."},
-            {1.2f, {cx, py + 28.f},     {cx - pw/2, py + 50.f}, {pw, ph}, sf::Color(240,100,20), CHAR_LAND, "...step off to let it recover."},
-            {0.4f, {cx + 60.f, floor - 80.f},  {cx - pw/2, py + 50.f}, {pw, ph}, sf::Color(240,100,20), CHAR_DEF, ""},
-            {0.8f, {cx + 60.f, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, sf::Color(40,180,170), CHAR_DEF,  "Good as new."},
+            {0.0f, {cx, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, PLAT_SINK, CHAR_DEF,  "Sinks under your weight."},
+            {0.5f, {cx, py - 22.f},     {cx - pw/2, py}, {pw, ph}, PLAT_SINK, CHAR_LAND, "Sinking..."},
+            {1.2f, {cx, py + 28.f},     {cx - pw/2, py + 50.f}, {pw, ph}, AMBER, CHAR_LAND, "...step off to let it recover."},
+            {0.4f, {cx + 60.f, floor - 80.f},  {cx - pw/2, py + 50.f}, {pw, ph}, AMBER, CHAR_DEF, ""},
+            {0.8f, {cx + 60.f, floor - 80.f},  {cx - pw/2, py}, {pw, ph}, PLAT_SINK, CHAR_DEF,  "Good as new."},
         };
         break;
 

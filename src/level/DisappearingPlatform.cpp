@@ -20,7 +20,7 @@ DisappearingPlatform::DisappearingPlatform(float x, float y, float w, float h, s
     shape.setSize({w, h});
     shape.setPosition({x, y});
     shape.setFillColor(col);
-    shape.setOutlineColor(sf::Color(255, 255, 255, 80));
+    shape.setOutlineColor(WHITE_OUTLINE_80);
     shape.setOutlineThickness(1.5f);
 
     // Apply phase offset — skip ahead in the cycle
@@ -49,7 +49,7 @@ void DisappearingPlatform::update(float dt) {
     switch (state) {
         case DisappearState::Visible:
             shape.setFillColor(baseColor);
-            shape.setOutlineColor(sf::Color(255, 255, 255, 80));
+            shape.setOutlineColor(WHITE_OUTLINE_80);
             if (timer >= visibleTime) {
                 state = DisappearState::FadingOut;
                 timer = 0.f;

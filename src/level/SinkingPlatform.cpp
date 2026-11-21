@@ -16,7 +16,7 @@ SinkingPlatform::SinkingPlatform(float x, float y, float w, float h, sf::Color c
     shape.setSize({w, h});
     shape.setPosition({x, y});
     shape.setFillColor(col);
-    shape.setOutlineColor(sf::Color(255, 255, 255, 80));
+    shape.setOutlineColor(WHITE_OUTLINE_80);
     shape.setOutlineThickness(1.f);
 }
 
@@ -77,7 +77,7 @@ void SinkingPlatformManager::reset() {
         p.sinkOffset = 0.f;
         p.shape.setPosition(p.origin);
         p.shape.setFillColor(p.baseColor);
-        p.shape.setOutlineColor(sf::Color(255, 255, 255, 80));
+        p.shape.setOutlineColor(WHITE_OUTLINE_80);
     }
 }
 

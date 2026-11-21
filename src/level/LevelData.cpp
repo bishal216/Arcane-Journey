@@ -6,7 +6,7 @@ void LevelData::addStatic(float x, float y, float w, float h, sf::Color col) {
     m_world.addPlat(x, y, w, h, col, false);
 }
 void LevelData::addGoal(float x, float y, float w, float h) {
-    m_world.addPlat(x, y, w, h, sf::Color(255, 215, 0), true);
+    m_world.addPlat(x, y, w, h, PLAT_GOAL, true);
 }
 void LevelData::addMoving(float x, float y, float w, float h, sf::Vector2f a, sf::Vector2f b,
                           float speed, sf::Color col) {

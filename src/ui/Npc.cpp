@@ -27,14 +27,14 @@ void NpcManager::addNpc(float x, float floorY, NpcType type, const std::string& 
     npc.body.setOrigin({BODY_W / 2.f, BODY_H});
     npc.body.setPosition({x, floorY});
     npc.body.setFillColor(bodyCol);
-    npc.body.setOutlineColor(sf::Color(255, 255, 255, 60));
+    npc.body.setOutlineColor(NPC_OUTLINE);
     npc.body.setOutlineThickness(1.f);
 
     npc.head.setRadius(HEAD_R);
     npc.head.setOrigin({HEAD_R, HEAD_R});
     npc.head.setPosition({x, floorY - BODY_H - HEAD_R});
     npc.head.setFillColor(headCol);
-    npc.head.setOutlineColor(sf::Color(255, 255, 255, 80));
+    npc.head.setOutlineColor(NPC_HEAD_OUTLINE);
     npc.head.setOutlineThickness(1.f);
 
     m_npcs.push_back(npc);
@@ -44,8 +44,8 @@ void NpcManager::build(float worldH) {
     m_npcs.clear();
     float floorY = worldH - TILEF;
 
-    addNpc(120.f, floorY, NpcType::Shop, "Merchant", sf::Color(200, 160, 40),
-           sf::Color(230, 190, 80),
+    addNpc(120.f, floorY, NpcType::Shop, "Merchant",
+           NPC_MERCHANT_BODY, NPC_MERCHANT_HEAD,
            {
                "Fine artifacts, fresh from the ruins.",
                "Gold talks. Everything else walks.",
@@ -54,8 +54,8 @@ void NpcManager::build(float worldH) {
                "Buy something. My familiar needs feeding.",
            });
 
-    addNpc(280.f, floorY, NpcType::Cosmetics, "Tailor", sf::Color(160, 60, 200),
-           sf::Color(200, 120, 240),
+    addNpc(280.f, floorY, NpcType::Cosmetics, "Tailor",
+           NPC_TAILOR_BODY, NPC_TAILOR_HEAD,
            {
                "Style is half the climb.",
                "One slot per type. I have standards.",
@@ -64,8 +64,8 @@ void NpcManager::build(float worldH) {
                "A well-dressed climber is a confident climber.",
            });
 
-    addNpc(512.f, floorY, NpcType::TimeKeeper, "Chronicler", sf::Color(40, 160, 200),
-           sf::Color(80, 200, 240),
+    addNpc(512.f, floorY, NpcType::TimeKeeper, "Chronicler",
+           NPC_CHRONICLER_BODY, NPC_CHRONICLER_HEAD,
            {
                "I remember every run. Every fall. Every coin.",
                "Speed records only count without artifacts.",
@@ -74,7 +74,8 @@ void NpcManager::build(float worldH) {
                "Time is the only currency that can't be earned back.",
            });
 
-    addNpc(740.f, floorY, NpcType::Lore, "Seer", sf::Color(180, 60, 60), sf::Color(220, 100, 100),
+    addNpc(740.f, floorY, NpcType::Lore, "Seer",
+           NPC_SEER_BODY, NPC_SEER_HEAD,
            {
                "The cards don't lie. Climbers do.",
                "Each floor has a name. Names have power.",
@@ -83,8 +84,8 @@ void NpcManager::build(float worldH) {
                "I've read your future. I won't spoil it.",
            });
 
-    addNpc(900.f, floorY, NpcType::WiseMan, "Sage", sf::Color(60, 160, 80),
-           sf::Color(100, 210, 130),
+    addNpc(900.f, floorY, NpcType::WiseMan, "Sage",
+           NPC_SAGE_BODY, NPC_SAGE_HEAD,
            {
                "Every platform teaches something. Pay attention.",
                "The crumbling ones build character. Briefly.",
@@ -160,7 +161,7 @@ void NpcManager::draw(sf::RenderWindow& window, const sf::Font& font) const {
 
         // Eyes
         sf::CircleShape eye(2.5f);
-        eye.setFillColor(sf::Color(20, 10, 30));
+        eye.setFillColor(NPC_EYE);
         eye.setOrigin({2.5f, 2.5f});
         eye.setPosition({npc.pos.x - 5.f, npc.pos.y - BODY_H - HEAD_R * 0.6f + bob});
         window.draw(eye);
@@ -169,8 +170,8 @@ void NpcManager::draw(sf::RenderWindow& window, const sf::Font& font) const {
 
         // Name tag
         sf::Text nameText(font, npc.name, 13);
-        nameText.setFillColor(sf::Color(240, 240, 240));
-        nameText.setOutlineColor(sf::Color::Black);
+        nameText.setFillColor(INK);
+        nameText.setOutlineColor(VOID);
         nameText.setOutlineThickness(1.f);
         auto nb = nameText.getLocalBounds();
         nameText.setOrigin({nb.position.x + nb.size.x / 2.f, nb.position.y + nb.size.y});
@@ -185,7 +186,7 @@ void NpcManager::draw(sf::RenderWindow& window, const sf::Font& font) const {
 
         // Measure text to size bubble
         sf::Text bubbleText(font, visible, 14);
-        bubbleText.setFillColor(sf::Color(240, 235, 220));
+        bubbleText.setFillColor(SILVER);
         auto tb = bubbleText.getLocalBounds();
         float tw = std::max(tb.size.x, 10.f);
         float th = tb.size.y;
@@ -199,7 +200,7 @@ void NpcManager::draw(sf::RenderWindow& window, const sf::Font& font) const {
         // Bubble background
         sf::RectangleShape bubble({bw, bh});
         bubble.setPosition({bx, by});
-        bubble.setFillColor(sf::Color(20, 12, 35, 230));
+        bubble.setFillColor(sf::Color(PANEL.r, PANEL.g, PANEL.b, 230));
         bubble.setOutlineColor(npc.headColor);
         bubble.setOutlineThickness(1.5f);
         window.draw(bubble);
@@ -210,7 +211,7 @@ void NpcManager::draw(sf::RenderWindow& window, const sf::Font& font) const {
         tail.setPoint(0, {npc.pos.x - 6.f, by + bh});
         tail.setPoint(1, {npc.pos.x + 6.f, by + bh});
         tail.setPoint(2, {npc.pos.x, by + bh + 8.f});
-        tail.setFillColor(sf::Color(20, 12, 35, 230));
+        tail.setFillColor(sf::Color(PANEL.r, PANEL.g, PANEL.b, 230));
         window.draw(tail);
 
         // Tail border lines

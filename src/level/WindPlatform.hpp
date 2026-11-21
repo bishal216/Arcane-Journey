@@ -22,12 +22,12 @@ struct WindPlatform {
     static constexpr float MAX_STRENGTH = 800.f;
 
     WindPlatform(float x, float y, float w, float h, int dir, float str = 400.f,
-                 sf::Color col = sf::Color(100, 180, 255, 180))
+                 sf::Color col = sf::Color(SKY.r, SKY.g, SKY.b, 180))
         : origin({x, y}), baseColor(col), strength(std::clamp(str, 0.f, MAX_STRENGTH)), direction(dir) {
         shape.setSize({w, h});
         shape.setPosition({x, y});
         shape.setFillColor(col);
-        shape.setOutlineColor(sf::Color(200, 230, 255, 120));
+        shape.setOutlineColor(sf::Color(SKY.r, SKY.g, SKY.b, 120));
         shape.setOutlineThickness(1.f);
     }
 
@@ -53,7 +53,7 @@ class WindPlatformManager {
 public:
     // dir: +1 = right, -1 = left
     void add(float x, float y, float w, float h, int dir, float strength = 400.f,
-             sf::Color col = sf::Color(100, 180, 255, 180));
+             sf::Color col = sf::Color(SKY.r, SKY.g, SKY.b, 180));
 
     void update(float dt);
     void draw(sf::RenderWindow& window) const;

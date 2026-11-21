@@ -29,13 +29,13 @@ struct KeyDoor {
     static constexpr float LOCK_TIME = 0.3f;     // Time to close (if relocked)
 
     KeyDoor(float x, float y, float w, float h, const std::string& switchId_, int doorId_,
-            sf::Color lockedCol = sf::Color(120, 60, 60), sf::Color unlockedCol = sf::Color(60, 160, 80))
+            sf::Color lockedCol = PLAT_KEY_DOOR, sf::Color unlockedCol = sf::Color(60, 160, 80))
         : origin({x, y}), lockedColor(lockedCol), unlockedColor(unlockedCol),
           switchId(switchId_), doorId(doorId_) {
         shape.setSize({w, h});
         shape.setPosition({x, y});
         shape.setFillColor(lockedColor);
-        shape.setOutlineColor(sf::Color(255, 200, 100));
+        shape.setOutlineColor(AMBER); // gold outline for key door
         shape.setOutlineThickness(2.f);
     }
 
@@ -130,7 +130,7 @@ struct KeySwitch {
     static constexpr float PRESS_COOLDOWN = 0.5f;
 
     KeySwitch(float x, float y, float w, float h, const std::string& id,
-              sf::Color col = sf::Color(255, 200, 50))
+              sf::Color col = PLAT_KEY_SWITCH)
         : origin({x, y}), switchId(id) {
         shape.setSize({w, h});
         shape.setPosition({x, y});
@@ -163,9 +163,9 @@ struct KeySwitch {
 class KeyDoorManager {
 public:
     void addDoor(float x, float y, float w, float h, const std::string& switchId, int doorId,
-                 sf::Color lockedCol = sf::Color(120, 60, 60), sf::Color unlockedCol = sf::Color(60, 160, 80));
+                 sf::Color lockedCol = PLAT_KEY_DOOR, sf::Color unlockedCol = sf::Color(60, 160, 80));
     void addSwitch(float x, float y, float w, float h, const std::string& switchId,
-                   sf::Color col = sf::Color(255, 200, 50));
+                   sf::Color col = PLAT_KEY_SWITCH);
 
     void update(float dt);
     void draw(sf::RenderWindow& window) const;

@@ -45,7 +45,7 @@ void ArtifactManager::buildArtifactList() {
     m.fallMult = 0.7f;
     m_artifacts.push_back(make(0, "Winged Boots", "Jump height +40%, fall speed -30%",
                                "Stolen from a courier who wasn't using them.", 12,
-                               sf::Color(120, 220, 180), CosmeticSlot::Boots, m));
+                               SLOT_BOOTS, CosmeticSlot::Boots, m));
 
     // 1 — Lead Greaves
     m = {};
@@ -53,7 +53,7 @@ void ArtifactManager::buildArtifactList() {
     m.dashSpeedMult = 1.5f;
     m_artifacts.push_back(make(1, "Lead Greaves", "Jump height -25%, but dash is much faster",
                                "Heavy, but stylish in a brutalist sort of way.", 10,
-                               sf::Color(140, 140, 180), CosmeticSlot::Boots, m));
+                               SLOT_BOOTS, CosmeticSlot::Boots, m));
 
     // 2 — Overclock Gauntlet
     m = {};
@@ -64,7 +64,7 @@ void ArtifactManager::buildArtifactList() {
     m_artifacts.push_back(make(2, "Overclock Gauntlet",
                                "Move speed +50%, no double jump, but run ends after 5 minutes",
                                "Hums ominously. Don't ask where it came from.", 15,
-                               sf::Color(255, 180, 60), CosmeticSlot::Hat, m));
+                               SLOT_HAT, CosmeticSlot::Hat, m));
 
     // 3 — Ghost Cloak
     m = {};
@@ -72,7 +72,7 @@ void ArtifactManager::buildArtifactList() {
     m_artifacts.push_back(make(3, "Ghost Cloak",
                                "Disappearing platforms stay invisible twice as long",
                                "Surprisingly warm for something incorporeal.", 8,
-                               sf::Color(160, 100, 220), CosmeticSlot::Cape, m));
+                               SLOT_CAPE, CosmeticSlot::Cape, m));
 
     // 4 — Moon Crown
     m = {};
@@ -80,7 +80,7 @@ void ArtifactManager::buildArtifactList() {
     m.fallMult = 0.5f;
     m_artifacts.push_back(make(4, "Moon Crown", "Moon gravity — floaty jumps, slow falls",
                                "Radiates a faint silver light. Also cold.", 18,
-                               sf::Color(200, 200, 255), CosmeticSlot::Hat, m));
+                               SLOT_HAT, CosmeticSlot::Hat, m));
 
     // 5 — Devil's Pact
     m = {};
@@ -90,14 +90,14 @@ void ArtifactManager::buildArtifactList() {
     m_artifacts.push_back(make(
         5, "Devil's Pact",
         "Coins worth 2x, but hard falls send you to hub and lose half your coins",
-        "The contract was very small print.", 20, sf::Color(220, 60, 60), CosmeticSlot::Aura, m));
+        "The contract was very small print.", 20, SLOT_AURA, CosmeticSlot::Aura, m));
 
     // 6 — Coin Halo
     m = {};
     m.coinMagnetRadius = 96.f;
     m.coinMult = 1.5f;
     m_artifacts.push_back(make(6, "Coin Halo", "Coins auto-collect within 3 tiles, worth 1.5x",
-                               "Greed made visible. Literally.", 14, sf::Color(255, 215, 0),
+                               "Greed made visible. Literally.", 14, SLOT_AURA,
                                CosmeticSlot::Aura, m));
 
     // 7 — Slick Boots
@@ -105,7 +105,7 @@ void ArtifactManager::buildArtifactList() {
     m.frictionMult = 0.05f;
     m.speedMult = 1.3f;
     m_artifacts.push_back(make(7, "Slick Boots", "Ice physics — no friction, but +30% speed",
-                               "Leave an icy trail wherever you go.", 12, sf::Color(180, 240, 255),
+                               "Leave an icy trail wherever you go.", 12, SLOT_BOOTS,
                                CosmeticSlot::Boots, m));
 
     // 8 — Bone Wings
@@ -114,13 +114,13 @@ void ArtifactManager::buildArtifactList() {
     m.doubleJump = false;
     m_artifacts.push_back(make(8, "Bone Wings", "Jump height +50%, no double jump",
                                "Clatter loudly. Very aerodynamic somehow.", 16,
-                               sf::Color(230, 220, 200), CosmeticSlot::Wings, m));
+                               SLOT_WINGS, CosmeticSlot::Wings, m));
 
     // 9 — Haunted Mirror
     m = {};
     m.haunted = true;
     m_artifacts.push_back(make(9, "Haunted Mirror", "A ghost mirrors your inputs 1 second behind",
-                               "You didn't buy it. It just appeared.", 22, sf::Color(140, 180, 220),
+                               "You didn't buy it. It just appeared.", 22, SLOT_CAPE,
                                CosmeticSlot::Cape, m));
 
     // 10 — Bouncy Boots
@@ -130,7 +130,7 @@ void ArtifactManager::buildArtifactList() {
     m.bounceMult = 1.4f;
     m_artifacts.push_back(make(
         10, "Bouncy Boots", "Every landing triggers a bounce. Jump +20%, bounce force +40%.",
-        "Annoyingly fun. Funly annoying.", 10, sf::Color(255, 160, 80), CosmeticSlot::Boots, m));
+        "Annoyingly fun. Funly annoying.", 10, SLOT_BOOTS, CosmeticSlot::Boots, m));
 
     // 11 — Purist's Band
     m = {};
@@ -141,50 +141,50 @@ void ArtifactManager::buildArtifactList() {
     m_artifacts.push_back(make(11, "Purist's Band",
                                "No dash, double jump, or wall jump. +40% speed.",
                                "For those who find skill trees offensive.", 5,
-                               sf::Color(220, 100, 100), CosmeticSlot::Hat, m));
+                               SLOT_HAT, CosmeticSlot::Hat, m));
 
     // -----------------------------------------------------------------------
     // Eye cosmetics — id 100-107, zero quirk effect, unlocked via achievements
     // -----------------------------------------------------------------------
     m = {};  // empty mods
     m_artifacts.push_back(make(100, "Spectral Shades", "Pure style. No effect.",
-                               "Cool guys don't look at explosions.", 0, sf::Color(160, 160, 200),
+                               "Cool guys don't look at explosions.", 0, SLOT_EYES,
                                CosmeticSlot::Eyes, m));
 
     m = {};
     m_artifacts.push_back(make(101, "Witch Goggles", "Pure style. No effect.",
-                               "Brewed in a cauldron. Worn ironically.", 0, sf::Color(80, 200, 80),
+                               "Brewed in a cauldron. Worn ironically.", 0, SLOT_EYES,
                                CosmeticSlot::Eyes, m));
 
     m = {};
     m_artifacts.push_back(make(102, "Star Eyes", "Pure style. No effect.",
                                "You reached the top. Let your eyes say it.", 0,
-                               sf::Color(255, 230, 80), CosmeticSlot::Eyes, m));
+                               SLOT_EYES, CosmeticSlot::Eyes, m));
 
     m = {};
     m_artifacts.push_back(make(103, "Gold Monocle", "Pure style. No effect.",
-                               "One eye is all it takes to judge.", 0, sf::Color(255, 215, 0),
+                               "One eye is all it takes to judge.", 0, SLOT_EYES,
                                CosmeticSlot::Eyes, m));
 
     m = {};
     m_artifacts.push_back(make(104, "Demon Eyes", "Pure style. No effect.",
-                               "You made a deal. These came with it.", 0, sf::Color(200, 30, 30),
+                               "You made a deal. These came with it.", 0, SLOT_EYES,
                                CosmeticSlot::Eyes, m));
 
     m = {};
     m_artifacts.push_back(make(105, "Scholar Lens", "Pure style. No effect.",
-                               "You read the fine print. Both of them.", 0, sf::Color(80, 140, 220),
+                               "You read the fine print. Both of them.", 0, SLOT_EYES,
                                CosmeticSlot::Eyes, m));
 
     m = {};
     m_artifacts.push_back(make(106, "Crown Visor", "Pure style. No effect.",
-                               "Royalty doesn't squint.", 0, sf::Color(220, 150, 30),
+                               "Royalty doesn't squint.", 0, SLOT_EYES,
                                CosmeticSlot::Eyes, m));
 
     m = {};
     m_artifacts.push_back(make(107, "Void Gaze", "Pure style. No effect.",
                                "You looked into the abyss. It blinked first.", 0,
-                               sf::Color(200, 180, 255), CosmeticSlot::Eyes, m));
+                               SLOT_EYES, CosmeticSlot::Eyes, m));
 }
 
 // ---------------------------------------------------------------------------

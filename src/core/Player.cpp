@@ -279,20 +279,20 @@ void Player::resolveVertical(const std::vector<Platform>& platforms, GameState& 
 void Player::updateColor() {
     sf::Color bodyCol;
     if (m_dashing)
-        bodyCol = sf::Color(255, 120, 50);
+        bodyCol = P_DASHING;
     else if (m_isClimbing)
-        bodyCol = sf::Color(180, 220, 100);
+        bodyCol = P_CLIMBING;
     else if (!m_dashAvail)
-        bodyCol = sf::Color(160, 100, 220);
+        bodyCol = P_DASH_CD;
     else if (!m_onGround)
-        bodyCol = sf::Color(80, 140, 255);
+        bodyCol = P_AIRBORNE;
     else
-        bodyCol = sf::Color(100, 180, 255);
+        bodyCol = P_GROUNDED;
 
     m_shape.setFillColor(bodyCol);
     m_head.setFillColor(bodyCol);
-    m_eyeL.setFillColor(sf::Color::White);
-    m_eyeR.setFillColor(sf::Color::White);
+    m_eyeL.setFillColor(INK);
+    m_eyeR.setFillColor(INK);
 }
 
 void Player::draw(sf::RenderWindow& window) const {
@@ -310,7 +310,7 @@ void Player::draw(sf::RenderWindow& window) const {
     body.setOrigin({BODY_W * sx / 2.f, BODY_H * sy / 2.f});
     body.setPosition(pos);
     body.setFillColor(m_shape.getFillColor());
-    body.setOutlineColor(sf::Color(255, 255, 255, 60));
+    body.setOutlineColor(WHITE_OUTLINE_60);
     body.setOutlineThickness(1.f);
     window.draw(body);
 

@@ -14,7 +14,7 @@ Trapdoor::Trapdoor(float x, float y, float w, float h, TrapdoorStyle s, sf::Colo
     shape.setSize({w, h});
     shape.setPosition({x, y});
     shape.setFillColor(col);
-    shape.setOutlineColor(sf::Color(255, 255, 255, 60));
+    shape.setOutlineColor(WHITE_OUTLINE_60);
     shape.setOutlineThickness(1.f);
 }
 
@@ -115,7 +115,7 @@ void Trapdoor::draw(sf::RenderWindow& window) const {
     sf::RectangleShape frame({w, h});
     frame.setPosition(pos);
     frame.setFillColor(sf::Color(baseColor.r / 2, baseColor.g / 2, baseColor.b / 2, 200));
-    frame.setOutlineColor(sf::Color(255, 255, 255, 80));
+    frame.setOutlineColor(WHITE_OUTLINE_80);
     frame.setOutlineThickness(1.f);
     window.draw(frame);
 
@@ -126,7 +126,7 @@ void Trapdoor::draw(sf::RenderWindow& window) const {
     float scale = std::cos(openAngle * 3.14159f / 180.f);
     sf::RectangleShape door({w * scale, h});
     door.setFillColor(baseColor);
-    door.setOutlineColor(sf::Color(255, 255, 255, 60));
+    door.setOutlineColor(WHITE_OUTLINE_60);
     door.setOutlineThickness(1.f);
     door.setPosition(pos);
     window.draw(door);
